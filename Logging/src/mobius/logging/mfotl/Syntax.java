@@ -39,17 +39,17 @@ class Variable {
 /*
  * Predicate in logical expression
  */
-class Predicate {
+class Predicator {
     private final int arity;
-    private final String name;
+    private final String symbol;
     private Variable[] var;
     
     /*
      * @ ensures _var.length == _arity;
      * @ ensures _arity > 0;
      */
-    public Predicate(final String _name, final int _arity, final String[] _var) {
-        name = _name;
+    public Predicator(final String _name, final int _arity, final String[] _var) {
+        symbol = _name;
         arity = _arity;
         
         var = new Variable[arity];
@@ -65,7 +65,7 @@ class Predicate {
      */
     public String toString() {
         final StringBuffer _result = new StringBuffer();
-        _result.append(name);
+        _result.append(symbol);
         _result.append(" (" + var[0].getName());
         for (int i = 1; i < arity; i++) {
             _result.append(", " + var[i].getName());
@@ -76,6 +76,14 @@ class Predicate {
     
     public boolean valueAssignment() {
         return false;
+    }
+    
+    public String getSymbol() {
+        return symbol;
+    }
+    
+    public int getArity() {
+        return arity;
     }
 }
 
