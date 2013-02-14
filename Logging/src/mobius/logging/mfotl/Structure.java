@@ -1,6 +1,7 @@
 package mobius.logging.mfotl;
 
 import java.util.Hashtable;
+import java.util.Set;
 
 public class Structure {
     public Hashtable assignment;
@@ -15,7 +16,7 @@ public class Structure {
     
     public void addAssign(final String _name, final int _value) {
         assignment.put(_name, _value);
-    }
+    }   
 }
 
 /*

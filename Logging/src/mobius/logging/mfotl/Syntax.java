@@ -6,16 +6,33 @@ import java.util.Hashtable;
  * Define Variables, and if it is free or not
  */
 class Variable {
-    String name;
-    boolean is_free;
+    private final String name;
+    private boolean is_free;
+    private int value;
     
-    Variable(String _name) {
+    public Variable(final String _name) {
         name = _name;
         is_free = true;
     }
     
-    void setFree(boolean _is_free) {
+    public String getName() {
+        return name;
+    }
+    
+    public void setFree(final boolean _is_free) {
         is_free = _is_free;
+    }
+    
+    public boolean isFree() {
+        return is_free;
+    }
+    
+    public void setValue(final int _value) {
+        value = _value;
+    }
+    
+    public int getValue() {
+        return value;
     }
 }
 
@@ -23,19 +40,19 @@ class Variable {
  * Predicate in logical expression
  */
 class Predicate {
-    int arity;
-    String name;
-    Variable[] var;
+    private final int arity;
+    private final String name;
+    private Variable[] var;
     
     /*
      * @ ensures _var.length == _arity;
      * @ ensures _arity > 0;
      */
-    Predicate(String _name, int _arity, String[] _var) {
+    public Predicate(final String _name, final int _arity, final String[] _var) {
         name = _name;
         arity = _arity;
         
-        var = new Variable[10];
+        var = new Variable[arity];
         for (int i = 0; i < arity; i++) {
             var[i] = new Variable(_var[i]);
         }
@@ -47,13 +64,14 @@ class Predicate {
      * </p>
      */
     public String toString() {
-        String _result;
-        _result = name + " (" + var[0].name;
+        final StringBuffer _result = new StringBuffer();
+        _result.append(name);
+        _result.append(" (" + var[0].getName());
         for (int i = 1; i < arity; i++) {
-            _result += (", " + var[i].name);
+            _result.append(", " + var[i].getName());
         }
-        _result += ")";
-        return _result;
+        _result.append(')');
+        return _result.toString();
     }
     
     public boolean valueAssignment() {
@@ -149,7 +167,6 @@ class Operator {
     public String symbol;
     private static Logger logger = new Logger();
     
-    
     Operator() {
         init();
     }
@@ -158,7 +175,7 @@ class Operator {
         symbol = _symbol;
     }
     
-    static void init() {
+    public static void init() {
         OPER.put("!", "not");
         OPER.put("&", "and");
         
@@ -225,6 +242,6 @@ class Interval {
     }
     
     public String toString() {
-        return " [" + start + "," + ((end == -1)?("inf."):(end)) + ") ";
+        return " [" + start + "," + ((end == -1)?"inf.":end) + ") ";
     }
 }
