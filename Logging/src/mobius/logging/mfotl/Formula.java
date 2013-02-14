@@ -10,6 +10,7 @@ public class Formula {
     public TemporalFormula[] temporal_subformula;
     
     public Structure structure;
+    private Logger logger = new Logger();
     
     public Formula(final String _formula) {
         new Operator(); // Initializing the Operator
@@ -17,17 +18,16 @@ public class Formula {
         original_formula = _formula;
         lexer(original_formula);
 
-        println("Read Formula: " + original_formula + ". With Length " + formula_parts.length);
+        logger.info("Read Formula: " + original_formula + ". With Length " + formula_parts.length);
         
         temporal_formula = new TemporalFormula(formula_parts);
         
-        println("");
+        logger.info("");
 
         getTemporalSubformula();
         getFreeVar();
     }
-    
-    
+        
     // review Jian
     public boolean evaluation(Structure structure) {
         return true;
@@ -41,15 +41,11 @@ public class Formula {
     private void getTemporalSubformula() {
         temporal_subformula = new TemporalFormula[5];
         
-        System.out.println();
+        logger.info("");
     }
 	
 	private void getFreeVar() {
-	    System.out.println();
-	}
-	
-	private void println(String _str) {
-	    System.out.println(_str);
+	    logger.info("");
 	}
 	
 	/*
@@ -92,8 +88,7 @@ public class Formula {
             } else {
                 words += Character.toString(character);
                 if (!words.matches("[a-zA-Z0-9]+")) {
-                    System.out.println("Illegal Letter in Formula!!!");
-                    System.exit(0);
+                    logger.error("Illegal Letter in Formula!!!");
                 }
                 
                 if (i == (formula_str.length() - 1)) {
@@ -108,13 +103,12 @@ public class Formula {
             formulaWSpace = formulaWSpace.substring(1);
             
             if (formulaWSpace.length() == 0) {
-                System.out.println("EMPTY FORMULA!!!");
-                System.exit(0);
+                logger.error("EMPTY FORMULA!!!");
             }
         }
         
         formula_str = formulaWSpace.replaceAll("[ ]+", " ");
-        System.out.println("Formula with Space: " + formula_str);
+        logger.info("Formula with Space: " + formula_str);
         formula_parts = formula_str.split(" ");
         
         /*
@@ -144,11 +138,11 @@ public class Formula {
 class AtomicFormula {
     protected Predicate operator;
     
-    public AtomicFormula(String[] _var, int _arity, String _operator) {
+    public AtomicFormula(final String[] _var, final int _arity, final String _operator) {
         operator = new Predicate(_operator, _arity, _var);
     }
     
-    public AtomicFormula(String[] _formula) {
+    public AtomicFormula(final String[] _formula) {
         if (_formula[1].equals("=") || _formula[1].equals("<")) {
             final String[] _var_tmp = {_formula[0], _formula[2]};
             operator = new Predicate(_formula[1], 2, _var_tmp);
@@ -187,8 +181,9 @@ class TemporalFormula {
      * check is this temporal formula is first order or not.
      */
     public boolean is_firstorder = false;
-    
     public boolean is_true = false;
+    
+    private Logger logger = new Logger();
     
     private String[] parts;
 
@@ -204,32 +199,30 @@ class TemporalFormula {
         System.arraycopy(parts, 1, tmpparts, 0, tmpparts.length);
         
         for (int i = 0; i < tmpparts.length; i++) {
-            System.out.print(tmpparts[i]);
+            logger.info(tmpparts[i]);
         }
         
         return tmpparts;
     }
     
     private final void parseFormula() {
-        int mop = 0;
-        
         if (parts.length == 0) {
             return;
         }
         
-        mop = findMainOp();
+        int mop = findMainOp();
         
         while ((mop == -2) && (parts[0].equals("("))) {
-            System.out.println("\nRemove outer most parenthesis");
+            logger.info("\nRemove outer most parenthesis");
             parts = removeOuterParenthesis();
             mop = findMainOp();
         }
         
         if (mop == -2) {
-            System.out.println("\nBuild atomic formula");
+            logger.info("\nBuild atomic formula");
             
             aright = new AtomicFormula(parts);
-            System.out.println(aright.toString() + " -> ATOMIC FORMULA");
+            logger.info(aright.toString() + " -> ATOMIC FORMULA");
             
             is_firstorder = true;
         } else {
@@ -242,7 +235,7 @@ class TemporalFormula {
                     mop2 = mop + 5;
                     temporal_operator.setInterval(Integer.parseInt(parts[mop+2]), Integer.parseInt(parts[mop+4]));
                     
-                    System.out.println("Set Interval: [" + temporal_operator.getStart() + ", " + temporal_operator.getEnd() + ")");
+                    logger.info("Set Interval: [" + temporal_operator.getStart() + ", " + temporal_operator.getEnd() + ")");
                 }
                 is_firstorder = false;
             } else {
@@ -256,16 +249,16 @@ class TemporalFormula {
             System.arraycopy(parts, 0, _parts1, 0, _parts1.length);
             System.arraycopy(parts, mop2 + 1, _parts2, 0, _parts2.length);
             
-            System.out.println("********Part1**********");
+            logger.info("********Part1**********");
             for (int i = 0; i < _parts1.length; i++) {
-                System.out.print(_parts1[i]);
+                logger.info(_parts1[i]);
             }
-            System.out.println("\n");
-            System.out.println("********Part2**********");
+            logger.info("\n");
+            logger.info("********Part2**********");
             for (int i = 0; i < _parts2.length; i++) {
-                System.out.print(_parts2[i]);
+                logger.info(_parts2[i]);
             }
-            System.out.println("\n");
+            logger.info("\n");
             
             right = new TemporalFormula(_parts1);
             left = new TemporalFormula(_parts2);
@@ -307,11 +300,11 @@ class TemporalFormula {
         
         // TEST
         if (pos >= 0) {
-            System.out.println("\nMainOP " + pos);
-            System.out.println(parts[pos]);
+            logger.info("\nMainOP " + pos);
+            logger.info(parts[pos]);
         }
         else
-            System.out.println("\nNoMainOP " + pos);
+            logger.info("\nNoMainOP " + pos);
         return pos;
     }
 }

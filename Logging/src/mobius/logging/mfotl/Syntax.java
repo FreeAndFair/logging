@@ -147,6 +147,8 @@ class Operator {
     public static final Hashtable<String, String> OPER = new Hashtable<String, String>();
 
     public String symbol;
+    private static Logger logger = new Logger();
+    
     
     Operator() {
         init();
@@ -173,7 +175,7 @@ class Operator {
         OPER.put("U", "until");
         OPER.put("A", "always");
         
-        System.out.println("\nOperator initialization ..........................");
+        logger.info("\nOperator initialization ..........................");
     }
 }
 

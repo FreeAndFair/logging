@@ -1,6 +1,6 @@
 package mobius.logging.mfotl;
 
-import java.util.Hashtable;;
+import java.util.Hashtable;
 
 public class Structure {
     public Hashtable assignment;
@@ -9,12 +9,16 @@ public class Structure {
         assignment = new Hashtable();
     }
     
-    public boolean evaluation(final /*@ non_null @*/ Formula _formula) {
-            
-        return _formula.temporal_formula.is_true;
+    public int evaluation(final /*@ non_null @*/ String _name) {
+        return (Integer) assignment.get(_name);
+    }
+    
+    public void addAssign(final String _name, final int _value) {
+        assignment.put(_name, _value);
     }
 }
 
+/*
 class Constant {
     int[] element;
-}
+}*/
