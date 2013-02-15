@@ -1,5 +1,7 @@
 package mobius.logging.mfotl;
 
+// TODO Implement the full algorithm
+
 public class Monitor {
 	void signatureExtension() {
 		

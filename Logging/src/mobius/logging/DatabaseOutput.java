@@ -64,7 +64,7 @@ implements DebugOutput, Cloneable
         }
         catch (Exception e)
         {
-            
+            // TODO handle exception
         }
     }
 
@@ -77,7 +77,7 @@ implements DebugOutput, Cloneable
         }
         catch (Exception e)
         {
-            
+            // TODO handle exception
         }
     }
 
@@ -90,7 +90,7 @@ implements DebugOutput, Cloneable
         }
         catch (Exception e)
         {
-            
+            // TODO handle exception
         }
     }
 
@@ -123,6 +123,7 @@ implements DebugOutput, Cloneable
 
           /** ensure [debug_is_valid] (debug == d); 
             changeonly{debug}; **/
+          // review changes between different versions
           databaseInit();
       }
       

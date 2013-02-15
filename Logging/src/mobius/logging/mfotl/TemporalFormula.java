@@ -1,5 +1,11 @@
 package mobius.logging.mfotl;
 
+//TODO add specs and docs
+
+
+/*
+ * Temporal Formula
+ */
 public class TemporalFormula {
     /*
      * TemporalFormula ::= AtomicFormula

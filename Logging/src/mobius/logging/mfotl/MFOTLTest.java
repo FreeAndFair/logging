@@ -1,14 +1,9 @@
 package mobius.logging.mfotl;
 
 public class MFOTLTest {
-
-    private MFOTLTest() {
-        
-    }
-    
     /**
      * @param args
-     * Test
+     * Test for formula parsing and evaluating
      */
     public static void main(final String[] args) {
         //Formula test = new Formula("A ( ! E x ( in (x) & ! ( E y ( y = y U [ 0 , 6 ) out ( x ) ) )  )  )");

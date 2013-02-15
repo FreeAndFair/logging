@@ -1,5 +1,7 @@
 package mobius.logging.mfotl;
 
+//TODO add specs and docs
+
 public class Formula {
     private final String original_formula;
     protected String[] formula_parts;
@@ -32,6 +34,9 @@ public class Formula {
      * 
      */
     public boolean evaluation(Structure structure) {
+        //@ assert false;
+        assert false;
+        // TODO bottom implementation
         return true;
     }
     

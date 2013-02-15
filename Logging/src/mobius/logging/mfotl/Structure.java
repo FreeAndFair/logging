@@ -1,5 +1,7 @@
 package mobius.logging.mfotl;
 
+//TODO add specs and docs
+
 import java.util.Hashtable;
 import java.util.Set;
 
