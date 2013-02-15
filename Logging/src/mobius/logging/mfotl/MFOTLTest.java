@@ -3,6 +3,7 @@ package mobius.logging.mfotl;
 public class MFOTLTest {
     /**
      * @param args
+     * 
      * Test for formula parsing and evaluating
      */
     public static void main(final String[] args) {

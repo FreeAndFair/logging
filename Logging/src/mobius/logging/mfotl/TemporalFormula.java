@@ -29,7 +29,7 @@ public class TemporalFormula {
     public boolean is_firstorder = false;
     public boolean is_true = false;
     
-    private Logger logger = new Logger();
+    private final Logger logger = new Logger();
     
     private String[] parts;
 
@@ -89,8 +89,8 @@ public class TemporalFormula {
                 is_firstorder = true;
             }
             
-            String[] _parts1 = new String[mop];
-            String[] _parts2 = new String[parts.length - mop2 - 1];
+            final String[] _parts1 = new String[mop];
+            final String[] _parts2 = new String[parts.length - mop2 - 1];
             
             System.arraycopy(parts, 0, _parts1, 0, _parts1.length);
             System.arraycopy(parts, mop2 + 1, _parts2, 0, _parts2.length);

@@ -23,14 +23,13 @@ import java.text.SimpleDateFormat;
  */
 
 public class DatabaseOutput  extends AbstractDebugOutputBase
-implements DebugOutput, Cloneable
-{   
+implements DebugOutput, Cloneable {   
     // private String framework = "embedded";
-    private String driver = "org.apache.derby.jdbc.EmbeddedDriver";
-    private String protocol = "jdbc:derby:";
-    private Connection conn = null;
-    private Statement s = null;
-    private ResultSet rs = null;
+    private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static final  String protocol = "jdbc:derby:";
+    private Connection connection = null;
+    private Statement statement = null;
+    private ResultSet result_set;
     
     private void databaseInit()
     {
@@ -39,69 +38,56 @@ implements DebugOutput, Cloneable
             Class.forName(driver).newInstance();
             System.out.println("Loaded the appropriate driver.");
             
-            Properties props = new Properties();
+            final Properties props = new Properties();
             props.put("user", "user1");
             props.put("password", "user1");
            
             //create=true to create idebugDB
-            conn = DriverManager.getConnection(protocol +"idebugDB;create=true", props);
+            connection = DriverManager.getConnection(protocol +"idebugDB;create=true", props);
             System.out.println("Connected to and created database idebugDB");
             
-            conn.setAutoCommit(false);// Set Auto Commit
-            s = conn.createStatement();
+            connection.setAutoCommit(false);// Set Auto Commit
+            statement = connection.createStatement();
         } catch (Exception e)
         {
-            
+            // TODO handle exception
+            e.printStackTrace();
         }
     }
 
-    @Override
-    public void printMsg(String category, String message)
-    {
-        try
-        {
-            s.execute("insert into idebugDB values (" + category + ", -1 , '" + message + "' , '" + getTime() + ")");
+    public void printMsg(String category, String message) {
+        try {
+            statement.execute("insert into idebugDB values (" + category + ", -1 , '" + message + "' , '" + getTime() + ")");
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             // TODO handle exception
         }
     }
 
-    @Override
-    public void printMsg(int level, String message) 
-    {
-        try
-        {
-            s.execute("insert into idebugDB values (" + "'null', " + level + ", " + message + "' , '" + getTime() + ")");
+ 
+    public void printMsg(int level, String message) {
+        try {
+            statement.execute("insert into idebugDB values (" + "'null', " + level + ", " + message + "' , '" + getTime() + ")");
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             // TODO handle exception
         }
     }
 
-    @Override
-    public void printMsg(String message) 
-    {
-        try
-        {
-            s.execute("insert into idebugDB values (" + "'null', -1 ," + message + "' , '" + getTime() + ")");
+    public void printMsg(String message) {
+        try {
+            statement.execute("insert into idebugDB values (" + "'null', -1 ," + message + "' , '" + getTime() + ")");
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             // TODO handle exception
         }
     }
 
 
-    public Object clone()
-    {
-        try
-        {
+    public Object clone() {
+        try {
               return super.clone();
-        } catch (CloneNotSupportedException cnse) 
-        {
+        } catch (CloneNotSupportedException cnse) {
             throw new RuntimeException(cnse.getMessage());  
         }
     }
@@ -115,8 +101,7 @@ implements DebugOutput, Cloneable
        * <code>WriterOutput</code>.
        */
 
-      public DatabaseOutput(Debug d)
-      {       
+      public DatabaseOutput(Debug d) {       
           /** require [d_non_null] (d != null); **/
 
           my_debug = d;
@@ -127,21 +112,18 @@ implements DebugOutput, Cloneable
           databaseInit();
       }
       
-      public void closeDatabase()
-      {
-          try
-          {
-              if (rs != null)
-                  rs.close();
-              if (s != null)
-                  s.close();
+      public void closeDatabase() {
+          try {
+              if (result_set != null)
+                  result_set.close();
+              if (statement != null)
+                  statement.close();
               
               System.out.println("Closed result set and statement");
-              conn.commit();
-              conn.close();
+              connection.commit();
+              connection.close();
               DriverManager.getConnection("jdbc:derby:idebugDB;shutdown=true");
-          } catch (SQLException e)
-          {
+          } catch (SQLException e) {
               
           }
 
@@ -155,8 +137,7 @@ implements DebugOutput, Cloneable
           return dateFormat.format(date);
       }
 
-    @Override
-    public Writer getWriter() {
+      public Writer getWriter() {
         // TODO Auto-generated method stub
         return null;
     }

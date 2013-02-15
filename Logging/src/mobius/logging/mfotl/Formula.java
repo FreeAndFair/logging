@@ -12,7 +12,7 @@ public class Formula {
     public TemporalFormula[] temporal_subformula;
     
     public Structure structure;
-    private Logger logger = new Logger();
+    private final Logger logger = new Logger();
     
     public Formula(final String _formula) {
         new Operator(); // Initializing the Operator
@@ -75,7 +75,7 @@ public class Formula {
         String formulaWSpace = "";
         String words = "";
         for (int i = 0; i < formula_str.length(); i++) {
-            char character = formula_str.charAt(i);
+            final char character = formula_str.charAt(i);
             
 //            System.out.println("------------->>>>>" + formulaWSpace);
             

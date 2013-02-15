@@ -44,7 +44,7 @@ class Variable {
 class Predicator {
     private final int arity;
     private final String symbol;
-    private Variable[] var;
+    private final Variable[] var;
     
     /*
      * @ ensures _var.length == _arity;
@@ -92,7 +92,7 @@ class Predicator {
 class TemporalOperator extends Operator {
     //public static final Hashtable<String, String> op = new Hashtable<String, String>();
 
-    final Interval interval;
+    private final Interval interval;
     
     public TemporalOperator(String _symbol, int _start, int _end) {
         super(_symbol);
