@@ -2,6 +2,7 @@ package mobius.logging.mfotl;
 
 //TODO add specs and docs
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
@@ -25,35 +26,40 @@ public class Structure {
     }
 }
 
-/*
-class Constant {
-    int[] element;
-}*/
-
 class RelationAssignment {
-    private String name;
-    private int arity;
-    private Set assignment;
+    private final String name;
+    private final int arity;
+    private final Set assignment;
     
     public RelationAssignment(final String _name, final int _arity) {
         name = _name;
         arity = _arity;
-        
-        //assignment = new Set();
-        //assignment = new Set[arity];
+        assignment = new HashSet();
     }
     
-    
-    public void addRelationship(final int[] _val) {
-        // review Jian how to use SET??
-        //Set tmp = new Set();
-        Set tmp = null;
+    /*@ ensures _val.length == arity @*/
+    public void addRelation(final int[] _val) {
+        final Set tmp_set = new HashSet();
         for (int i = 0; i < _val.length; i++) {
-            tmp.add(_val[i]);
+            tmp_set.add(_val[i]);
+        }
+        assignment.add(tmp_set);
+    }
+    
+    public boolean belongtoRelation(final int[] _val) {
+        final Set tmp_set = new HashSet();
+        for (int i = 0; i < _val.length; i++) {
+            tmp_set.add(_val[i]);
         }
         
-        assignment.add(tmp);
+        return assignment.contains(tmp_set);
     }
     
+    public String getName() {
+        return name;
+    }
     
+    public int getArity() {
+        return arity;
+    }
 }
