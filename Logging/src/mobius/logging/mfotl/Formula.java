@@ -28,7 +28,9 @@ public class Formula {
         getFreeVar();
     }
         
-    // review Jian
+    /*
+     * 
+     */
     public boolean evaluation(Structure structure) {
         return true;
     }
