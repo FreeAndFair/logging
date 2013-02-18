@@ -36,6 +36,12 @@ class Variable {
     public int getValue() {
         return value;
     }
+    
+
+    public int evaluate(final Structure _structure) {
+        value = _structure.evaluateVar(name);
+        return value;
+    }
 }
 
 /*
@@ -60,6 +66,16 @@ class Predicator {
         }
     }
     
+    
+    public boolean evaluate(final Structure _structure) {
+        int[] temp_val = new int[arity];
+        for (int i = 0; i < arity; i++) {
+            temp_val[i] = var[i].evaluate(_structure);
+        }
+        
+        return _structure.evaluateRelation(symbol, temp_val);
+    }
+    
     /* 
      * <p>
      * return a <code>String</code> that represents the formula
@@ -76,10 +92,6 @@ class Predicator {
         return _result.toString();
     }
     
-    public boolean valueAssignment() {
-        return false;
-    }
-    
     public String getSymbol() {
         return symbol;
     }
@@ -87,6 +99,14 @@ class Predicator {
     public int getArity() {
         return arity;
     }
+    
+    /*
+     * ensures i in the range of arity
+     */
+    /*
+    public Variable getVariable(int i) {
+        return var[i];
+    }*/
 }
 
 class TemporalOperator extends Operator {

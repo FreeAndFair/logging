@@ -8,6 +8,8 @@ package mobius.logging.mfotl;
 
 public class AtomicFormula {
     public final Predicator predicator;
+    public boolean value = false;
+    
     
     public AtomicFormula(final String[] _var, final int _arity, final String _operator) {
         predicator = new Predicator(_operator, _arity, _var);
@@ -26,11 +28,9 @@ public class AtomicFormula {
         }
     }
     
-    public boolean evaluation(final Structure _structure) {
-        // TODO implement evaluation details
-        //if ()
-        
-        return false;
+    public boolean evaluateFormula(final Structure _structure) {
+        value = predicator.evaluate(_structure);
+        return value;
     }
     
     public String toString() {
