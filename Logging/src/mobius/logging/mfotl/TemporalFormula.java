@@ -11,19 +11,19 @@ public class TemporalFormula {
      * TemporalFormula ::= AtomicFormula
      * TemporalFormula ::= TemporalFormula + Operator + TemporalFormula
      */
-    public TemporalFormula left = null;
-    public TemporalFormula right = null;
+    public TemporalFormula my_left = null;
+    public TemporalFormula my_right = null;
     
-    public AtomicFormula aleft = null;
-    public AtomicFormula aright = null;
+    public AtomicFormula my_atomic_left = null;
+    public AtomicFormula my_atomic_right = null;
 
-    /*
+    /**
      * 
      */
-    public Operator main_operator = null;
-    public TemporalOperator temporal_operator = null;
+    public Operator my_main_operator = null;
+    public TemporalOperator my_temporal_operator = null;
     
-    /*
+    /**
      * check is this temporal formula is first order or not.
      */
     public boolean is_firstorder = false;
@@ -31,69 +31,73 @@ public class TemporalFormula {
     
     private final Logger logger = new Logger();
     
-    private String[] parts;
+    private String[] my_parts;
 
     public TemporalFormula(final String[] _parts) {
-        parts = new String[_parts.length];
-        System.arraycopy(_parts, 0, parts, 0, parts.length);
+        new Operator();
         
-        parseFormula();
+        my_parts = new String[_parts.length];
+        System.arraycopy(_parts, 0, my_parts, 0, my_parts.length);
+        
+        if (my_parts.length == 0) {
+            logger.info("Temporal Formula with length 0");
+        } else {
+            parseFormula();
+        }
     }
     
     private String[] removeOuterParenthesis() {
-        final String[] tmpparts = new String[parts.length-2];
-        System.arraycopy(parts, 1, tmpparts, 0, tmpparts.length);
+        final String[] tmpparts = new String[my_parts.length-2];
         
-        for (int i = 0; i < tmpparts.length; i++) {
-            logger.info(tmpparts[i]);
+        logger.info("\nRemove outer most parenthesis");        
+        if (my_parts[0].equals("(") && my_parts[my_parts.length-1].equals(")")) {
+            System.arraycopy(my_parts, 1, tmpparts, 0, tmpparts.length);
+        } else {
+            logger.error("Remove outer most parenthesis ERROR!!!");
         }
         
         return tmpparts;
     }
-    
+
+    /**
+     * 
+     */
     private final void parseFormula() {
-        if (parts.length == 0) {
-            return;
-        }
-        
         int mop = findMainOp();
         
-        while ((mop == -2) && (parts[0].equals("("))) {
-            logger.info("\nRemove outer most parenthesis");
-            parts = removeOuterParenthesis();
+        while ((mop == -2) && (my_parts[0].equals("("))) {
+            my_parts = removeOuterParenthesis();
             mop = findMainOp();
         }
         
         if (mop == -2) {
-            logger.info("\nBuild atomic formula");
-            
-            aright = new AtomicFormula(parts);
-            logger.info(aright.toString() + " -> ATOMIC FORMULA");
+            my_atomic_right = new AtomicFormula(my_parts);
+
+            logger.debug(my_atomic_right.toString() + " -> ATOMIC FORMULA");
             
             is_firstorder = true;
         } else {
             // temporal_operator
             int mop2 = mop;
-            if (parts[mop].equals("P") || parts[mop].equals("N") || parts[mop].equals("U") 
-                    || parts[mop].equals("S") || parts[mop].equals("A")) {
-                temporal_operator = new TemporalOperator(parts[mop]);
-                if (parts[mop+1].equals("[")) {
+            if (Operator.isTemporal(my_parts[mop])) {
+                my_temporal_operator = new TemporalOperator(my_parts[mop]);
+                if (my_parts[mop+1].equals("[")) {
                     mop2 = mop + 5;
-                    temporal_operator.setInterval(Integer.parseInt(parts[mop+2]), Integer.parseInt(parts[mop+4]));
+                    my_temporal_operator.setInterval(Integer.parseInt(my_parts[mop+2]), Integer.parseInt(my_parts[mop+4]));
                     
-                    logger.info("Set Interval: [" + temporal_operator.getStart() + ", " + temporal_operator.getEnd() + ")");
+                    logger.info("Set Interval: [" + my_temporal_operator.getStart() + ", " + my_temporal_operator.getEnd() + ")");
                 }
                 is_firstorder = false;
             } else {
-                main_operator = new Operator(parts[mop]);
+                my_main_operator = new Operator(my_parts[mop]);
                 is_firstorder = true;
             }
             
             final String[] _parts1 = new String[mop];
-            final String[] _parts2 = new String[parts.length - mop2 - 1];
+            final String[] _parts2 = new String[my_parts.length - mop2 - 1];
             
-            System.arraycopy(parts, 0, _parts1, 0, _parts1.length);
-            System.arraycopy(parts, mop2 + 1, _parts2, 0, _parts2.length);
+            System.arraycopy(my_parts, 0, _parts1, 0, _parts1.length);
+            System.arraycopy(my_parts, mop2 + 1, _parts2, 0, _parts2.length);
             
             logger.info("********Part1**********");
             for (int i = 0; i < _parts1.length; i++) {
@@ -106,51 +110,58 @@ public class TemporalFormula {
             }
             logger.info("\n");
             
-            right = new TemporalFormula(_parts1);
-            left = new TemporalFormula(_parts2);
+            my_right = new TemporalFormula(_parts1);
+            my_left = new TemporalFormula(_parts2);
             
             if (is_firstorder) {
-                is_firstorder = right.is_firstorder & left.is_firstorder;
+                is_firstorder = my_right.is_firstorder & my_left.is_firstorder;
             }
         }
     }
     
     private int findMainOp() {
-        int pos = 0, count = 0;
+        int pos = 0;
+        int count = 0;
         
-        for (; pos < parts.length; pos++) {
-            if (parts[pos].equals("(")) {
+        do {
+            if (my_parts[pos].equals("(")) {
                 count += 1;
-            } else if (parts[pos].equals(")")) {
+                pos++;
+            } else if (my_parts[pos].equals(")")) {
                 count -= 1;
+                pos++;
             }
-            
-            if (count == 0)
-                break;
+        } while ((count != 0) && (pos != my_parts.length));
+        
+        if (count != 0) {
+            logger.fatal("Formula not well-formed (parenthesis do not match)");
         }
         
-        if (count == 0) {
-            //System.out.println("\n------------" + pos);
-            for (; pos < parts.length; pos++) {
-                if (Operator.OPER.containsKey(parts[pos])) {
-                    break;
-                }
+        //System.out.println("\n------------" + pos);
+        for (; pos < my_parts.length; pos++) {
+            if (Operator.isTemporal(my_parts[pos]) || Operator.isFirstOrder(my_parts[pos])) {
+                break;
             }
-            
-            if (pos == parts.length) {
-                pos = -2;
-            }
-        } else {
-            pos = -3;
+        }
+        
+        if (pos == my_parts.length) {
+            pos = -2;
         }
         
         // TEST
+        logger.debug("Main Operator Position: " + pos);
         if (pos >= 0) {
-            logger.info("\nMainOP " + pos);
-            logger.info(parts[pos]);
+            logger.info(my_parts[pos]);
         }
-        else
-            logger.info("\nNoMainOP " + pos);
+        
         return pos;
+    }
+    
+    public void signatureExtension() {
+        //TODO implement it
+    }
+    
+    public void formulaTransformation() {
+        //TODO implement it
     }
 }

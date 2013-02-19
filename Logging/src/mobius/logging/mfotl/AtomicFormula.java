@@ -9,13 +9,20 @@ package mobius.logging.mfotl;
 public class AtomicFormula {
     public final Predicator predicator;
     public boolean value = false;
-    
+    private static final Logger my_logger = new Logger();
     
     public AtomicFormula(final String[] _var, final int _arity, final String _operator) {
+        my_logger.info("\nBuild atomic formula");
+        my_logger.debug(_var);
+        my_logger.debug(_operator);
+        
         predicator = new Predicator(_operator, _arity, _var);
     }
     
     public AtomicFormula(final String[] _formula) {
+        my_logger.info("\nBuild atomic formula");        
+        my_logger.debug(_formula);
+        
         if (_formula[1].equals("=") || _formula[1].equals("<")) {
             final String[] _var_tmp = {_formula[0], _formula[2]};
             predicator = new Predicator(_formula[1], 2, _var_tmp);

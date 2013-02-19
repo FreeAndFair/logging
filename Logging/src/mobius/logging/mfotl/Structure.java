@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Structure {
-    private final Hashtable variable_assignment;
-    private final Hashtable relation_assignment;
+    private final Map variable_assignment;
+    private final Map relation_assignment;
+    //private final static Map constant_valuation = new Hashtable();
     
     /*
      * initialization of Structure
@@ -24,7 +26,12 @@ public class Structure {
      * evaluate variables
      */
     public int evaluateVar(final /*@ non_null @*/ String _name) {
-        return (Integer) variable_assignment.get(_name);
+        try {
+            return Integer.parseInt(_name);
+        }
+        catch(NumberFormatException nfe) {
+            return (Integer) variable_assignment.get(_name);            
+        }
     }
     
     /*

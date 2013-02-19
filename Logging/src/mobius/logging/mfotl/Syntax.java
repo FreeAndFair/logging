@@ -2,7 +2,9 @@ package mobius.logging.mfotl;
 
 //TODO add specs and docs
 
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 /*
  * Define Variables, and if it is free or not
@@ -66,7 +68,6 @@ class Predicator {
         }
     }
     
-    
     public boolean evaluate(final Structure _structure) {
         int[] temp_val = new int[arity];
         for (int i = 0; i < arity; i++) {
@@ -76,7 +77,7 @@ class Predicator {
         return _structure.evaluateRelation(symbol, temp_val);
     }
     
-    /* 
+    /**
      * <p>
      * return a <code>String</code> that represents the formula
      * </p>
@@ -114,26 +115,31 @@ class TemporalOperator extends Operator {
 
     private final Interval interval;
     
-    public TemporalOperator(String _symbol, int _start, int _end) {
+    //@ assignable interval
+    public TemporalOperator(final /*@ non_null @*/ String _symbol, final int _start, final int _end) {
         super(_symbol);
         interval = new Interval(_start, _end);
     }
     
-    public TemporalOperator(String _symbol, int _start) {
+    //@ assignable interval 
+    public TemporalOperator(final /*@ non_null @*/ String _symbol, final int _start) {
         super(_symbol);
         interval = new Interval(_start);
     }
     
-    public TemporalOperator(String _symbol) {
+    //@ assignable interval
+    public TemporalOperator(final /*@ non_null @*/ String _symbol) {
         super(_symbol);
         interval = new Interval();
     }
     
-    public void setStart(int _start) {
+    //@ assignable interval.starty
+    public void setStart(final int _start) {
         interval.start = _start;
     }
     
-    public void setEnd(int _end) {
+    //@ assignable interval.end
+    public void setEnd(final int _end) {
         interval.end = _end;
     }
     
@@ -192,20 +198,45 @@ class FirstOrder_Operator extends Operator {
 }
 
 class Operator {
-    public static final Hashtable<String, String> OPER = new Hashtable<String, String>();
+    /* public static final Hashtable<String, String> OPER = new Hashtable<String, String>();*/
+    private static final Set TEMP_OPER = new HashSet();
+    private static final Set FIRST_OPER = new HashSet();
 
     public String symbol;
     private static Logger logger = new Logger();
     
-    Operator() {
+    public Operator() {
         init();
     }
     
-    Operator(String _symbol) {
+    public Operator(final /*@non-null */ String _symbol) {
         symbol = _symbol;
     }
     
+    public static boolean isTemporal(final String _symbol) {
+        return TEMP_OPER.contains(_symbol);
+    }
+    
+    public static boolean isFirstOrder(final String _symbol) {
+        return FIRST_OPER.contains(_symbol);
+    }
+    
     public static void init() {
+        TEMP_OPER.add("P");
+        TEMP_OPER.add("N");
+        TEMP_OPER.add("U");
+        TEMP_OPER.add("S");
+        TEMP_OPER.add("A");
+        
+        FIRST_OPER.add("!");
+        FIRST_OPER.add("&");
+        FIRST_OPER.add("E");
+        FIRST_OPER.add("V");
+        
+        FIRST_OPER.add("|");
+        FIRST_OPER.add("->");
+        
+        /*
         OPER.put("!", "not");
         OPER.put("&", "and");
         
@@ -221,22 +252,10 @@ class Operator {
         OPER.put("S", "succeed");
         OPER.put("U", "until");
         OPER.put("A", "always");
-        
+        */
         logger.info("\nOperator initialization ..........................");
     }
 }
-
-/*
-class Op {
-    String name;
-    String symbol;
-    
-    Op(String _symbol, String _name) {
-        name = _name;
-        symbol = _symbol;
-    }
-}
-*/
 
 /*
  * 
@@ -273,5 +292,25 @@ class Interval {
     
     public String toString() {
         return " [" + start + "," + ((end == -1)?"inf.":end) + ") ";
+    }
+}
+
+class Signature {
+    public Set constant;
+    public Set predicate;
+    
+    public Signature() {
+        constant = new HashSet();
+        predicate = new HashSet();
+        initializeConstant();
+        initializePredicate();
+    }
+    
+    private void initializeConstant() {
+        
+    }
+    
+    private void initializePredicate() {
+        
     }
 }

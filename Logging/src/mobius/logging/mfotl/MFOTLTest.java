@@ -7,7 +7,7 @@ public class MFOTLTest {
      * Test for formula parsing and evaluating
      */
     public static void main(final String[] args) {
-        //Formula test = new Formula("A ( ! E x ( in (x) & ! ( E y ( y = y U [ 0 , 6 ) out ( x ) ) )  )  )");
+        //new Formula("A ( ! E x ( in (x) & ! ( E y ( y = y U [ 0 , 6 ) out ( x ) ) )  )  )");
         new Formula("! N[1,5)n(p) ");
         new Formula("N[1,5)n(p) ");
         new Formula("(x=y)&m(a,b)&N[3,5)n(p) ");
@@ -17,6 +17,6 @@ public class MFOTLTest {
         new Formula("   ( x < y )" );
 
         new Formula("( r ( a , b ) )");
-        new Formula("aar ( a , b , c )");
+        new Formula("aar ( a , b , 5 )");
     }
 }

@@ -2,32 +2,29 @@ package mobius.logging.mfotl;
 
 //TODO add specs and docs
 
+/*
+ * 
+ */
 public class Formula {
-    private final String original_formula;
-    protected String[] formula_parts;
+    protected String[] my_formula_parts;
 
-    protected String[] freevar;
+    protected String[] my_free_variable;
     
-    public TemporalFormula temporal_formula;
-    public TemporalFormula[] temporal_subformula;
+    public TemporalFormula my_temporal_formula;
+    public TemporalFormula[] my_temporal_subformula;
     
-    public Structure structure;
-    private final Logger logger = new Logger();
+    public Structure my_structure;
+    private final Logger my_logger = new Logger();
     
     public Formula(final String _formula) {
         new Operator(); // Initializing the Operator
         
-        original_formula = _formula;
-        lexer(original_formula);
-
-        logger.info("Read Formula: " + original_formula + ". With Length " + formula_parts.length);
+        lexer(_formula);
+        my_logger.info("Read Formula: " + _formula + ". With Length " + my_formula_parts.length);
+        my_temporal_formula = new TemporalFormula(my_formula_parts);
         
-        temporal_formula = new TemporalFormula(formula_parts);
-        
-        logger.info("");
-
-        getTemporalSubformula();
         getFreeVar();
+        getTemporalSubformula();
     }
         
     /*
@@ -46,13 +43,13 @@ public class Formula {
      * </p>
      */
     private void getTemporalSubformula() {
-        temporal_subformula = new TemporalFormula[5];
-        
-        logger.info("");
+        my_temporal_subformula = new TemporalFormula[5];
+        // TODO implement it
+        my_logger.info("");
     }
 	
 	private void getFreeVar() {
-	    logger.info("");
+	    my_logger.info("");
 	}
 	
 	/*
@@ -83,7 +80,8 @@ public class Formula {
                     || (character == '[') || (character == ',')
                     || (character == '=') || (character == '<')
                     || (character == ' ')
-                    || Operator.OPER.containsKey(Character.toString(character))) {
+                    || Operator.isFirstOrder(Character.toString(character))
+                    || Operator.isTemporal(Character.toString(character))) {
                 formulaWSpace += words;
                 formulaWSpace += " ";
                 
@@ -95,7 +93,7 @@ public class Formula {
             } else {
                 words += Character.toString(character);
                 if (!words.matches("[a-zA-Z0-9]+")) {
-                    logger.error("Illegal Letter in Formula!!!");
+                    my_logger.error("Illegal Letter in Formula!!!");
                 }
                 
                 if (i == (formula_str.length() - 1)) {
@@ -110,13 +108,13 @@ public class Formula {
             formulaWSpace = formulaWSpace.substring(1);
             
             if (formulaWSpace.length() == 0) {
-                logger.error("EMPTY FORMULA!!!");
+                my_logger.error("EMPTY FORMULA!!!");
             }
         }
         
         formula_str = formulaWSpace.replaceAll("[ ]+", " ");
-        logger.info("Formula with Space: " + formula_str);
-        formula_parts = formula_str.split(" ");
+        my_logger.info("Formula with Space: " + formula_str);
+        my_formula_parts = formula_str.split(" ");
         
         /*
         for (int i = 0; i < formula_parts.length; i++) {
