@@ -3,24 +3,23 @@ package mobius.logging.mfotl;
 //TODO add specs and docs
 
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 
-/*
+/**
  * Define Variables, and if it is free or not
  */
 class Variable {
-    private final String name;
-    private boolean is_free;
-    private int value;
+    private final String my_name;       // variable name
+    private boolean is_free;            // variable is free or not
+    private int my_value;               // variable value after assignment or evaluation
     
     public Variable(final String _name) {
-        name = _name;
+        my_name = _name;
         is_free = true;
     }
     
     public String getName() {
-        return name;
+        return my_name;
     }
     
     public void setFree(final boolean _is_free) {
@@ -32,21 +31,21 @@ class Variable {
     }
     
     public void setValue(final int _value) {
-        value = _value;
+        my_value = _value;
     }
     
     public int getValue() {
-        return value;
+        return my_value;
     }
-    
 
+    //@ assignable my_value
     public int evaluate(final Structure _structure) {
-        value = _structure.evaluateVar(name);
-        return value;
+        my_value = _structure.evaluateVar(my_name);
+        return my_value;
     }
 }
 
-/*
+/**
  * Predicate in logical expression
  */
 class Predicator {
@@ -83,14 +82,14 @@ class Predicator {
      * </p>
      */
     public String toString() {
-        final StringBuffer _result = new StringBuffer();
-        _result.append(symbol);
-        _result.append(" (" + var[0].getName());
+        String _result = symbol;
+        
+        _result = _result.concat(" (" + var[0].getName());
         for (int i = 1; i < arity; i++) {
-            _result.append(", " + var[i].getName());
+            _result = _result.concat(", " + var[i].getName());
         }
-        _result.append(')');
-        return _result.toString();
+        _result = _result.concat(")");
+        return _result;
     }
     
     public String getSymbol() {
@@ -100,74 +99,70 @@ class Predicator {
     public int getArity() {
         return arity;
     }
+}
+
+class QuantifierOperator extends Operator {
+    private final Set my_bound_variable;
     
-    /*
-     * ensures i in the range of arity
-     */
-    /*
-    public Variable getVariable(int i) {
-        return var[i];
-    }*/
+    public QuantifierOperator(final String a_name) {
+        super(a_name);
+        my_bound_variable = new HashSet();
+    }
+    
+    public boolean isBoundVariable(final String a_name) {
+        return my_bound_variable.contains(a_name);
+    }
 }
 
 class TemporalOperator extends Operator {
     //public static final Hashtable<String, String> op = new Hashtable<String, String>();
 
-    private final Interval interval;
+    private final Interval my_interval;
     
     //@ assignable interval
     public TemporalOperator(final /*@ non_null @*/ String _symbol, final int _start, final int _end) {
         super(_symbol);
-        interval = new Interval(_start, _end);
+        my_interval = new Interval(_start, _end);
     }
     
     //@ assignable interval 
     public TemporalOperator(final /*@ non_null @*/ String _symbol, final int _start) {
         super(_symbol);
-        interval = new Interval(_start);
+        my_interval = new Interval(_start);
     }
     
     //@ assignable interval
     public TemporalOperator(final /*@ non_null @*/ String _symbol) {
         super(_symbol);
-        interval = new Interval();
+        my_interval = new Interval();
     }
     
     //@ assignable interval.starty
-    public void setStart(final int _start) {
-        interval.start = _start;
+    public void setStart(final int a_start) {
+        my_interval.setStart(a_start);
     }
     
     //@ assignable interval.end
-    public void setEnd(final int _end) {
-        interval.end = _end;
+    public void setEnd(final int a_end) {
+        my_interval.setEnd(a_end);
     }
     
-    public void setInterval(int _start, int _end) {
-        interval.start = _start;
-        interval.end = _end;
+    public void setInterval(final int a_start, final int a_end) {
+        my_interval.setStart(a_start);
+        my_interval.setEnd(a_end);
     }
     
     public int getStart() {
-        return interval.start;
+        return my_interval.getStart();
     }
     
     public int getEnd() {
-        return interval.end;
+        return my_interval.getEnd();
     }
     
-    public boolean inRange(int testVal) {
-        return interval.inRange(testVal);
+    public boolean inRange(final int a_testVal) {
+        return my_interval.inRange(a_testVal);
     }
-    
-    /*
-    static void initVal() {
-        op.put("P", "prenext");
-        op.put("N", "next");
-        op.put("S", "succeed");
-        op.put("U", "until");
-        op.put("A", "always");
-    }*/
 }
 
 class FirstOrder_Operator extends Operator {
@@ -176,41 +171,21 @@ class FirstOrder_Operator extends Operator {
     FirstOrder_Operator() {
         super();
     }
-    
-    /*
-    void initVal() {
-        op.put("!", "not");
-        op.put("&", "and");
-        
-        op.put("E", "exist");
-        op.put("V", "all");
-        
-        op.put("|", "or");
-        op.put("->", "imply");
-        
-        
-        op.put("(", "(");
-        op.put(")", ")");
-        op.put("[", "[");
-        op.put(",", ",");
-        
-    }*/
 }
 
 class Operator {
-    /* public static final Hashtable<String, String> OPER = new Hashtable<String, String>();*/
     private static final Set TEMP_OPER = new HashSet();
     private static final Set FIRST_OPER = new HashSet();
 
-    public String symbol;
-    private static Logger logger = new Logger();
+    public String my_symbol;
+    private static Logger my_logger = new Logger();
     
     public Operator() {
         init();
     }
     
     public Operator(final /*@non-null */ String _symbol) {
-        symbol = _symbol;
+        my_symbol = _symbol;
     }
     
     public static boolean isTemporal(final String _symbol) {
@@ -219,6 +194,10 @@ class Operator {
     
     public static boolean isFirstOrder(final String _symbol) {
         return FIRST_OPER.contains(_symbol);
+    }
+    
+    public static boolean isOperator(final String _symbol) {
+        return (isTemporal(_symbol) || isFirstOrder(_symbol));
     }
     
     public static void init() {
@@ -236,62 +215,61 @@ class Operator {
         FIRST_OPER.add("|");
         FIRST_OPER.add("->");
         
-        /*
-        OPER.put("!", "not");
-        OPER.put("&", "and");
-        
-        OPER.put("E", "exist");
-        OPER.put("V", "all");
-        
-        OPER.put("|", "or");
-        OPER.put("->", "imply");
-        
-        
-        OPER.put("P", "prenext");
-        OPER.put("N", "next");
-        OPER.put("S", "succeed");
-        OPER.put("U", "until");
-        OPER.put("A", "always");
-        */
-        logger.info("\nOperator initialization ..........................");
+        my_logger.info("\nOperator initialization ..........................");
     }
 }
 
-/*
+/**
  * 
  */
 class Interval {
-    public int start;
-    public int end;
+    private int my_start;
+    private int my_end;
     
     /*
      *@ requires _start >= 0  && _start <= _end
      */
-    Interval (int _start, int _end) {
-        start = _start;
-        end = _end;
+    public Interval (final int _start, final int _end) {
+        my_start = _start;
+        my_end = _end;
     }
     
-    Interval (int _start) {
-        start = _start;
-        end = -1;
+    public Interval (final int _start) {
+        my_start = _start;
+        my_end = -1;
     }
     
-    Interval () {
-        start = 0;
-        end = -1;
+    public Interval () {
+        my_start = 0;
+        my_end = -1;
     }
     
-    public boolean inRange(int val) {
-        return ((val > start) & ((val < end) | (end == -1)));
+    public void setStart(final int a_start) {
+        my_start = a_start;
+    }
+    
+    public int getStart() {
+        return my_start;
+    }
+    
+    public void setEnd(final int a_end) {
+        my_end = a_end;
+    }
+    
+    public int getEnd() {
+        return my_end;
+    }
+    
+    public boolean inRange(final int a_value) {
+        return ((a_value > my_start) & ((a_value < my_end) | (my_end == -1)));
     }
     
     public boolean isBounded() {
-        return (end == -1);
+        return (my_end == -1);
     }
     
     public String toString() {
-        return " [" + start + "," + ((end == -1)?"inf.":end) + ") ";
+        return " [" + my_start + "," + ((my_end == -1)?"inf.":my_end) + ") ";
     }
 }
 

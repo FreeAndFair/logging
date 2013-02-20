@@ -2,7 +2,7 @@ package mobius.logging.mfotl;
 
 //TODO add specs and docs
 
-/*
+/**
  * 
  */
 public class Formula {
@@ -17,27 +17,29 @@ public class Formula {
     private final Logger my_logger = new Logger();
     
     public Formula(final String _formula) {
-        new Operator(); // Initializing the Operator
-        
+        // initialize Operator
+        new Operator();
+
         lexer(_formula);
         my_logger.info("Read Formula: " + _formula + ". With Length " + my_formula_parts.length);
         my_temporal_formula = new TemporalFormula(my_formula_parts);
         
         getFreeVar();
+        
         getTemporalSubformula();
     }
         
-    /*
+    /**
      * 
      */
-    public boolean evaluation(Structure structure) {
+    public boolean evaluation(final Structure a_structure) {
         //@ assert false;
         assert false;
         // TODO bottom implementation
         return true;
     }
     
-    /*
+    /**
      * <p>
      * Get the temporal subformula
      * </p>
@@ -49,7 +51,7 @@ public class Formula {
     }
 	
 	private void getFreeVar() {
-	    my_logger.info("");
+	    my_logger.debug("InMethod: getFreeVar");
 	}
 	
 	/*
@@ -58,7 +60,7 @@ public class Formula {
 	public boolean isFirstOrder(final String[] _parts) {
 	    boolean isFO = true;
 	    for (int i = 0; i < _parts.length; i++) {
-	        if (_parts[i].equals("U") | _parts[i].equals("S") | _parts[i].equals("N") | _parts[i].equals("P")) {
+	        if (Operator.isTemporal(_parts[i])) {
 	            isFO = false;
 	            break;
 	        }
@@ -66,28 +68,21 @@ public class Formula {
 	    return isFO;
 	}
 	
-	private void lexer(final String _formula_str) {
-	    String formula_str = _formula_str;
+	private void lexer(final String a_formula_str) {
+	    String formula_str = a_formula_str;
         
-        String formulaWSpace = "";
+        String formula_with_space = "";
         String words = "";
         for (int i = 0; i < formula_str.length(); i++) {
             final char character = formula_str.charAt(i);
             
-//            System.out.println("------------->>>>>" + formulaWSpace);
-            
-            if ((character == '(') || (character == ')')
-                    || (character == '[') || (character == ',')
-                    || (character == '=') || (character == '<')
-                    || (character == ' ')
-                    || Operator.isFirstOrder(Character.toString(character))
-                    || Operator.isTemporal(Character.toString(character))) {
-                formulaWSpace += words;
-                formulaWSpace += " ";
+            if (isResveredSymbol(character) || Operator.isOperator(Character.toString(character))) {
+                formula_with_space = formula_with_space.concat(words);
+                formula_with_space = formula_with_space.concat(" ");
                 
                 if (character != ' ') {
-                    formulaWSpace += Character.toString(character);
-                    formulaWSpace += " ";
+                    formula_with_space += Character.toString(character);
+                    formula_with_space += " ";
                 }
                 words = "";
             } else {
@@ -97,29 +92,31 @@ public class Formula {
                 }
                 
                 if (i == (formula_str.length() - 1)) {
-                    formulaWSpace += words;
-                    formulaWSpace += " ";
+                    formula_with_space += words;
+                    formula_with_space += " ";
                     words = "";
                 }
             }
         }
         
-        while (formulaWSpace.charAt(0) == ' ') {
-            formulaWSpace = formulaWSpace.substring(1);
+        while (formula_with_space.charAt(0) == ' ') {
+            formula_with_space = formula_with_space.substring(1);
             
-            if (formulaWSpace.length() == 0) {
+            if (formula_with_space.length() == 0) {
                 my_logger.error("EMPTY FORMULA!!!");
             }
         }
         
-        formula_str = formulaWSpace.replaceAll("[ ]+", " ");
+        formula_str = formula_with_space.replaceAll("[ ]+", " ");
         my_logger.info("Formula with Space: " + formula_str);
         my_formula_parts = formula_str.split(" ");
-        
-        /*
-        for (int i = 0; i < formula_parts.length; i++) {
-            System.out.println(i + "*" + formula_parts[i]);
-        }*/
+	}
+	
+	private boolean isResveredSymbol(final char a_symbol) {
+	    return ((a_symbol == '(') || (a_symbol == ')')
+                || (a_symbol == '[') || (a_symbol == ',')
+                || (a_symbol == '=') || (a_symbol == '<')
+                || (a_symbol == ' '));
 	}
 	
 	/*

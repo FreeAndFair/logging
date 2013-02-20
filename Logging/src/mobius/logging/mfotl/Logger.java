@@ -36,6 +36,7 @@ public class Logger {
      */
     public void fatal(final String _fatal) {
         my_logger.println("fatal: " + _fatal);
+        
         System.exit(0);
     }
     

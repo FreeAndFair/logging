@@ -40,6 +40,11 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>ch.ethz.inf.pm.jml.plugin.CheckerBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
@@ -49,5 +54,6 @@
 		<nature>edu.umd.cs.findbugs.plugin.eclipse.findbugsNature</nature>
 		<nature>net.sourceforge.pmd.eclipse.plugin.pmdNature</nature>
 		<nature>ie.ucd.autograder.nature</nature>
+		<nature>ch.ethz.inf.pm.jml.plugin.CheckerNature</nature>
 	</natures>
 </projectDescription>

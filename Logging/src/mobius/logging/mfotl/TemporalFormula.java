@@ -1,9 +1,12 @@
 package mobius.logging.mfotl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 //TODO add specs and docs
 
 
-/*
+/**
  * Temporal Formula
  */
 public class TemporalFormula {
@@ -28,6 +31,8 @@ public class TemporalFormula {
      */
     public boolean is_firstorder = false;
     public boolean is_true = false;
+    
+    public static Set bound_variable = new HashSet();
     
     private final Logger logger = new Logger();
     
@@ -63,6 +68,8 @@ public class TemporalFormula {
      * 
      */
     private final void parseFormula() {
+        logger.debug("InMethod: parseFormula");
+        
         int mop = findMainOp();
         
         while ((mop == -2) && (my_parts[0].equals("("))) {
@@ -78,7 +85,7 @@ public class TemporalFormula {
             is_firstorder = true;
         } else {
             // temporal_operator
-            int mop2 = mop;
+            int mop2;
             if (Operator.isTemporal(my_parts[mop])) {
                 my_temporal_operator = new TemporalOperator(my_parts[mop]);
                 if (my_parts[mop+1].equals("[")) {
@@ -86,9 +93,12 @@ public class TemporalFormula {
                     my_temporal_operator.setInterval(Integer.parseInt(my_parts[mop+2]), Integer.parseInt(my_parts[mop+4]));
                     
                     logger.info("Set Interval: [" + my_temporal_operator.getStart() + ", " + my_temporal_operator.getEnd() + ")");
+                } else {
+                    mop2 = mop;
                 }
                 is_firstorder = false;
             } else {
+                mop2 = mop;
                 my_main_operator = new Operator(my_parts[mop]);
                 is_firstorder = true;
             }
@@ -99,15 +109,11 @@ public class TemporalFormula {
             System.arraycopy(my_parts, 0, _parts1, 0, _parts1.length);
             System.arraycopy(my_parts, mop2 + 1, _parts2, 0, _parts2.length);
             
-            logger.info("********Part1**********");
-            for (int i = 0; i < _parts1.length; i++) {
-                logger.info(_parts1[i]);
-            }
-            logger.info("\n");
-            logger.info("********Part2**********");
-            for (int i = 0; i < _parts2.length; i++) {
-                logger.info(_parts2[i]);
-            }
+            logger.debug("********Part1**********");
+            logger.debug(_parts1);
+
+            logger.debug("********Part2**********");
+            logger.debug(_parts2);
             logger.info("\n");
             
             my_right = new TemporalFormula(_parts1);
@@ -120,17 +126,18 @@ public class TemporalFormula {
     }
     
     private int findMainOp() {
+        logger.debug("InMethod: findMainOp");
+        
         int pos = 0;
         int count = 0;
         
         do {
             if (my_parts[pos].equals("(")) {
                 count += 1;
-                pos++;
             } else if (my_parts[pos].equals(")")) {
                 count -= 1;
-                pos++;
             }
+            pos++;
         } while ((count != 0) && (pos != my_parts.length));
         
         if (count != 0) {
@@ -138,8 +145,8 @@ public class TemporalFormula {
         }
         
         //System.out.println("\n------------" + pos);
-        for (; pos < my_parts.length; pos++) {
-            if (Operator.isTemporal(my_parts[pos]) || Operator.isFirstOrder(my_parts[pos])) {
+        for (pos = pos - 1; pos < my_parts.length; pos++) {
+            if (Operator.isOperator(my_parts[pos])) {
                 break;
             }
         }
