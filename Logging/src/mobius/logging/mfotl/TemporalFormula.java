@@ -9,38 +9,42 @@ import java.util.Set;
 /**
  * Temporal Formula
  */
-public class TemporalFormula {
+public class TemporalFormula extends Formula{
     /*
      * TemporalFormula ::= AtomicFormula
      * TemporalFormula ::= TemporalFormula + Operator + TemporalFormula
      */
-    public TemporalFormula my_left = null;
-    public TemporalFormula my_right = null;
+    public Formula my_left_subformula = null;
+    public Formula my_right_subformula = null;
     
-    public AtomicFormula my_atomic_left = null;
-    public AtomicFormula my_atomic_right = null;
-
+    /*
+    public Formula my_atomic_left = null;
+    public Formula my_atomic_right = null;
+    */
     /**
      * 
      */
     public Operator my_main_operator = null;
-    public TemporalOperator my_temporal_operator = null;
+    //public TemporalOperator my_temporal_operator = null;
     
     /**
      * check is this temporal formula is first order or not.
      */
-    public boolean is_firstorder = false;
+    /*
+    public boolean is_temporal = false;
+    public boolean is_firstorder = true;
+    */
     public boolean is_true = false;
     
-    public static Set bound_variable = new HashSet();
+    public static Set my_bound_variable = new HashSet();
+    public static Set<String> my_variable = new HashSet();
+    // TODO add collection of variables;
     
     private final Logger logger = new Logger();
     
     private String[] my_parts;
 
     public TemporalFormula(final String[] _parts) {
-        new Operator();
-        
         my_parts = new String[_parts.length];
         System.arraycopy(_parts, 0, my_parts, 0, my_parts.length);
         
@@ -51,7 +55,7 @@ public class TemporalFormula {
         }
     }
     
-    private String[] removeOuterParenthesis() {
+    private void removeOuterParenthesis() {
         final String[] tmpparts = new String[my_parts.length-2];
         
         logger.info("\nRemove outer most parenthesis");        
@@ -61,7 +65,7 @@ public class TemporalFormula {
             logger.error("Remove outer most parenthesis ERROR!!!");
         }
         
-        return tmpparts;
+        my_parts = tmpparts;
     }
 
     /**
@@ -73,55 +77,68 @@ public class TemporalFormula {
         int mop = findMainOp();
         
         while ((mop == -2) && (my_parts[0].equals("("))) {
-            my_parts = removeOuterParenthesis();
+            removeOuterParenthesis();
             mop = findMainOp();
         }
         
         if (mop == -2) {
-            my_atomic_right = new AtomicFormula(my_parts);
+            my_right_subformula = new AtomicFormula(my_parts);
 
-            logger.debug(my_atomic_right.toString() + " -> ATOMIC FORMULA");
-            
-            is_firstorder = true;
-        } else {
-            // temporal_operator
-            int mop2;
-            if (Operator.isTemporal(my_parts[mop])) {
-                my_temporal_operator = new TemporalOperator(my_parts[mop]);
-                if (my_parts[mop+1].equals("[")) {
-                    mop2 = mop + 5;
-                    my_temporal_operator.setInterval(Integer.parseInt(my_parts[mop+2]), Integer.parseInt(my_parts[mop+4]));
-                    
-                    logger.info("Set Interval: [" + my_temporal_operator.getStart() + ", " + my_temporal_operator.getEnd() + ")");
-                } else {
-                    mop2 = mop;
-                }
-                is_firstorder = false;
+            logger.debug(((AtomicFormula)my_right_subformula).toString() + " -> ATOMIC FORMULA");
+            return;
+        }
+        
+        // non atomic formula
+        int mop2;
+        if (ReservedSymbol.isTemporal(my_parts[mop])) {
+            my_main_operator = new TemporalOperator(my_parts[mop]);
+            if (my_parts[mop+1].equals("[")) {
+                mop2 = mop + 5;
+                ((TemporalOperator)my_main_operator).setInterval(Integer.parseInt(my_parts[mop+2]), Integer.parseInt(my_parts[mop+4]));
+                
+                logger.info("Set Interval: [" + ((TemporalOperator)my_main_operator).getStart() + ", " + ((TemporalOperator)my_main_operator).getEnd() + ")");
             } else {
                 mop2 = mop;
-                my_main_operator = new Operator(my_parts[mop]);
-                is_firstorder = true;
             }
-            
-            final String[] _parts1 = new String[mop];
-            final String[] _parts2 = new String[my_parts.length - mop2 - 1];
-            
-            System.arraycopy(my_parts, 0, _parts1, 0, _parts1.length);
-            System.arraycopy(my_parts, mop2 + 1, _parts2, 0, _parts2.length);
-            
-            logger.debug("********Part1**********");
-            logger.debug(_parts1);
+            is_temporal = true;
+            is_firstorder = false;
+        } else if (ReservedSymbol.isQuantifier(my_parts[mop])) {
+            final Set<String> temp_set = new HashSet<String>();
+            mop2 = mop + 1;
+            for (int i = mop2; i < my_parts.length; i++) {
+                if ("(".equals(my_parts[i])) {
+                    mop2 = i - 1;
+                    break;
+                } else {
+                    temp_set.add(my_parts[i]);
+                    my_bound_variable.add(my_parts[i]);
+                }
+            }
+            my_main_operator = new QuantifierOperator(my_parts[mop]);
+            ((QuantifierOperator) my_main_operator).addVariable(temp_set);
+        } else {
+            mop2 = mop;
+            my_main_operator = new FirstorderOperator(my_parts[mop]);
+        }
+        
+        final String[] _parts1 = new String[mop];
+        final String[] _parts2 = new String[my_parts.length - 1 - mop2];
+        
+        System.arraycopy(my_parts, 0, _parts1, 0, _parts1.length);
+        System.arraycopy(my_parts, mop2 + 1, _parts2, 0, _parts2.length);
+        
+        logger.debug("********Part1**********");
+        logger.debug(_parts1);
 
-            logger.debug("********Part2**********");
-            logger.debug(_parts2);
-            logger.info("\n");
-            
-            my_right = new TemporalFormula(_parts1);
-            my_left = new TemporalFormula(_parts2);
-            
-            if (is_firstorder) {
-                is_firstorder = my_right.is_firstorder & my_left.is_firstorder;
-            }
+        logger.debug("********Part2**********");
+        logger.debug(_parts2);
+        logger.info("\n");
+        
+        my_right_subformula = new TemporalFormula(_parts1);
+        my_left_subformula = new TemporalFormula(_parts2);
+        
+        if (is_firstorder) {
+            is_firstorder = my_right_subformula.is_firstorder && my_left_subformula.is_firstorder;
         }
     }
     
@@ -146,7 +163,7 @@ public class TemporalFormula {
         
         //System.out.println("\n------------" + pos);
         for (pos = pos - 1; pos < my_parts.length; pos++) {
-            if (Operator.isOperator(my_parts[pos])) {
+            if (ReservedSymbol.isOperator(my_parts[pos])) {
                 break;
             }
         }

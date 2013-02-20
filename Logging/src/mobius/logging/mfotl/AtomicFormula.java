@@ -6,7 +6,7 @@ package mobius.logging.mfotl;
  * for the leave notes of formula
  */
 
-public class AtomicFormula {
+public class AtomicFormula extends Formula{
     public final Predicator predicator;
     public boolean value = false;
     private static final Logger my_logger = new Logger();

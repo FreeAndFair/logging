@@ -10,7 +10,7 @@ public class MFOTLTest {
         //new Formula("A ( ! E x ( in (x) & ! ( E y ( y = y U [ 0 , 6 ) out ( x ) ) )  )  )");
         
         // test for free and bound variable
-        new Formula("E x(in(x,y))");
+        new MFOTL_Formula("E x z(in(x,y))");
         /*
         new Formula("! N[1,5)n(p) ");
         new Formula("N[1,5)n(p) ");

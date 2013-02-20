@@ -2,6 +2,7 @@ package mobius.logging.mfotl;
 
 //TODO add specs and docs
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -102,11 +103,15 @@ class Predicator {
 }
 
 class QuantifierOperator extends Operator {
-    private final Set my_bound_variable;
+    private Set<String> my_bound_variable;
     
     public QuantifierOperator(final String a_name) {
         super(a_name);
         my_bound_variable = new HashSet();
+    }
+    
+    public void addVariable(final Set<String> a_set) {
+        my_bound_variable = Collections.unmodifiableSet(a_set);
     }
     
     public boolean isBoundVariable(final String a_name) {
@@ -165,57 +170,17 @@ class TemporalOperator extends Operator {
     }
 }
 
-class FirstOrder_Operator extends Operator {
-    //public static final Hashtable<String, String> op = new Hashtable<String, String>();
-    
-    FirstOrder_Operator() {
-        super();
+class FirstorderOperator extends Operator {
+    public FirstorderOperator(final String a_name) {
+        super(a_name);
     }
 }
 
 class Operator {
-    private static final Set TEMP_OPER = new HashSet();
-    private static final Set FIRST_OPER = new HashSet();
-
     public String my_symbol;
-    private static Logger my_logger = new Logger();
-    
-    public Operator() {
-        init();
-    }
     
     public Operator(final /*@non-null */ String _symbol) {
         my_symbol = _symbol;
-    }
-    
-    public static boolean isTemporal(final String _symbol) {
-        return TEMP_OPER.contains(_symbol);
-    }
-    
-    public static boolean isFirstOrder(final String _symbol) {
-        return FIRST_OPER.contains(_symbol);
-    }
-    
-    public static boolean isOperator(final String _symbol) {
-        return (isTemporal(_symbol) || isFirstOrder(_symbol));
-    }
-    
-    public static void init() {
-        TEMP_OPER.add("P");
-        TEMP_OPER.add("N");
-        TEMP_OPER.add("U");
-        TEMP_OPER.add("S");
-        TEMP_OPER.add("A");
-        
-        FIRST_OPER.add("!");
-        FIRST_OPER.add("&");
-        FIRST_OPER.add("E");
-        FIRST_OPER.add("V");
-        
-        FIRST_OPER.add("|");
-        FIRST_OPER.add("->");
-        
-        my_logger.info("\nOperator initialization ..........................");
     }
 }
 
@@ -290,5 +255,86 @@ class Signature {
     
     private void initializePredicate() {
         
+    }
+}
+
+class ReservedSymbol {
+    private static final Set<String> TEMP_OPER;
+    private static final Set<String> FIRST_OPER;
+    private static final Set<String> QUANTIFIER_OPER;
+    private static final Set<String> SYMBOL;
+    
+    private ReservedSymbol() {}
+    
+    private static void fillTemporalSet(final Set<String> a_set) {
+        a_set.add("P");
+        a_set.add("N");
+        a_set.add("U");
+        a_set.add("S");
+        a_set.add("A");
+    }
+    
+    private static void fillFirstorderSet(final Set<String> a_set) {
+        a_set.add("!");
+        a_set.add("&");
+        a_set.add("|");
+        a_set.add("->");
+    }
+    
+    private static void fillQuantifierSet(final Set<String> a_set) {
+        a_set.add("E");
+        a_set.add("V");
+    }
+    
+    private static void fillSymbolSet(final Set<String> a_set) {
+        a_set.add("(");
+        a_set.add(")");
+        a_set.add("[");
+        a_set.add(",");
+        a_set.add("=");
+        a_set.add("<");
+        a_set.add(" ");
+    }
+    
+    static {
+        final Set<String> temp_set0 = new HashSet<String>();
+        fillTemporalSet(temp_set0);
+        TEMP_OPER = Collections.unmodifiableSet(temp_set0);
+        
+        final Set<String> temp_set1 = new HashSet<String>();
+        fillFirstorderSet(temp_set1);
+        FIRST_OPER = Collections.unmodifiableSet(temp_set1);
+        
+        final Set<String> temp_set2 = new HashSet<String>();
+        fillQuantifierSet(temp_set2);
+        QUANTIFIER_OPER = Collections.unmodifiableSet(temp_set2);
+        
+        final Set<String> temp_set3 = new HashSet<String>();
+        fillSymbolSet(temp_set3);
+        SYMBOL = Collections.unmodifiableSet(temp_set3);
+    }
+    
+    public static boolean isTemporal(final String _symbol) {
+        return TEMP_OPER.contains(_symbol);
+    }
+    
+    public static boolean isFirstOrder(final String _symbol) {
+        return FIRST_OPER.contains(_symbol);
+    }
+    
+    public static boolean isQuantifier(final String a_symbol) {
+        return QUANTIFIER_OPER.contains(a_symbol);
+    }
+    
+    public static boolean isSymbol(final String a_symbol) {
+        return SYMBOL.contains(a_symbol);
+    }
+    
+    public static boolean isOperator(final String _symbol) {
+        return (isTemporal(_symbol) || isFirstOrder(_symbol) || isQuantifier(_symbol));
+    }
+    
+    public static boolean isReserved(final String _symbol) {
+        return (isOperator(_symbol) || isSymbol(_symbol));
     }
 }
