@@ -84,7 +84,7 @@ public class TemporalFormula extends Formula{
         if (mop == -2) {
             my_right_subformula = new AtomicFormula(my_parts);
 
-            logger.debug(((AtomicFormula)my_right_subformula).toString() + " -> ATOMIC FORMULA");
+            logger.debug(my_right_subformula.toString() + " -> ATOMIC FORMULA");
             return;
         }
         
@@ -134,11 +134,18 @@ public class TemporalFormula extends Formula{
         logger.debug(_parts2);
         logger.info("\n");
         
-        my_right_subformula = new TemporalFormula(_parts1);
-        my_left_subformula = new TemporalFormula(_parts2);
+        if (_parts1.length > 0) {
+            my_left_subformula = new TemporalFormula(_parts1);
+        }
+        if (_parts2.length > 0) {
+            my_right_subformula = new TemporalFormula(_parts2);
+        }
         
-        if (is_firstorder) {
-            is_firstorder = my_right_subformula.is_firstorder && my_left_subformula.is_firstorder;
+        if (my_left_subformula != null) {
+            is_firstorder = is_firstorder && my_left_subformula.is_firstorder; 
+        }
+        if (my_right_subformula != null) {
+            is_firstorder = is_firstorder && my_right_subformula.is_firstorder; 
         }
     }
     
@@ -187,5 +194,26 @@ public class TemporalFormula extends Formula{
     
     public void formulaTransformation() {
         //TODO implement it
+    }
+    
+    /**
+     * 
+     */
+    public String toString() {
+        String temp_str = "";
+        
+        if (my_left_subformula != null) {
+            temp_str = temp_str.concat("(").concat(my_left_subformula.toString()).concat(")");
+        }
+        
+        if (my_main_operator != null) {
+            temp_str = temp_str.concat(" ").concat(my_main_operator.toString()).concat(" ");
+        }
+        
+        if (my_right_subformula != null) {
+            temp_str = temp_str.concat("(").concat(my_right_subformula.toString()).concat(")");
+        }
+        
+        return temp_str;
     }
 }

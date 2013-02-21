@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * 
  */
-public class MFOTL_Formula {
+public class MFOTLFormula {
     protected String[] my_formula_parts;
 
     protected Set<String> my_bound_variable;
@@ -20,7 +20,7 @@ public class MFOTL_Formula {
     public Structure my_structure;
     private final Logger my_logger = new Logger();
     
-    public MFOTL_Formula(final String _formula) {
+    public MFOTLFormula(final String _formula) {
         // initialize Operator
         // Operator.init();
         my_logger.debug("InMethod: Formula()");
@@ -37,6 +37,13 @@ public class MFOTL_Formula {
         
         my_temporal_subformula = new HashSet<Formula>();
         getTemporalSubformula(my_formula);
+        
+        my_logger.info("\nThe MFOTL formula: " + my_formula.toString());
+        
+        my_logger.info("\nThe MFOTL temporal sub formula: ");
+        for (Formula i: my_temporal_subformula) {
+            my_logger.info(i.toString());
+        }
     }
         
     /**

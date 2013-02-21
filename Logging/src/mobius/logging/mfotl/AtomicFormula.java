@@ -12,6 +12,8 @@ public class AtomicFormula extends Formula{
     private static final Logger my_logger = new Logger();
     
     public AtomicFormula(final String[] _var, final int _arity, final String _operator) {
+        super();
+        
         my_logger.info("\nBuild atomic formula");
         my_logger.debug(_var);
         my_logger.debug(_operator);
@@ -20,6 +22,8 @@ public class AtomicFormula extends Formula{
     }
     
     public AtomicFormula(final String[] _formula) {
+        super();
+        
         my_logger.info("\nBuild atomic formula");        
         my_logger.debug(_formula);
         
@@ -41,6 +45,6 @@ public class AtomicFormula extends Formula{
     }
     
     public String toString() {
-        return predicator.toString();
+        return (predicator.toString());
     }
 }

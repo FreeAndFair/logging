@@ -117,6 +117,16 @@ class QuantifierOperator extends Operator {
     public boolean isBoundVariable(final String a_name) {
         return my_bound_variable.contains(a_name);
     }
+    
+    public String toString() {
+        String temp_str = "";
+        
+        for (String i : my_bound_variable) {
+            temp_str = temp_str.concat(i).concat(" ");
+        }
+        
+        return (my_name + "(" + temp_str + ")");
+    }
 }
 
 class TemporalOperator extends Operator {
@@ -168,19 +178,29 @@ class TemporalOperator extends Operator {
     public boolean inRange(final int a_testVal) {
         return my_interval.inRange(a_testVal);
     }
+    
+    public String toString() {
+        String temp_str = my_name;
+        temp_str = temp_str.concat(my_interval.toString());
+        return temp_str;
+    }
 }
 
 class FirstorderOperator extends Operator {
     public FirstorderOperator(final String a_name) {
         super(a_name);
     }
+    
+    public String toString() {
+        return my_name;
+    }
 }
 
 class Operator {
-    public String my_symbol;
+    public String my_name;
     
     public Operator(final /*@non-null */ String _symbol) {
-        my_symbol = _symbol;
+        my_name = _symbol;
     }
 }
 
@@ -234,7 +254,7 @@ class Interval {
     }
     
     public String toString() {
-        return " [" + my_start + "," + ((my_end == -1)?"inf.":my_end) + ") ";
+        return "[" + my_start + "," + ((my_end == -1)?"inf.":my_end) + ") ";
     }
 }
 
@@ -267,7 +287,7 @@ class ReservedSymbol {
     private ReservedSymbol() {}
     
     private static void fillTemporalSet(final Set<String> a_set) {
-        a_set.add("P");
+        a_set.add("P"); // previous next
         a_set.add("N");
         a_set.add("U");
         a_set.add("S");

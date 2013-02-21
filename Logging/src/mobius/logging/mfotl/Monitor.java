@@ -25,8 +25,8 @@ public class Monitor {
 	}
 	
 	class Q {
-	    MFOTL_Formula a; // alpha temporal sub-formula of phi
+	    MFOTLFormula a; // alpha temporal sub-formula of phi
 	    int j;     // index
-	    MFOTL_Formula w; // waitfor(a)
+	    MFOTLFormula w; // waitfor(a)
 	}
 }
