@@ -3,6 +3,7 @@ package mobius.logging.mfotl;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 //TODO add specs and docs
 
@@ -20,7 +21,7 @@ public class MFOTLFormula {
     public Structure my_structure;
     private final Logger my_logger = new Logger();
     
-    public MFOTLFormula(final String _formula) {
+    public MFOTLFormula(final String a_formula) {
         // initialize Operator
         // Operator.init();
         my_logger.debug("InMethod: Formula()");
@@ -29,8 +30,8 @@ public class MFOTLFormula {
             my_logger.debug("ReservedSymbol Test OK");
         }
         
-        lexer(_formula);
-        my_logger.info("Read Formula: " + _formula + ". With Length " + my_formula_parts.length);
+        lexer(a_formula);
+        my_logger.info("Read Formula: " + a_formula + ". With Length " + my_formula_parts.length);
         my_formula = new TemporalFormula(my_formula_parts);
 
         getBoundVariable();
@@ -74,7 +75,7 @@ public class MFOTLFormula {
             return;
         }
         
-        if (temp_formula.is_temporal ) {
+        if (temp_formula.my_is_temporal ) {
             my_temporal_subformula.add(temp_formula);
         } else if (temp_formula instanceof TemporalFormula) {
                 getTemporalSubformula(((TemporalFormula)temp_formula).my_left_subformula);
@@ -84,7 +85,6 @@ public class MFOTLFormula {
 
 	private void lexer(final String a_formula_str) {
 	    String formula_str = a_formula_str;
-        
         String formula_with_space = "";
         String temp_word = "";
         
@@ -92,6 +92,12 @@ public class MFOTLFormula {
             final String temp_str = Character.toString(formula_str.charAt(i));
             
             if (ReservedSymbol.isReserved(temp_word) || ReservedSymbol.isReserved(temp_str)) {
+                /*
+                final Pattern pattern = Pattern.compile("[^a-zA-Z]+[a-zA-Z0-9]* | [^0-9]+");
+                if (!pattern.matcher(temp_word).find() && !ReservedSymbol.isReserved(temp_word)) {
+                    my_logger.error("lexer error: " + temp_word);
+                }
+                */
                 formula_with_space = formula_with_space.concat(temp_word).concat(" ");
                 if (" ".equals(temp_str)) {
                     temp_word = "";

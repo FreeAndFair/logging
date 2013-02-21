@@ -7,8 +7,8 @@ package mobius.logging.mfotl;
  */
 
 public class AtomicFormula extends Formula{
-    public final Predicator predicator;
-    public boolean value = false;
+    public final Predicator my_predicator;
+    public boolean my_value = false;
     private static final Logger my_logger = new Logger();
     
     public AtomicFormula(final String[] _var, final int _arity, final String _operator) {
@@ -18,7 +18,7 @@ public class AtomicFormula extends Formula{
         my_logger.debug(_var);
         my_logger.debug(_operator);
         
-        predicator = new Predicator(_operator, _arity, _var);
+        my_predicator = new Predicator(_operator, _arity, _var);
     }
     
     public AtomicFormula(final String[] _formula) {
@@ -29,22 +29,22 @@ public class AtomicFormula extends Formula{
         
         if (_formula[1].equals("=") || _formula[1].equals("<")) {
             final String[] _var_tmp = {_formula[0], _formula[2]};
-            predicator = new Predicator(_formula[1], 2, _var_tmp);
+            my_predicator = new Predicator(_formula[1], 2, _var_tmp);
         } else {
             String[] _var_tmp = new String[(_formula.length-2)/2];
             for (int i = 0; i < _var_tmp.length; i++) {
                 _var_tmp[i] = _formula[(i+1)*2];
             }
-            predicator = new Predicator(_formula[0], _var_tmp.length , _var_tmp);
+            my_predicator = new Predicator(_formula[0], _var_tmp.length , _var_tmp);
         }
     }
     
     public boolean evaluateFormula(final Structure _structure) {
-        value = predicator.evaluate(_structure);
-        return value;
+        my_value = my_predicator.evaluate(_structure);
+        return my_value;
     }
     
     public String toString() {
-        return (predicator.toString());
+        return (my_predicator.toString());
     }
 }

@@ -11,12 +11,12 @@ import java.util.Set;
  */
 class Variable {
     private final String my_name;       // variable name
-    private boolean is_free;            // variable is free or not
+    private boolean my_is_free;            // variable is free or not
     private int my_value;               // variable value after assignment or evaluation
     
     public Variable(final String _name) {
         my_name = _name;
-        is_free = true;
+        my_is_free = true;
     }
     
     public String getName() {
@@ -24,11 +24,11 @@ class Variable {
     }
     
     public void setFree(final boolean _is_free) {
-        is_free = _is_free;
+        my_is_free = _is_free;
     }
     
     public boolean isFree() {
-        return is_free;
+        return my_is_free;
     }
     
     public void setValue(final int _value) {
@@ -50,31 +50,31 @@ class Variable {
  * Predicate in logical expression
  */
 class Predicator {
-    private final int arity;
-    private final String symbol;
-    private final Variable[] var;
+    private final int my_arity;
+    private final String my_symbol;
+    private final Variable[] my_var;
     
     /*
      * @ ensures _var.length == _arity;
      * @ ensures _arity > 0;
      */
     public Predicator(final String _name, final int _arity, final String[] _var) {
-        symbol = _name;
-        arity = _arity;
+        my_symbol = _name;
+        my_arity = _arity;
         
-        var = new Variable[arity];
-        for (int i = 0; i < arity; i++) {
-            var[i] = new Variable(_var[i]);
+        my_var = new Variable[my_arity];
+        for (int i = 0; i < my_arity; i++) {
+            my_var[i] = new Variable(_var[i]);
         }
     }
     
     public boolean evaluate(final Structure _structure) {
-        int[] temp_val = new int[arity];
-        for (int i = 0; i < arity; i++) {
-            temp_val[i] = var[i].evaluate(_structure);
+        int[] temp_val = new int[my_arity];
+        for (int i = 0; i < my_arity; i++) {
+            temp_val[i] = my_var[i].evaluate(_structure);
         }
         
-        return _structure.evaluateRelation(symbol, temp_val);
+        return _structure.evaluateRelation(my_symbol, temp_val);
     }
     
     /**
@@ -83,22 +83,22 @@ class Predicator {
      * </p>
      */
     public String toString() {
-        String _result = symbol;
+        String _result = my_symbol;
         
-        _result = _result.concat(" (" + var[0].getName());
-        for (int i = 1; i < arity; i++) {
-            _result = _result.concat(", " + var[i].getName());
+        _result = _result.concat(" (" + my_var[0].getName());
+        for (int i = 1; i < my_arity; i++) {
+            _result = _result.concat(", " + my_var[i].getName());
         }
         _result = _result.concat(")");
         return _result;
     }
     
     public String getSymbol() {
-        return symbol;
+        return my_symbol;
     }
     
     public int getArity() {
-        return arity;
+        return my_arity;
     }
 }
 
@@ -259,12 +259,12 @@ class Interval {
 }
 
 class Signature {
-    public Set constant;
-    public Set predicate;
+    public Set my_constant;
+    public Set my_predicate;
     
     public Signature() {
-        constant = new HashSet();
-        predicate = new HashSet();
+        my_constant = new HashSet();
+        my_predicate = new HashSet();
         initializeConstant();
         initializePredicate();
     }

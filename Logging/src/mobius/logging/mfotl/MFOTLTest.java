@@ -10,10 +10,10 @@ public class MFOTLTest {
         //new Formula("A ( ! E x ( in (x) & ! ( E y ( y = y U [ 0 , 6 ) out ( x ) ) )  )  )");
         
         // test for free and bound variable
-        new MFOTLFormula("E x z(in(x,y))");
+        new Monitor("E x z(in(x,y))");
         
         // test for temporal sub-formula
-        new MFOTLFormula("(P (a=a))&((N (b=b))S[1,9)(c=c))");
+        //new MFOTLFormula("(P (a=11))&((N (b=b))S[1,9)(c=c))");
         
         /*
         new Formula("! N[1,5)n(p) ");
@@ -25,6 +25,6 @@ public class MFOTLTest {
         new Formula("   ( x < y )" );
 
         new Formula("( r ( a , b ) )");*/
-        new MFOTLFormula("aar ( a , b , 5 )");
+        //new MFOTLFormula("aar ( a , b , 5 )");
     }
 }

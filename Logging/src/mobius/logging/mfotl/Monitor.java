@@ -3,16 +3,28 @@ package mobius.logging.mfotl;
 // TODO Implement the full algorithm
 
 public class Monitor {
-	void signatureExtension() {
-		
+    private MFOTLFormula my_formula;
+    
+    public Monitor(final String a_formula) {
+        my_formula = new MFOTLFormula(a_formula);
+        
+        signatureExtension();
+        
+        formulaTransformation();
+    }
+    
+	private void signatureExtension() {
+		/*
+		 * R' = R Union {P_a|a temporal sub-formula of phi}
+		 */
 	}
 	
-	void formulaTransformation() {
+	private void formulaTransformation() {
 		
 	}
 	
 	// the main monitor algorithm
-	void runMonitor() {
+	public void runMonitor(StructureSequence a_structure_sequence) {
 	    int i = 0; // current index in input sequence (D0, t0)...
 	    int q = 0; // index of next query evaluation in sequence (D0, t0) ...
 	    //Q q_0 = new Q();

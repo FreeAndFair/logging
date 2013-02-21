@@ -7,13 +7,13 @@ import java.util.List;
  * 
  */
 public class StructureSequence {
-    public List sequence;
+    public List my_sequence;
     
     public StructureSequence() {
-        sequence = new ArrayList();
+        my_sequence = new ArrayList();
     }
     
     public void insertStructure(final Structure _structure) {
-        sequence.add(_structure);
+        my_sequence.add(_structure);
     }
 }
