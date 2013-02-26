@@ -48,3 +48,17 @@ public class AtomicFormula extends Formula{
         return (my_predicator.toString());
     }
 }
+
+
+/**
+ * not used
+ */
+
+class Propsition {
+    public String my_name;
+    public boolean my_value;
+    
+    public Propsition(final String a_name) {
+        my_name = a_name;
+    }
+}

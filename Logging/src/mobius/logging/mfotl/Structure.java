@@ -83,7 +83,6 @@ class RelationAssignment {
         my_assignment.add(tmp_list);
     }
     
-    
     /*
      * check if a set of values belongs to a relationship
      */

@@ -10,38 +10,53 @@ import java.util.Set;
  * Define Variables, and if it is free or not
  */
 class Variable {
+    // Attributes
     private final String my_name;       // variable name
-    private boolean my_is_free;            // variable is free or not
+    private boolean my_is_free;         // variable is free or not
     private int my_value;               // variable value after assignment or evaluation
     
-    public Variable(final String _name) {
-        my_name = _name;
+    // Constructor
+    
+    //@ assignable my_name;
+    //@ ensures my_name == a_name;
+    //@ ensures my_is_free == true;
+    public Variable(final String a_name) {
+        my_name = a_name;
         my_is_free = true;
     }
     
+    // Public Methods
+    
+    //@ pure
     public String getName() {
         return my_name;
     }
     
-    public void setFree(final boolean _is_free) {
-        my_is_free = _is_free;
+    //@ assignable my_is_free;
+    //@ ensures my_is_free == a_is_free;
+    public void setFree(final boolean a_is_free) {
+        my_is_free = a_is_free;
     }
     
+    //@ pure
     public boolean isFree() {
         return my_is_free;
     }
     
-    public void setValue(final int _value) {
-        my_value = _value;
+    //@ assignable my_value;
+    //@ ensures my_value == a_value;
+    public void setValue(final int a_value) {
+        my_value = a_value;
     }
     
+    //@ pure
     public int getValue() {
         return my_value;
     }
 
-    //@ assignable my_value
-    public int evaluate(final Structure _structure) {
-        my_value = _structure.evaluateVar(my_name);
+    //@ assignable my_value;
+    public int evaluate(final Structure a_structure) {
+        my_value = a_structure.evaluateVar(my_name);
         return my_value;
     }
 }
@@ -50,10 +65,12 @@ class Variable {
  * Predicate in logical expression
  */
 class Predicator {
+    // Attributes
     private final int my_arity;
     private final String my_symbol;
     private final Variable[] my_var;
     
+    // Constructor
     /*
      * @ ensures _var.length == _arity;
      * @ ensures _arity > 0;
@@ -67,6 +84,8 @@ class Predicator {
             my_var[i] = new Variable(_var[i]);
         }
     }
+    
+    // Public Methods
     
     public boolean evaluate(final Structure _structure) {
         int[] temp_val = new int[my_arity];
@@ -103,17 +122,22 @@ class Predicator {
 }
 
 class QuantifierOperator extends Operator {
+    // Attribute
     private Set<String> my_bound_variable;
-    
+
+    // Constructor
     public QuantifierOperator(final String a_name) {
         super(a_name);
         my_bound_variable = new HashSet();
     }
     
+    // Public Methods
+    //@ assignable my_bound_variable;
     public void addVariable(final Set<String> a_set) {
         my_bound_variable = Collections.unmodifiableSet(a_set);
     }
     
+    //@ pure
     public boolean isBoundVariable(final String a_name) {
         return my_bound_variable.contains(a_name);
     }
@@ -260,7 +284,7 @@ class Interval {
 
 class Signature {
     public Set my_constant;
-    public Set my_predicate;
+    public Set<Predicator> my_predicate;
     
     public Signature() {
         my_constant = new HashSet();
@@ -269,11 +293,25 @@ class Signature {
         initializePredicate();
     }
     
+    /*
+     * 
+     */
     private void initializeConstant() {
         
     }
     
+    /*
+     * 
+     */
     private void initializePredicate() {
+        
+    }
+    
+    public void addPredicate(final Predicator a_predicator) {
+        my_predicate.add(a_predicator);
+    }
+    
+    public void addConstant() {
         
     }
 }

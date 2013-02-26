@@ -1,5 +1,7 @@
 package mobius.logging.mfotl;
 
+import java.util.Set;
+
 // TODO Implement the full algorithm
 
 public class Monitor {
@@ -17,6 +19,11 @@ public class Monitor {
 		/*
 		 * R' = R Union {P_a|a temporal sub-formula of phi}
 		 */
+	    Set<Formula> temp_temporal_subformula = my_formula.my_temporal_subformula;
+	    
+	    for (Formula i : temp_temporal_subformula) {
+	        
+	    }
 	}
 	
 	private void formulaTransformation() {

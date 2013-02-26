@@ -11,14 +11,17 @@ import java.util.regex.Pattern;
  * 
  */
 public class MFOTLFormula {
-    protected String[] my_formula_parts;
-
-    protected Set<String> my_bound_variable;
+    private String[] my_formula_parts;
+    private Set<String> my_variable;
+    private Set<String> my_bound_variable;
     
     public Formula my_formula;
     public Set<Formula> my_temporal_subformula;
     
+    public Signature my_signature;
     public Structure my_structure;
+    
+    
     private final Logger my_logger = new Logger();
     
     public MFOTLFormula(final String a_formula) {
@@ -30,17 +33,37 @@ public class MFOTLFormula {
             my_logger.debug("ReservedSymbol Test OK");
         }
         
+        /*
+         * check lexer
+         */
         lexer(a_formula);
         my_logger.info("Read Formula: " + a_formula + ". With Length " + my_formula_parts.length);
+        /*
+         * main formula
+         */
         my_formula = new TemporalFormula(my_formula_parts);
-
         getBoundVariable();
         
+        /*
+         * get temporal subformula
+         */
         my_temporal_subformula = new HashSet<Formula>();
         getTemporalSubformula(my_formula);
         
-        my_logger.info("\nThe MFOTL formula: " + my_formula.toString());
+        /*
+         * lassy way to get a structure
+         */
+        my_signature = new Signature();
+        getSignature(my_formula);
+        my_logger.info("");
+        for (Predicator i: my_signature.my_predicate) {
+            my_logger.info(i.toString());
+        }
         
+        /*
+         * print info
+         */
+        my_logger.info("\nThe MFOTL formula: " + my_formula.toString());
         my_logger.info("\nThe MFOTL temporal sub formula: ");
         for (Formula i: my_temporal_subformula) {
             my_logger.info(i.toString());
@@ -75,11 +98,33 @@ public class MFOTLFormula {
             return;
         }
         
-        if (temp_formula.my_is_temporal ) {
+        if (temp_formula.my_is_temporal) {
             my_temporal_subformula.add(temp_formula);
         } else if (temp_formula instanceof TemporalFormula) {
-                getTemporalSubformula(((TemporalFormula)temp_formula).my_left_subformula);
-                getTemporalSubformula(((TemporalFormula)temp_formula).my_right_subformula);
+                getTemporalSubformula(((TemporalFormula) temp_formula).my_left_subformula);
+                getTemporalSubformula(((TemporalFormula) temp_formula).my_right_subformula);
+        }
+    }
+    
+    /**
+     * <p>
+     * Get the Signature
+     * </p>
+     */
+    private void getSignature(final Formula a_formula) {
+        final Formula temp_formula = a_formula;
+        
+        if (temp_formula == null) {
+            return;
+        }
+        
+        if (temp_formula instanceof AtomicFormula) {
+            //my_variable.add(arg0);
+            //my_signature.addConstant();
+            my_signature.addPredicate(((AtomicFormula) temp_formula).my_predicator);
+        } else {
+            getSignature(((TemporalFormula) temp_formula).my_left_subformula);
+            getSignature(((TemporalFormula) temp_formula).my_right_subformula);
         }
     }
 
