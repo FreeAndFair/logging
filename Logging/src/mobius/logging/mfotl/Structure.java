@@ -10,18 +10,23 @@ import java.util.Map;
 import java.util.Set;
 
 public class Structure {
+    // Attributes
     private final Map my_variable_assignment;
     private final Map my_relation_assignment;
+    public final int my_time_stamp;
     //private final static Map constant_valuation = new Hashtable();
     
+    // Constructors
     /*
      * initialization of Structure
      */
     public Structure() {
         my_variable_assignment = new Hashtable();
         my_relation_assignment = new Hashtable();
+        my_time_stamp = 0;
     }
     
+    // Public Mtehods
     /*
      * evaluate variables
      */

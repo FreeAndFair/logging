@@ -62,7 +62,7 @@ class Variable {
 }
 
 /**
- * Predicate in logical expression
+ * <code>Predicator</code> in logical expression
  */
 class Predicator {
     // Attributes
@@ -70,14 +70,27 @@ class Predicator {
     private final String my_symbol;
     private final Variable[] my_var;
     
-    // Constructor
+    // Constructors
+    public Predicator(final Predicator a_predicator, final int a_inc, final String a_name) {
+        my_symbol = a_name;
+        my_arity = a_predicator.my_arity + a_inc;
+        
+        
+        my_var = new Variable[my_arity];
+        System.arraycopy(my_var, 0, a_predicator.my_var, 0, a_predicator.my_arity);
+        for (int i = 0; i < a_inc; i++) {
+            // TODO ensure no conflict
+            my_var[i+a_predicator.my_arity] = new Variable("add_v" + i);
+        }
+    }
+    
     /*
      * @ ensures _var.length == _arity;
      * @ ensures _arity > 0;
      */
-    public Predicator(final String _name, final int _arity, final String[] _var) {
-        my_symbol = _name;
-        my_arity = _arity;
+    public Predicator(final String a_name, final int a_arity, final String[] _var) {
+        my_symbol = a_name;
+        my_arity = a_arity;
         
         my_var = new Variable[my_arity];
         for (int i = 0; i < my_arity; i++) {
@@ -87,13 +100,13 @@ class Predicator {
     
     // Public Methods
     
-    public boolean evaluate(final Structure _structure) {
+    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
         int[] temp_val = new int[my_arity];
         for (int i = 0; i < my_arity; i++) {
-            temp_val[i] = my_var[i].evaluate(_structure);
+            temp_val[i] = my_var[i].evaluate(a_structure);
         }
         
-        return _structure.evaluateRelation(my_symbol, temp_val);
+        return a_structure.evaluateRelation(my_symbol, temp_val);
     }
     
     /**
@@ -102,20 +115,22 @@ class Predicator {
      * </p>
      */
     public String toString() {
-        String _result = my_symbol;
+        String temp_result = my_symbol;
         
-        _result = _result.concat(" (" + my_var[0].getName());
+        temp_result = temp_result.concat(" (" + my_var[0].getName());
         for (int i = 1; i < my_arity; i++) {
-            _result = _result.concat(", " + my_var[i].getName());
+            temp_result = temp_result.concat(", " + my_var[i].getName());
         }
-        _result = _result.concat(")");
-        return _result;
+        temp_result = temp_result.concat(")");
+        return temp_result;
     }
     
+    //@ pure
     public String getSymbol() {
         return my_symbol;
     }
     
+    //@ pure
     public int getArity() {
         return my_arity;
     }
@@ -126,19 +141,19 @@ class QuantifierOperator extends Operator {
     private Set<String> my_bound_variable;
 
     // Constructor
-    public QuantifierOperator(final String a_name) {
+    public QuantifierOperator(final /*@ non_null @*/ String a_name) {
         super(a_name);
         my_bound_variable = new HashSet();
     }
     
     // Public Methods
     //@ assignable my_bound_variable;
-    public void addVariable(final Set<String> a_set) {
+    public void addVariable(final /*@ non_null @*/ Set<String> a_set) {
         my_bound_variable = Collections.unmodifiableSet(a_set);
     }
     
     //@ pure
-    public boolean isBoundVariable(final String a_name) {
+    public boolean isBoundVariable(final /*@ non_null @*/ String a_name) {
         return my_bound_variable.contains(a_name);
     }
     
@@ -186,23 +201,28 @@ class TemporalOperator extends Operator {
         my_interval.setEnd(a_end);
     }
     
+    //@ assignable my_interval
     public void setInterval(final int a_start, final int a_end) {
         my_interval.setStart(a_start);
         my_interval.setEnd(a_end);
     }
     
+    //@ pure
     public int getStart() {
         return my_interval.getStart();
     }
     
+    //@ pure
     public int getEnd() {
         return my_interval.getEnd();
     }
     
+    //@ pure
     public boolean inRange(final int a_testVal) {
         return my_interval.inRange(a_testVal);
     }
     
+    //@ pure
     public String toString() {
         String temp_str = my_name;
         temp_str = temp_str.concat(my_interval.toString());
