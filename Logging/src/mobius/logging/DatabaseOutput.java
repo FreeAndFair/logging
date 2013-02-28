@@ -108,7 +108,6 @@ implements DebugOutput, Cloneable {
 
           /** ensure [debug_is_valid] (debug == d); 
             changeonly{debug}; **/
-          // review changes between different versions
           databaseInit();
       }
       

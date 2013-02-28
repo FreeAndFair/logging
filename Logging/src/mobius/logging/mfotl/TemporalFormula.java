@@ -10,50 +10,48 @@ import java.util.Set;
  * Temporal Formula
  */
 public class TemporalFormula extends Formula{
+    // Attributes
     /*
      * TemporalFormula ::= AtomicFormula
      * TemporalFormula ::= TemporalFormula + Operator + TemporalFormula
      */
     public Formula my_left_subformula = null;
     public Formula my_right_subformula = null;
+    public AtomicFormula my_auxiliary_predicate = null;
     
-    /*
-    public Formula my_atomic_left = null;
-    public Formula my_atomic_right = null;
-    */
-    /**
-     * 
-     */
     public Operator my_main_operator = null;
-    //public TemporalOperator my_temporal_operator = null;
     
-    /**
-     * check is this temporal formula is first order or not.
-     */
-    /*
-    public boolean is_temporal = false;
-    public boolean is_firstorder = true;
-    */
     public boolean my_is_true = false;
     
-    public static Set my_bound_variable = new HashSet();
-    public static Set<String> my_variable = new HashSet();
-    // TODO add collection of variables;
+    public Set my_bound_variable = new HashSet();
+    public Set my_variable = new HashSet();
     
-    private final Logger my_logger = new Logger();
+    private final Logger my_logger = new Logger(false);
     
     private String[] my_parts;
 
-    public TemporalFormula(final String[] _parts) {
-        my_parts = new String[_parts.length];
-        System.arraycopy(_parts, 0, my_parts, 0, my_parts.length);
+    // Constructor
+    public TemporalFormula(final String[] a_parts) {
+        super();
+        
+        my_parts = new String[a_parts.length];
+        System.arraycopy(a_parts, 0, my_parts, 0, my_parts.length);
         
         if (my_parts.length == 0) {
             my_logger.info("Temporal Formula with length 0");
         } else {
             parseFormula();
+            
+            my_logger.debug("In Formula: ");
+            my_logger.debug(a_parts);
+            my_logger.debug("All Variables: ");
+            my_logger.debug(my_variable);
+            my_logger.debug("Bound Variables: ");
+            my_logger.debug(my_bound_variable);
         }
     }
+    
+    // Private Methods
     
     private void removeOuterParenthesis() {
         final String[] tmpparts = new String[my_parts.length-2];
@@ -83,7 +81,8 @@ public class TemporalFormula extends Formula{
         
         if (mop == -2) {
             my_right_subformula = new AtomicFormula(my_parts);
-
+            my_variable.addAll(((AtomicFormula) my_right_subformula).my_variable);
+            
             my_logger.debug(my_right_subformula.toString() + " -> ATOMIC FORMULA");
             return;
         }
@@ -140,13 +139,19 @@ public class TemporalFormula extends Formula{
         
         if (_parts1.length > 0) {
             my_left_subformula = new TemporalFormula(_parts1);
+            my_bound_variable.addAll(((TemporalFormula) my_left_subformula).my_bound_variable);
+            my_variable.addAll(my_bound_variable);
+            my_variable.addAll(((TemporalFormula) my_left_subformula).my_variable);
         }
         if (_parts2.length > 0) {
             my_right_subformula = new TemporalFormula(_parts2);
+            my_bound_variable.addAll(((TemporalFormula) my_right_subformula).my_bound_variable);
+            my_variable.addAll(my_bound_variable);
+            my_variable.addAll(((TemporalFormula) my_right_subformula).my_variable);
         }
         
         if (my_left_subformula != null) {
-            my_is_firstorder = my_is_firstorder && my_left_subformula.my_is_firstorder; 
+            my_is_firstorder = my_is_firstorder && my_left_subformula.my_is_firstorder;
         }
         if (my_right_subformula != null) {
             my_is_firstorder = my_is_firstorder && my_right_subformula.my_is_firstorder; 
@@ -191,13 +196,19 @@ public class TemporalFormula extends Formula{
         
         return pos;
     }
+
+    // Public Methods
     
-    public void signatureExtension() {
-        //TODO implement it
-    }
-    
-    public void formulaTransformation() {
-        //TODO implement it
+    public Set getFreeVariable() {
+        final Set temp_free_var = new HashSet();
+        
+        for (String i : (Set<String>)my_variable) {
+            if (!my_bound_variable.contains(i)) {
+                temp_free_var.add(i);
+            }
+        }
+        
+        return temp_free_var;
     }
     
     /**
@@ -205,6 +216,10 @@ public class TemporalFormula extends Formula{
      */
     public String toString() {
         String temp_str = "";
+        
+        if (my_auxiliary_predicate != null) {
+            return my_auxiliary_predicate.toString();
+        }
         
         if (my_left_subformula != null) {
             temp_str = temp_str.concat("(").concat(my_left_subformula.toString()).concat(")");

@@ -63,24 +63,26 @@ class Variable {
 
 /**
  * <code>Predicator</code> in logical expression
+ * 
  */
-class Predicator {
+class Predicate {
     // Attributes
     private final int my_arity;
     private final String my_symbol;
     private final Variable[] my_var;
     
     // Constructors
-    public Predicator(final Predicator a_predicator, final int a_inc, final String a_name) {
+    
+    public Predicate(final Predicate a_predicate, final int a_inc, final String a_name) {
         my_symbol = a_name;
-        my_arity = a_predicator.my_arity + a_inc;
+        my_arity = a_predicate.my_arity + a_inc;
         
         
         my_var = new Variable[my_arity];
-        System.arraycopy(my_var, 0, a_predicator.my_var, 0, a_predicator.my_arity);
+        System.arraycopy(my_var, 0, a_predicate.my_var, 0, a_predicate.my_arity);
         for (int i = 0; i < a_inc; i++) {
-            // TODO ensure no conflict
-            my_var[i+a_predicator.my_arity] = new Variable("add_v" + i);
+            // TODO ensure no conflict, and maintain order of variable
+            my_var[i+a_predicate.my_arity] = new Variable("add_v" + i);
         }
     }
     
@@ -88,7 +90,7 @@ class Predicator {
      * @ ensures _var.length == _arity;
      * @ ensures _arity > 0;
      */
-    public Predicator(final String a_name, final int a_arity, final String[] _var) {
+    public Predicate(final String a_name, final int a_arity, final String[] _var) {
         my_symbol = a_name;
         my_arity = a_arity;
         
@@ -304,7 +306,7 @@ class Interval {
 
 class Signature {
     public Set my_constant;
-    public Set<Predicator> my_predicate;
+    public Set<Predicate> my_predicate;
     
     public Signature() {
         my_constant = new HashSet();
@@ -327,7 +329,7 @@ class Signature {
         
     }
     
-    public void addPredicate(final Predicator a_predicator) {
+    public void addPredicate(final Predicate a_predicator) {
         my_predicate.add(a_predicator);
     }
     
@@ -392,14 +394,16 @@ class ReservedSymbol {
         SYMBOL = Collections.unmodifiableSet(temp_set3);
     }
     
-    public static boolean isTemporal(final String _symbol) {
-        return TEMP_OPER.contains(_symbol);
+    public static boolean isTemporal(final String a_symbol) {
+        return TEMP_OPER.contains(a_symbol);
+    }
+
+    //@ pure
+    public static boolean isFirstOrder(final String a_symbol) {
+        return FIRST_OPER.contains(a_symbol);
     }
     
-    public static boolean isFirstOrder(final String _symbol) {
-        return FIRST_OPER.contains(_symbol);
-    }
-    
+    //@ pure
     public static boolean isQuantifier(final String a_symbol) {
         return QUANTIFIER_OPER.contains(a_symbol);
     }

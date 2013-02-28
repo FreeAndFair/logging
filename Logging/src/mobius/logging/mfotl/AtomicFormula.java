@@ -1,5 +1,8 @@
 package mobius.logging.mfotl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /*
  * Class Atomic_Formula
  * 
@@ -7,58 +10,60 @@ package mobius.logging.mfotl;
  */
 
 public class AtomicFormula extends Formula{
-    public final Predicator my_predicator;
+    // Attributes
+    public final Predicate my_predicator;
     public boolean my_value = false;
+    public Set my_variable = new HashSet();
     private static final Logger my_logger = new Logger();
     
-    public AtomicFormula(final String[] _var, final int _arity, final String _operator) {
+    // Constructors
+    public AtomicFormula(final String[] a_var, final int a_arity, final String a_operator) {
         super();
         
         my_logger.info("\nBuild atomic formula");
-        my_logger.debug(_var);
-        my_logger.debug(_operator);
+        my_logger.debug(a_var);
+        my_logger.debug(a_operator);
         
-        my_predicator = new Predicator(_operator, _arity, _var);
-    }
-    
-    public AtomicFormula(final String[] _formula) {
-        super();
-        
-        my_logger.info("\nBuild atomic formula");        
-        my_logger.debug(_formula);
-        
-        if (_formula[1].equals("=") || _formula[1].equals("<")) {
-            final String[] _var_tmp = {_formula[0], _formula[2]};
-            my_predicator = new Predicator(_formula[1], 2, _var_tmp);
-        } else {
-            String[] _var_tmp = new String[(_formula.length-2)/2];
-            for (int i = 0; i < _var_tmp.length; i++) {
-                _var_tmp[i] = _formula[(i+1)*2];
-            }
-            my_predicator = new Predicator(_formula[0], _var_tmp.length , _var_tmp);
+        my_predicator = new Predicate(a_operator, a_arity, a_var);
+        for (String i : a_var) {
+            my_variable.add(i);
         }
     }
     
-    public boolean evaluateFormula(final Structure _structure) {
-        my_value = my_predicator.evaluate(_structure);
+    public AtomicFormula(final String[] a_formula) {
+        super();
+        
+        my_logger.info("\nBuild atomic formula");        
+        my_logger.debug(a_formula);
+        
+        if (a_formula[1].equals("=") || a_formula[1].equals("<")) {
+            final String[] temp_var = {a_formula[0], a_formula[2]};
+            my_predicator = new Predicate(a_formula[1], 2, temp_var);
+            for (String i : temp_var) {
+                my_variable.add(i);
+            }
+        } else {
+            String[] temp_var = new String[(a_formula.length-2)/2];
+            for (int i = 0; i < temp_var.length; i++) {
+                temp_var[i] = a_formula[(i+1)*2];
+                for (String j : temp_var) {
+                    my_variable.add(j);
+                }
+            }
+            my_predicator = new Predicate(a_formula[0], temp_var.length , temp_var);
+        }
+    }
+    
+    // Public Methods
+    
+    //@ assignable my_value;
+    public boolean evaluateFormula(final /*@ */ Structure a_structure) {
+        my_value = my_predicator.evaluate(a_structure);
         return my_value;
     }
     
+    //@ pure
     public String toString() {
-        return (my_predicator.toString());
-    }
-}
-
-
-/**
- * not used
- */
-
-class Propsition {
-    public String my_name;
-    public boolean my_value;
-    
-    public Propsition(final String a_name) {
-        my_name = a_name;
+        return my_predicator.toString();
     }
 }

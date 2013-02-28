@@ -13,7 +13,6 @@ public class Structure {
     // Attributes
     private final Map my_variable_assignment;
     private final Map my_relation_assignment;
-    public final int my_time_stamp;
     //private final static Map constant_valuation = new Hashtable();
     
     // Constructors
@@ -23,7 +22,6 @@ public class Structure {
     public Structure() {
         my_variable_assignment = new Hashtable();
         my_relation_assignment = new Hashtable();
-        my_time_stamp = 0;
     }
     
     // Public Mtehods
@@ -49,15 +47,19 @@ public class Structure {
         my_variable_assignment.put(_name, _value);
     }
     
-    public void initRelationAssign(final String _name) {
-        my_relation_assignment.put(_name, new RelationAssignment());
+    
+    public void initRelationAssign(final String a_relation_name) {
+        my_relation_assignment.put(a_relation_name, new RelationAssignment());
     }
     
     /*
-     * add relation assignment
+     * add relation assignment_value
      */
-    public void addAssign(final String _name, final int[] _value) {
+    public void addRelationAssign(final String _name, final int[] _value) {
         final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(_name);
+        if (temp_rel_assign == null) {
+            new Logger().error("No relation found!!");
+        }
         temp_rel_assign.addRelation(_value);
     }
     
@@ -74,12 +76,15 @@ public class Structure {
 }
 
 class RelationAssignment {
+    // Attribute
     private final Set my_assignment;
 
+    // Constructor
     public RelationAssignment() {
         my_assignment = new HashSet();
     }
     
+    // Public Methods
     public void addRelation(final int[] _val) {
         final List tmp_list = new ArrayList();
         for (int i = 0; i < _val.length; i++) {
@@ -91,10 +96,10 @@ class RelationAssignment {
     /*
      * check if a set of values belongs to a relationship
      */
-    public boolean belongtoRelation(final int[] _value) {
+    public boolean belongtoRelation(final int[] a_value) {
         final Set tmp_set = new HashSet();
-        for (int i = 0; i < _value.length; i++) {
-            tmp_set.add(_value[i]);
+        for (int i = 0; i < a_value.length; i++) {
+            tmp_set.add(a_value[i]);
         }
         
         return my_assignment.contains(tmp_set);

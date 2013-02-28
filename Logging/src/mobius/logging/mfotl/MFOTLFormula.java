@@ -1,38 +1,35 @@
 package mobius.logging.mfotl;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 //TODO add specs and docs
 
 /**
- * 
+ * <p>
+ * <code>MFOTLFormula</code>
+ * </p>
  */
 public class MFOTLFormula {
-    private String[] my_formula_parts;
-    private Set<String> my_variable;
-    private Set<String> my_bound_variable;
-    
-    public Formula my_formula;
-    public Set<Formula> my_temporal_subformula;
-    
-    public Signature my_signature;
-    public Structure my_structure;
-    
-    
+    // Attributes
+    public TemporalFormula my_formula;
+    public Set<TemporalFormula> my_temporal_subformula;
+    private String[] my_formula_parts;    
     private final Logger my_logger = new Logger();
     
-    public MFOTLFormula(final String a_formula) {
-        // initialize Operator
-        // Operator.init();
-        my_logger.debug("InMethod: Formula()");
-
-        if (ReservedSymbol.isOperator("U")) {
-            my_logger.debug("ReservedSymbol Test OK");
-        }
+    // Constructors
+    
+    public MFOTLFormula(final MFOTLFormula a_mfotl) {
+        my_logger.debug("Initialize: MFOTLFormula(MFOTLFormula)");
+        my_formula_parts = new String[a_mfotl.my_formula_parts.length];
+        System.arraycopy(a_mfotl.my_formula_parts, 0, my_formula_parts, 0, my_formula_parts.length);
         
+        my_formula = new TemporalFormula(my_formula_parts);
+    }
+    
+    public MFOTLFormula(final String a_formula) {
+        my_logger.debug("Initialize: MFOTLFormula(String)");
+
         /*
          * check lexer
          */
@@ -42,27 +39,25 @@ public class MFOTLFormula {
          * main formula
          */
         my_formula = new TemporalFormula(my_formula_parts);
-        getBoundVariable();
         
         /*
          * get temporal subformula
          */
-        my_temporal_subformula = new HashSet<Formula>();
+        my_temporal_subformula = new HashSet<TemporalFormula>();
         getTemporalSubformula(my_formula);
         
         /*
          * lassy way to get a structure
          */
+        /*
         my_signature = new Signature();
         getSignature(my_formula);
         my_logger.info("");
-        for (Predicator i: my_signature.my_predicate) {
+        for (Predicate i: my_signature.my_predicate) {
             my_logger.info(i.toString());
-        }
+        }*/
         
-        /*
-         * print info
-         */
+        // print info
         my_logger.info("\nThe MFOTL formula: " + my_formula.toString());
         my_logger.info("\nThe MFOTL temporal sub formula: ");
         for (Formula i: my_temporal_subformula) {
@@ -80,12 +75,7 @@ public class MFOTLFormula {
         return true;
     }
     
-    private void getBoundVariable() {
-        my_logger.debug("InMethod: get Bound Variable");
-        my_bound_variable = new HashSet<String>();
-        my_bound_variable = Collections.unmodifiableSet(((TemporalFormula)my_formula).my_bound_variable);        
-    }
-    
+
     /**
      * <p>
      * Get the temporal subformula
@@ -99,7 +89,7 @@ public class MFOTLFormula {
         }
         
         if (temp_formula.my_is_temporal) {
-            my_temporal_subformula.add(temp_formula);
+            my_temporal_subformula.add((TemporalFormula) temp_formula);
         } else if (temp_formula instanceof TemporalFormula) {
                 getTemporalSubformula(((TemporalFormula) temp_formula).my_left_subformula);
                 getTemporalSubformula(((TemporalFormula) temp_formula).my_right_subformula);
@@ -111,6 +101,7 @@ public class MFOTLFormula {
      * Get the Signature
      * </p>
      */
+    /*
     private void getSignature(final Formula a_formula) {
         final Formula temp_formula = a_formula;
         
@@ -126,7 +117,7 @@ public class MFOTLFormula {
             getSignature(((TemporalFormula) temp_formula).my_left_subformula);
             getSignature(((TemporalFormula) temp_formula).my_right_subformula);
         }
-    }
+    }*/
 
 	private void lexer(final String a_formula_str) {
 	    String formula_str = a_formula_str;
@@ -170,13 +161,6 @@ public class MFOTLFormula {
 	}
 	
 	/*
-	void removeSyntacticsugar(String[] _part1, String[] _part2, String _op) {
-	    if (_op == Operator.op.get(_op))
-	        ;
-	    else if (_op == Operator.op.get(_op))
-	        ;
-	    else
-	        ;
-	}
-	*/
+	 * TODO implement Syntactic sugar
+	 */
 }
