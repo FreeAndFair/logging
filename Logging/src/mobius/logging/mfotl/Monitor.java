@@ -6,13 +6,16 @@ import java.util.Set;
 
 public class Monitor {
     // Attributes
-    private MFOTLFormula my_formula;
+    final private MFOTLFormula my_formula;
     private MFOTLFormula my_formula_hat;
     private Logger logger = new Logger();
     
     private static int my_auxiliary_index = 0;
+    private Structure my_auxiliary_structure;
     
     // Constructors
+    
+    //@ assignable my_formula
     public Monitor(final String a_formula) {
         my_formula = new MFOTLFormula(a_formula);
     }
@@ -26,18 +29,37 @@ public class Monitor {
     public void runMonitor(final TemporalStructure a_structure_sequence) {
         // i: current index in input sequence (D0, t0)...
         int q = 0; // index of next query evaluation in sequence (D0, t0) ...
-        //Q q_0 = new Q();
+        Q q_0 = new Q(my_formula.my_formula);
         
         
         //for (int i = 0; i < a_structure_sequence.my_structure.size(); i++) {
         for (int i = 0; i < 1; i++) {
             // carry over constants and relations of D_i to D'_i
-//            signatureExtension();
+            try {
+                my_auxiliary_structure = (Structure) ((Structure) a_structure_sequence.my_structure.get(i)).clone();
+            } catch(Exception exp) {
+                logger.fatal(exp.getMessage());
+            }
+
+            /*
+            my_auxiliary_structure = null;
+            if (((Structure) a_structure_sequence.my_structure.get(i)) == null) {
+                logger.fatal("Clone failed 000000000000000000000" + i);
+            } else {
+                logger.fatal("Clone succeed 11111111111111111111" + i);
+            }*/
+            
             formulaTransformation(a_structure_sequence, i);
             
             logger.debug("After Signature Extension & Formula Transformation");
             logger.debug(my_formula_hat.my_formula.toString());
+            logger.debug(my_formula.my_formula.toString());
+            logger.debug(my_formula_hat.toString());
+            logger.debug(my_formula.toString());
             
+            if (my_formula_hat.evaluation(my_auxiliary_structure)) {
+                // TODO exit here, complete implementation
+            }
         }
     }    
 
@@ -61,7 +83,19 @@ public class Monitor {
 	
 	//@ assignable my_formula_hat
 	private void formulaTransformation(final TemporalStructure a_ts, final int a_pos) {
-	    my_formula_hat = new MFOTLFormula(my_formula);
+	    try {
+	        my_formula_hat = (MFOTLFormula) my_formula.clone();
+	    } catch (Exception cnse) {
+	        logger.fatal(cnse.getMessage());
+	    }
+	    
+	    /*
+	    my_formula_hat.my_formula = null;
+	    if (my_formula.my_formula == null) {
+	        logger.fatal("000000000000000000000000");
+	    } else {
+	        logger.fatal("11111111111111111");
+	    }*/
 	    
 	    if (my_formula_hat.my_formula.my_is_temporal) {
 	        my_formula_hat = null;
@@ -86,7 +120,9 @@ public class Monitor {
                 temp_var2[j++] = i;
             }
             
-            a_formula.my_left_subformula = new AtomicFormula(temp_var2, temp_var2.length, "p"+my_auxiliary_index++);
+            a_formula.my_left_subformula = new AtomicFormula(temp_var2, temp_var2.length, "p"+my_auxiliary_index);
+            my_auxiliary_structure.initRelationAssign("p"+my_auxiliary_index++);
+            
         } else if (a_formula.my_left_subformula instanceof TemporalFormula) {
             transformTemporalSubformula((TemporalFormula) a_formula.my_left_subformula, a_ts, a_pos);
         }
@@ -101,6 +137,8 @@ public class Monitor {
             }
             
             a_formula.my_right_subformula = new AtomicFormula(temp_var2, temp_var2.length, "p"+my_auxiliary_index++);
+            my_auxiliary_structure.initRelationAssign("p"+my_auxiliary_index++);
+            
         } else if (a_formula.my_right_subformula instanceof TemporalFormula) {
             transformTemporalSubformula((TemporalFormula) a_formula.my_right_subformula, a_ts, a_pos);
         }

@@ -51,6 +51,69 @@ public class TemporalFormula extends Formula{
         }
     }
     
+    // Public Methods
+    public Set getFreeVariable() {
+        final Set temp_free_var = new HashSet();
+        
+        for (String i : (Set<String>)my_variable) {
+            if (!my_bound_variable.contains(i)) {
+                temp_free_var.add(i);
+            }
+        }
+        
+        return temp_free_var;
+    }
+    
+    /**
+     * 
+     */
+    public String toString() {
+        String temp_str = "";
+        
+        if (my_auxiliary_predicate != null) {
+            return my_auxiliary_predicate.toString();
+        }
+        
+        if (my_left_subformula != null) {
+            temp_str = temp_str.concat("(").concat(my_left_subformula.toString()).concat(")");
+        }
+        
+        if (my_main_operator != null) {
+            temp_str = temp_str.concat(" ").concat(my_main_operator.toString()).concat(" ");
+        }
+        
+        if (my_right_subformula != null) {
+            temp_str = temp_str.concat("(").concat(my_right_subformula.toString()).concat(")");
+        }
+        
+        return temp_str;
+    }
+    
+    /**
+     * When the <code>evaluate()</code> method is called, the temporal subformula is
+     * already replaced with first order formulas. 
+     * TODO complete this function
+     */
+    public boolean evaluate(final Structure a_structure) {
+        boolean temp_result = true; 
+        
+        if ("&".equals(my_main_operator.my_name)) {
+            if (my_left_subformula != null) {
+                temp_result = my_left_subformula.evaluate(a_structure);
+            }
+            temp_result &= my_right_subformula.evaluate(a_structure);
+        } else if ("|".equals(my_main_operator.my_name)) {
+            if (my_left_subformula != null) {
+                temp_result = my_left_subformula.evaluate(a_structure);
+            }
+            temp_result |= my_right_subformula.evaluate(a_structure);
+        } else if ("!".equals(my_main_operator.my_name)) {
+            temp_result = ! my_right_subformula.equals(a_structure);
+        }
+        
+        return temp_result;
+    }
+    
     // Private Methods
     
     private void removeOuterParenthesis() {
@@ -195,44 +258,5 @@ public class TemporalFormula extends Formula{
         }
         
         return pos;
-    }
-
-    // Public Methods
-    
-    public Set getFreeVariable() {
-        final Set temp_free_var = new HashSet();
-        
-        for (String i : (Set<String>)my_variable) {
-            if (!my_bound_variable.contains(i)) {
-                temp_free_var.add(i);
-            }
-        }
-        
-        return temp_free_var;
-    }
-    
-    /**
-     * 
-     */
-    public String toString() {
-        String temp_str = "";
-        
-        if (my_auxiliary_predicate != null) {
-            return my_auxiliary_predicate.toString();
-        }
-        
-        if (my_left_subformula != null) {
-            temp_str = temp_str.concat("(").concat(my_left_subformula.toString()).concat(")");
-        }
-        
-        if (my_main_operator != null) {
-            temp_str = temp_str.concat(" ").concat(my_main_operator.toString()).concat(" ");
-        }
-        
-        if (my_right_subformula != null) {
-            temp_str = temp_str.concat("(").concat(my_right_subformula.toString()).concat(")");
-        }
-        
-        return temp_str;
     }
 }

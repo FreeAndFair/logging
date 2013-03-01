@@ -57,7 +57,7 @@ public class AtomicFormula extends Formula{
     // Public Methods
     
     //@ assignable my_value;
-    public boolean evaluateFormula(final /*@ */ Structure a_structure) {
+    public boolean evaluate(final /*@ */ Structure a_structure) {
         my_value = my_predicator.evaluate(a_structure);
         return my_value;
     }

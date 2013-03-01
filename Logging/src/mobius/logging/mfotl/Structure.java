@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Structure {
+public class Structure implements Cloneable{
     // Attributes
     private final Map my_variable_assignment;
     private final Map my_relation_assignment;
@@ -24,7 +24,7 @@ public class Structure {
         my_relation_assignment = new Hashtable();
     }
     
-    // Public Mtehods
+    // Public Methods
     /*
      * evaluate variables
      */
@@ -73,7 +73,11 @@ public class Structure {
             return temp_rel_assign.belongtoRelation(_value);
         }
     }
-}
+    
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+}    
 
 class RelationAssignment {
     // Attribute
@@ -85,10 +89,10 @@ class RelationAssignment {
     }
     
     // Public Methods
-    public void addRelation(final int[] _val) {
+    public void addRelation(final int[] a_val) {
         final List tmp_list = new ArrayList();
-        for (int i = 0; i < _val.length; i++) {
-            tmp_list.add(_val[i]);
+        for (int i = 0; i < a_val.length; i++) {
+            tmp_list.add(a_val[i]);
         }
         my_assignment.add(tmp_list);
     }
@@ -103,5 +107,10 @@ class RelationAssignment {
         }
         
         return my_assignment.contains(tmp_set);
+    }
+    
+    //@ pure
+    public Set getRelationAssign() {
+        return my_assignment;
     }
 }
