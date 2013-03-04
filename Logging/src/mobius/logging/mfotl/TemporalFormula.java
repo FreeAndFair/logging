@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Temporal Formula
  */
-public class TemporalFormula extends Formula{
+public class TemporalFormula extends Formula implements Cloneable{
     // Attributes
     /*
      * TemporalFormula ::= AtomicFormula
@@ -112,6 +112,10 @@ public class TemporalFormula extends Formula{
         }
         
         return temp_result;
+    }
+    
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
     
     // Private Methods

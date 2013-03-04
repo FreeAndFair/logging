@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Define Variables, and if it is free or not
  */
-class Variable {
+class Variable implements Cloneable {
     // Attributes
     private final String my_name;       // variable name
     private boolean my_is_free;         // variable is free or not
@@ -59,13 +59,18 @@ class Variable {
         my_value = a_structure.evaluateVar(my_name);
         return my_value;
     }
+    
+    //@ pure
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }
 
 /**
  * <code>Predicator</code> in logical expression
  * 
  */
-class Predicate {
+class Predicate implements Cloneable {
     // Attributes
     private final int my_arity;
     private final String my_symbol;
@@ -135,6 +140,11 @@ class Predicate {
     //@ pure
     public int getArity() {
         return my_arity;
+    }
+    
+    //@ pure
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
 

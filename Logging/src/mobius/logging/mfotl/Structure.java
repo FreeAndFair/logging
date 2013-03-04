@@ -13,10 +13,10 @@ public class Structure implements Cloneable{
     // Attributes
     private final Map my_variable_assignment;
     private final Map my_relation_assignment;
-    //private final static Map constant_valuation = new Hashtable();
+    private final Logger logger = new Logger();
     
     // Constructors
-    /*
+    /**
      * initialization of Structure
      */
     public Structure() {
@@ -25,8 +25,10 @@ public class Structure implements Cloneable{
     }
     
     // Public Methods
-    /*
+    /**
      * evaluate variables
+     * @param _name
+     * @return
      */
     public int evaluateVar(final /*@ non_null @*/ String _name) {
         int temp_int;
@@ -40,37 +42,50 @@ public class Structure implements Cloneable{
         return temp_int;
     }
     
-    /*
+    /**
      * add variable assignment
+     * @param _name
+     * @param _value
      */
     public void addVarAssign(final String _name, final int _value) {
         my_variable_assignment.put(_name, _value);
     }
     
-    
+    /**
+     * 
+     * @param a_relation_name
+     */
     public void initRelationAssign(final String a_relation_name) {
         my_relation_assignment.put(a_relation_name, new RelationAssignment());
     }
     
-    /*
+    /**
      * add relation assignment_value
+     * @param a_name
+     * @param a_value
      */
-    public void addRelationAssign(final String _name, final int[] _value) {
-        final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(_name);
+    public void addRelationAssign(final String a_name, final int[] a_value) {
+        final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(a_name);
         if (temp_rel_assign == null) {
-            new Logger().error("No relation found!!");
+            logger.error("No relation found!!");
         }
-        temp_rel_assign.addRelation(_value);
+        temp_rel_assign.addRelation(a_value);
     }
     
-    public boolean evaluateRelation(final /*@ non_null @*/ String _name, final /*@ non_null @*/ int[] _value) {
-        if ("=".equals(_name)) {
-            return ((_value.length == 2) && (_value[0] == _value[1]));
-        } else if ("<".equals(_name)) {
-            return ((_value.length == 2) && (_value[0] < _value[1]));
+    /**
+     * 
+     * @param a_name
+     * @param a_value
+     * @return
+     */
+    public boolean evaluateRelation(final /*@ non_null @*/ String a_name, final /*@ non_null @*/ int[] a_value) {
+        if ("=".equals(a_name)) {
+            return ((a_value.length == 2) && (a_value[0] == a_value[1]));
+        } else if ("<".equals(a_name)) {
+            return ((a_value.length == 2) && (a_value[0] < a_value[1]));
         } else {
-            final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(_name);
-            return temp_rel_assign.belongtoRelation(_value);
+            final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(a_name);
+            return temp_rel_assign.belongtoRelation(a_value);
         }
     }
     
@@ -89,6 +104,10 @@ class RelationAssignment {
     }
     
     // Public Methods
+    /**
+     * 
+     * @param a_val
+     */
     public void addRelation(final int[] a_val) {
         final List tmp_list = new ArrayList();
         for (int i = 0; i < a_val.length; i++) {
@@ -97,8 +116,10 @@ class RelationAssignment {
         my_assignment.add(tmp_list);
     }
     
-    /*
+    /**
      * check if a set of values belongs to a relationship
+     * @param a_value
+     * @return
      */
     public boolean belongtoRelation(final int[] a_value) {
         final Set tmp_set = new HashSet();

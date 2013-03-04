@@ -8,14 +8,14 @@ public class Monitor {
     // Attributes
     final private MFOTLFormula my_formula;
     private MFOTLFormula my_formula_hat;
-    private Logger logger = new Logger();
+    final private Logger logger = new Logger();
     
     private static int my_auxiliary_index = 0;
     private Structure my_auxiliary_structure;
     
     // Constructors
     
-    //@ assignable my_formula
+    //@ assignable my_formula;
     public Monitor(final String a_formula) {
         my_formula = new MFOTLFormula(a_formula);
     }
@@ -57,18 +57,21 @@ public class Monitor {
             logger.debug(my_formula_hat.toString());
             logger.debug(my_formula.toString());
             
-            if (my_formula_hat.evaluation(my_auxiliary_structure)) {
+            if (my_formula_hat.evaluate(my_auxiliary_structure)) {
                 // TODO exit here, complete implementation
+            } else {
+                // TODO reconstruct Q
+                q++;
             }
         }
-    }    
+    }
 
     // Private Methods
 	private void signatureExtension() {
 		/*
 		 * R' = R Union {P_a|a temporal sub-formula of phi}
 		 */
-	    Set<TemporalFormula> temp_temporal_subformula = my_formula.my_temporal_subformula;
+	    Set<TemporalFormula> temp_temporal_subformula = my_formula.getTemporalSubformula();
 	    
 	    for (TemporalFormula i : temp_temporal_subformula) {
 	        /*
@@ -104,46 +107,29 @@ public class Monitor {
 	    }
 	}
 	
-	//@ assignable a_formula
-	private void transformTemporalSubformula(final TemporalFormula a_formula, 
+	private void transformTemporalSubformula(final Formula a_formula,
 	        final TemporalStructure a_ts, final int a_pos) {
-        if (a_formula == null) {
-            return;
-        }
-        
-        if ((a_formula.my_left_subformula != null) 
-                && (a_formula.my_left_subformula.my_is_temporal)) {
-            final Set<String> temp_var = ((TemporalFormula) a_formula.my_left_subformula).getFreeVariable();
-            final String[] temp_var2 = new String[temp_var.size()];
-            int j = 0;
-            for (String i : temp_var) {
-                temp_var2[j++] = i;
-            }
-            
-            a_formula.my_left_subformula = new AtomicFormula(temp_var2, temp_var2.length, "p"+my_auxiliary_index);
-            my_auxiliary_structure.initRelationAssign("p"+my_auxiliary_index++);
-            
-        } else if (a_formula.my_left_subformula instanceof TemporalFormula) {
-            transformTemporalSubformula((TemporalFormula) a_formula.my_left_subformula, a_ts, a_pos);
-        }
-        
-        if ((a_formula.my_right_subformula != null) 
-                && (a_formula.my_right_subformula.my_is_temporal)) {
-            final Set<String> temp_var = ((TemporalFormula) a_formula.my_right_subformula).getFreeVariable();
-            final String[] temp_var2 = new String[temp_var.size()];
-            int j = 0;
-            for (String i : temp_var) {
-                temp_var2[j++] = i;
-            }
-            
-            a_formula.my_right_subformula = new AtomicFormula(temp_var2, temp_var2.length, "p"+my_auxiliary_index++);
-            my_auxiliary_structure.initRelationAssign("p"+my_auxiliary_index++);
-            
-        } else if (a_formula.my_right_subformula instanceof TemporalFormula) {
-            transformTemporalSubformula((TemporalFormula) a_formula.my_right_subformula, a_ts, a_pos);
-        }
-    }
-	
+	    if (a_formula == null) {
+	        return;
+	    }
+	    
+	    if (a_formula.my_is_temporal) {
+	        final Set<String> temp_var = ((TemporalFormula) a_formula).getFreeVariable();
+	        final String[] temp_var2 = new String[temp_var.size()];
+	        int j = 0;
+	        for (String i: temp_var) {
+	            temp_var2[j++] = i;
+	        }
+	        
+	        ((TemporalFormula) a_formula).my_auxiliary_predicate = new AtomicFormula(temp_var2, temp_var2.length, 
+	                "p"+my_auxiliary_index);
+	        my_auxiliary_structure.initRelationAssign("p"+my_auxiliary_index++);
+	    } else {
+	        transformTemporalSubformula(((TemporalFormula) a_formula).my_left_subformula, a_ts, a_pos);
+	        transformTemporalSubformula(((TemporalFormula) a_formula).my_right_subformula, a_ts, a_pos);
+	    }
+	}
+
 	private void createAuxiliaryPredicate(TemporalFormula a_temporal_formula) {
 	    Set<String> temp_free_var = a_temporal_formula.getFreeVariable();
 	    String[] temp_freevar_array = new String[temp_free_var.size()];

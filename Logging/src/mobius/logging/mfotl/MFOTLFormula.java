@@ -2,83 +2,85 @@ package mobius.logging.mfotl;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 //TODO add specs and docs
 
 /**
  * <p>
  * Class <code>MFOTLFormula</code> is the main component in the mfotl package.
- * It takes a fromula of type string, and processes it into a <code>TemporalFormula</code>,
+ * It takes a formula of type string, and processes it into a <code>TemporalFormula</code>,
  * which has a linked list type.
  * </p>
  */
 public class MFOTLFormula implements Cloneable{
     // Attributes
     public TemporalFormula my_formula;
-    public Set<TemporalFormula> my_temporal_subformula;
-    private String[] my_formula_parts;    
-    private final Logger my_logger = new Logger();
+    public final String my_formula_str;
+
+    private String[] my_token;    
+    private final Set<TemporalFormula> my_temporal_subformula;
+    private final Pattern my_token_pattern = Pattern.compile("([a-zA-Z]\\w*)|(\\d*)");
+    private final Logger my_logger = new Logger(true);
     
     // Constructors
     public MFOTLFormula(final String a_formula) {
         my_logger.debug("Initialize: MFOTLFormula(String)");
-
+        my_formula_str = a_formula;
         /**
-         * check lexer
+         * lexical analysis and formula building
          */
-        lexer(a_formula);
-        my_logger.info("Read Formula: " + a_formula + ". With Length " + my_formula_parts.length);
-        /**
-         * main formula
-         */
-        my_formula = new TemporalFormula(my_formula_parts);
-        
-        /**
-         * get temporal subformula
-         */
+        runLexer(a_formula);
+        my_logger.info("Read formula: " + a_formula + ", with " + my_token.length + " tokens");
+        my_formula = new TemporalFormula(my_token);
         my_temporal_subformula = new HashSet<TemporalFormula>();
+    }
+    
+    public MFOTLFormula(final MFOTLFormula a_MFOTLFormula) {
+        this(a_MFOTLFormula.my_formula_str);
+    }
+        
+    /**
+     * <p>
+     * <code>evaluate</code> a MFOTL formula
+     * </p> 
+     */
+    //@ pure
+    public boolean evaluate(final Structure a_structure) {
+        return my_formula.evaluate(a_structure);
+    }
+    
+    public Set<TemporalFormula> getTemporalSubformula() {
+        /**
+         * get temporal sub-formula
+         */
         getTemporalSubformula(my_formula);
         
         /**
          * print info
          */
         my_logger.info("\nThe MFOTL formula: " + my_formula.toString());
-        my_logger.info("\nThe MFOTL temporal sub formula: ");
+        my_logger.debug("\nThe MFOTL temporal sub formula: ");
         for (Formula i: my_temporal_subformula) {
-            my_logger.info(i.toString());
+            my_logger.debug(i.toString());
         }
-    }
         
-    /**
-     * 
-     */
-    public boolean evaluation(final Structure a_structure) {
-        /**
-         * @ assert false;
-         * assert false;
-         */
-
-        return my_formula.evaluate(a_structure);
+        return my_temporal_subformula;
     }
-    
 
+    
     /**
      * <p>
      * <code>getTemporalSubformula</code> Get the temporal subformula
      * </p>
      */
-    private void getTemporalSubformula(final Formula a_formula) {
-        final Formula temp_formula = a_formula;
-        
-        if (temp_formula == null) {
-            return;
-        }
-        
-        if (temp_formula.my_is_temporal) {
-            my_temporal_subformula.add((TemporalFormula) temp_formula);
-        } else if (temp_formula instanceof TemporalFormula) {
-                getTemporalSubformula(((TemporalFormula) temp_formula).my_left_subformula);
-                getTemporalSubformula(((TemporalFormula) temp_formula).my_right_subformula);
+    //@ pure
+    private void getTemporalSubformula(final /*@ non-null */ Formula a_formula) {
+        if (a_formula.my_is_temporal) {
+            my_temporal_subformula.add((TemporalFormula) a_formula);
+        } else if (a_formula instanceof TemporalFormula) {
+                getTemporalSubformula(((TemporalFormula) a_formula).my_left_subformula);
+                getTemporalSubformula(((TemporalFormula) a_formula).my_right_subformula);
         }
     }
     
@@ -87,52 +89,54 @@ public class MFOTLFormula implements Cloneable{
      * <code>lexer</code> processes the input formula string, and splits it input an array of String
      * </p>
      */
-	private void lexer(final String a_formula_str) {
-	    String formula_str = a_formula_str;
-        String formula_with_space = "";
-        String temp_word = "";
+    //@ assignable my_token
+	private void runLexer(final String a_formula_str) {
+	    String temp_formula_str = a_formula_str;
+        String temp_formula_with_space = "";
+        String temp_token = "";
         
-        for (int i = 0; i < formula_str.length(); i++) {
-            final String temp_str = Character.toString(formula_str.charAt(i));
+        for (int i = 0; i < temp_formula_str.length(); i++) {
+            final String temp_str = Character.toString(temp_formula_str.charAt(i));
             
-            if (ReservedSymbol.isReserved(temp_word) || ReservedSymbol.isReserved(temp_str)) {
-                /*
-                final Pattern pattern = Pattern.compile("[^a-zA-Z]+[a-zA-Z0-9]* | [^0-9]+");
-                if (!pattern.matcher(temp_word).find() && !ReservedSymbol.isReserved(temp_word)) {
-                    my_logger.error("lexer error: " + temp_word);
+            if (ReservedSymbol.isReserved(temp_token) || ReservedSymbol.isReserved(temp_str)) {
+                if (!ReservedSymbol.isReserved(temp_token)
+                        && !my_token_pattern.matcher(temp_token).find()) {
+                    my_logger.error("lexer error: " + temp_token);
                 }
-                */
-                formula_with_space = formula_with_space.concat(temp_word).concat(" ");
+                
+                temp_formula_with_space = temp_formula_with_space.concat(temp_token).concat(" ");
                 if (" ".equals(temp_str)) {
-                    temp_word = "";
+                    temp_token = "";
                 } else {
-                    temp_word = temp_str;
+                    temp_token = temp_str;
                 }
             } else {
-                temp_word = temp_word.concat(temp_str);
+                temp_token = temp_token.concat(temp_str);
             }
         }
-        formula_with_space = formula_with_space.concat(temp_word);
         
+        temp_formula_with_space = temp_formula_with_space.concat(temp_token);
         
-        while (formula_with_space.charAt(0) == ' ') {
-            formula_with_space = formula_with_space.substring(1);
+        while (temp_formula_with_space.charAt(0) == ' ') {
+            temp_formula_with_space = temp_formula_with_space.substring(1);
             
-            if (formula_with_space.length() == 0) {
+            if (temp_formula_with_space.length() == 0) {
                 my_logger.error("EMPTY FORMULA!!!");
             }
         }
         
-        formula_str = formula_with_space.replaceAll("[ ]+", " ");
-        my_logger.info("Formula with Space: " + formula_str);
-        my_formula_parts = formula_str.split(" ");
+        temp_formula_str = temp_formula_with_space.replaceAll("[ ]+", " ");
+        my_logger.info("Formula with Space: " + temp_formula_str);
+        my_token = temp_formula_str.split(" ");
 	}
 
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    protected Object clone() throws CloneNotSupportedException {
+        MFOTLFormula new_MFOTLFormula = (MFOTLFormula) super.clone();
+        new_MFOTLFormula.my_formula = (TemporalFormula) this.my_formula.clone();
+        return new_MFOTLFormula;
     }
 	
 	/*
-	 * TODO implement Syntactic sugar
+	 * TODO implement removing syntactic sugar
 	 */
 }

@@ -9,9 +9,9 @@ import java.util.Set;
  * for the leave notes of formula
  */
 
-public class AtomicFormula extends Formula{
+public class AtomicFormula extends Formula implements Cloneable {
     // Attributes
-    public final Predicate my_predicator;
+    public Predicate my_predicator;
     public boolean my_value = false;
     public Set my_variable = new HashSet();
     private static final Logger my_logger = new Logger();
@@ -65,5 +65,12 @@ public class AtomicFormula extends Formula{
     //@ pure
     public String toString() {
         return my_predicator.toString();
+    }
+    
+    //@ pure
+    public Object clone() throws CloneNotSupportedException {
+        AtomicFormula new_obj = (AtomicFormula) super.clone();
+        new_obj.my_predicator = (Predicate) this.my_predicator.clone();
+        return new_obj;
     }
 }
