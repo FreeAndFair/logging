@@ -20,7 +20,7 @@ public class AtomicFormula extends Formula implements Cloneable {
     public AtomicFormula(final String[] a_var, final int a_arity, final String a_operator) {
         super();
         
-        my_logger.info("\nBuild atomic formula");
+        my_logger.info("\nBuild atomic formula ->");
         my_logger.debug(a_var);
         my_logger.debug(a_operator);
         
@@ -33,7 +33,7 @@ public class AtomicFormula extends Formula implements Cloneable {
     public AtomicFormula(final String[] a_formula) {
         super();
         
-        my_logger.info("\nBuild atomic formula");        
+        my_logger.info("\nBuild atomic formula ->");        
         my_logger.debug(a_formula);
         
         if (a_formula[1].equals("=") || a_formula[1].equals("<")) {
@@ -57,7 +57,7 @@ public class AtomicFormula extends Formula implements Cloneable {
     // Public Methods
     
     //@ assignable my_value;
-    public boolean evaluate(final /*@ */ Structure a_structure) {
+    public boolean evaluate(final /*@ non-null @*/ Structure a_structure) {
         my_value = my_predicator.evaluate(a_structure);
         return my_value;
     }

@@ -7,43 +7,44 @@ import java.util.Set;
 
 
 /**
- * Temporal Formula
+ * 
+ * @author Jian Wang
+ *
  */
 public class TemporalFormula extends Formula implements Cloneable{
     // Attributes
-    /*
+    /**
      * TemporalFormula ::= AtomicFormula
      * TemporalFormula ::= TemporalFormula + Operator + TemporalFormula
      */
-    public Formula my_left_subformula = null;
-    public Formula my_right_subformula = null;
-    public AtomicFormula my_auxiliary_predicate = null;
-    
-    public Operator my_main_operator = null;
-    
+    public Formula my_left_subformula;
+    public Formula my_right_subformula;
+    public AtomicFormula my_auxiliary_predicate;
+
+    public Operator my_main_operator;
     public boolean my_is_true = false;
     
     public Set my_bound_variable = new HashSet();
     public Set my_variable = new HashSet();
     
-    private final Logger my_logger = new Logger(false);
+    private String[] my_tokens;
+    private static final Logger my_logger = new Logger(false);
     
-    private String[] my_parts;
+    private int mop;
 
     // Constructor
-    public TemporalFormula(final String[] a_parts) {
+    public TemporalFormula(final /*@ non_null @*/ String[] a_tokens) {
         super();
         
-        my_parts = new String[a_parts.length];
-        System.arraycopy(a_parts, 0, my_parts, 0, my_parts.length);
+        my_tokens = new String[a_tokens.length];
+        System.arraycopy(a_tokens, 0, my_tokens, 0, my_tokens.length);
         
-        if (my_parts.length == 0) {
+        if (my_tokens.length == 0) {
             my_logger.info("Temporal Formula with length 0");
         } else {
             parseFormula();
-            
             my_logger.debug("In Formula: ");
-            my_logger.debug(a_parts);
+            my_logger.debug(a_tokens);
             my_logger.debug("All Variables: ");
             my_logger.debug(my_variable);
             my_logger.debug("Bound Variables: ");
@@ -52,6 +53,11 @@ public class TemporalFormula extends Formula implements Cloneable{
     }
     
     // Public Methods
+    /**
+     * 
+     * @return
+     */
+    //@ pure
     public Set getFreeVariable() {
         final Set temp_free_var = new HashSet();
         
@@ -94,8 +100,8 @@ public class TemporalFormula extends Formula implements Cloneable{
      * already replaced with first order formulas. 
      * TODO complete this function
      */
-    public boolean evaluate(final Structure a_structure) {
-        boolean temp_result = true; 
+    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
+        boolean temp_result = true;
         
         if ("&".equals(my_main_operator.my_name)) {
             if (my_left_subformula != null) {
@@ -108,7 +114,7 @@ public class TemporalFormula extends Formula implements Cloneable{
             }
             temp_result |= my_right_subformula.evaluate(a_structure);
         } else if ("!".equals(my_main_operator.my_name)) {
-            temp_result = ! my_right_subformula.equals(a_structure);
+            temp_result ^= my_right_subformula.evaluate(a_structure);
         }
         
         return temp_result;
@@ -119,49 +125,57 @@ public class TemporalFormula extends Formula implements Cloneable{
     }
     
     // Private Methods
-    
+    //@ assignable my_tokens;
     private void removeOuterParenthesis() {
-        final String[] tmpparts = new String[my_parts.length-2];
+        final String[] tmpparts = new String[my_tokens.length-2];
         
-        my_logger.info("\nRemove outer most parenthesis");        
-        if (my_parts[0].equals("(") && my_parts[my_parts.length-1].equals(")")) {
-            System.arraycopy(my_parts, 1, tmpparts, 0, tmpparts.length);
+        my_logger.info("\nRemove outer most parenthesis");
+        
+        if (my_tokens[0].equals("(") && my_tokens[my_tokens.length-1].equals(")")) {
+            System.arraycopy(my_tokens, 1, tmpparts, 0, tmpparts.length);
         } else {
             my_logger.error("Remove outer most parenthesis ERROR!!!");
         }
         
-        my_parts = tmpparts;
+        my_tokens = tmpparts;
     }
 
-    /**
-     * 
-     */
-    private final void parseFormula() {
+    private void parseFormula() {
         my_logger.debug("InMethod: parseFormula");
+        mop = findMainOp();
         
-        int mop = findMainOp();
-        
-        while ((mop == -2) && (my_parts[0].equals("("))) {
+        /**
+         * if no main operator is found, then either it has a outer most parenthesis
+         * or it is an atomic formula
+         */
+        while ((mop == -2) && (my_tokens[0].equals("("))) {
             removeOuterParenthesis();
             mop = findMainOp();
         }
         
         if (mop == -2) {
-            my_right_subformula = new AtomicFormula(my_parts);
-            my_variable.addAll(((AtomicFormula) my_right_subformula).my_variable);
-            
-            my_logger.debug(my_right_subformula.toString() + " -> ATOMIC FORMULA");
-            return;
+            parseAtomicFormula();
+        } else {
+            parseTemporalFormula();
         }
-        
-        // non atomic formula
+    }
+    
+    private void parseAtomicFormula() {
+        my_right_subformula = new AtomicFormula(my_tokens);
+        my_variable.addAll(((AtomicFormula) my_right_subformula).my_variable);
+    }
+    
+    /**
+     * parse non atomic formula
+     */
+    private void parseTemporalFormula() {
         int mop2;
-        if (ReservedSymbol.isTemporal(my_parts[mop])) {
-            my_main_operator = new TemporalOperator(my_parts[mop]);
-            if (my_parts[mop+1].equals("[")) {
+        if (ReservedSymbol.isTemporal(my_tokens[mop])) {
+            my_main_operator = new TemporalOperator(my_tokens[mop]);
+            if (my_tokens[mop+1].equals("[")) {
                 mop2 = mop + 5;
                 try{
-                    ((TemporalOperator)my_main_operator).setInterval(Integer.parseInt(my_parts[mop+2]), Integer.parseInt(my_parts[mop+4]));
+                    ((TemporalOperator)my_main_operator).setInterval(Integer.parseInt(my_tokens[mop+2]), Integer.parseInt(my_tokens[mop+4]));
                 } catch(NumberFormatException nfe) {
                     my_logger.error("Only interger is accepted in the Interval!");       
                 }
@@ -172,30 +186,30 @@ public class TemporalFormula extends Formula implements Cloneable{
             }
             my_is_temporal = true;
             my_is_firstorder = false;
-        } else if (ReservedSymbol.isQuantifier(my_parts[mop])) {
+        } else if (ReservedSymbol.isQuantifier(my_tokens[mop])) {
             final Set<String> temp_set = new HashSet<String>();
             mop2 = mop + 1;
-            for (int i = mop2; i < my_parts.length; i++) {
-                if ("(".equals(my_parts[i])) {
+            for (int i = mop2; i < my_tokens.length; i++) {
+                if ("(".equals(my_tokens[i])) {
                     mop2 = i - 1;
                     break;
                 } else {
-                    temp_set.add(my_parts[i]);
-                    my_bound_variable.add(my_parts[i]);
+                    temp_set.add(my_tokens[i]);
+                    my_bound_variable.add(my_tokens[i]);
                 }
             }
-            my_main_operator = new QuantifierOperator(my_parts[mop]);
+            my_main_operator = new QuantifierOperator(my_tokens[mop]);
             ((QuantifierOperator) my_main_operator).addVariable(temp_set);
         } else {
             mop2 = mop;
-            my_main_operator = new FirstorderOperator(my_parts[mop]);
+            my_main_operator = new FirstorderOperator(my_tokens[mop]);
         }
         
         final String[] _parts1 = new String[mop];
-        final String[] _parts2 = new String[my_parts.length - 1 - mop2];
+        final String[] _parts2 = new String[my_tokens.length - 1 - mop2];
         
-        System.arraycopy(my_parts, 0, _parts1, 0, _parts1.length);
-        System.arraycopy(my_parts, mop2 + 1, _parts2, 0, _parts2.length);
+        System.arraycopy(my_tokens, 0, _parts1, 0, _parts1.length);
+        System.arraycopy(my_tokens, mop2 + 1, _parts2, 0, _parts2.length);
         
         my_logger.debug("********Part1**********");
         my_logger.debug(_parts1);
@@ -209,19 +223,15 @@ public class TemporalFormula extends Formula implements Cloneable{
             my_bound_variable.addAll(((TemporalFormula) my_left_subformula).my_bound_variable);
             my_variable.addAll(my_bound_variable);
             my_variable.addAll(((TemporalFormula) my_left_subformula).my_variable);
+            my_is_firstorder &= my_left_subformula.my_is_firstorder;
         }
         if (_parts2.length > 0) {
             my_right_subformula = new TemporalFormula(_parts2);
             my_bound_variable.addAll(((TemporalFormula) my_right_subformula).my_bound_variable);
             my_variable.addAll(my_bound_variable);
             my_variable.addAll(((TemporalFormula) my_right_subformula).my_variable);
-        }
-        
-        if (my_left_subformula != null) {
-            my_is_firstorder = my_is_firstorder && my_left_subformula.my_is_firstorder;
-        }
-        if (my_right_subformula != null) {
-            my_is_firstorder = my_is_firstorder && my_right_subformula.my_is_firstorder; 
+            
+            my_is_firstorder &= my_right_subformula.my_is_firstorder; 
         }
     }
     
@@ -232,33 +242,32 @@ public class TemporalFormula extends Formula implements Cloneable{
         int count = 0;
         
         do {
-            if (my_parts[pos].equals("(")) {
+            if (my_tokens[pos].equals("(")) {
                 count += 1;
-            } else if (my_parts[pos].equals(")")) {
+            } else if (my_tokens[pos].equals(")")) {
                 count -= 1;
             }
             pos++;
-        } while ((count != 0) && (pos != my_parts.length));
+        } while ((count != 0) && (pos != my_tokens.length));
         
         if (count != 0) {
             my_logger.fatal("Formula not well-formed (parenthesis do not match)");
         }
         
-        //System.out.println("\n------------" + pos);
-        for (pos = pos - 1; pos < my_parts.length; pos++) {
-            if (ReservedSymbol.isOperator(my_parts[pos])) {
+        for (pos = pos - 1; pos < my_tokens.length; pos++) {
+            if (ReservedSymbol.isOperator(my_tokens[pos])) {
                 break;
             }
         }
         
-        if (pos == my_parts.length) {
+        if (pos == my_tokens.length) {
             pos = -2;
         }
         
         // TEST
         my_logger.debug("Main Operator Position: " + pos);
         if (pos >= 0) {
-            my_logger.info(my_parts[pos]);
+            my_logger.info(my_tokens[pos]);
         }
         
         return pos;

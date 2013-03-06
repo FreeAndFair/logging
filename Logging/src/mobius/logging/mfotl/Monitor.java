@@ -16,17 +16,17 @@ public class Monitor {
     // Constructors
     
     //@ assignable my_formula;
-    public Monitor(final String a_formula) {
+    public Monitor(final /*@ non_null @*/ String a_formula) {
         my_formula = new MFOTLFormula(a_formula);
     }
     
     // Public Methods
-    
+
     /**
      * the main monitor algorithm
      * (MFOTL, Basin et al., page 10)
      */
-    public void runMonitor(final TemporalStructure a_structure_sequence) {
+    public void runMonitor(final /*@ non_null @*/ TemporalStructure a_structure_sequence) {
         // i: current index in input sequence (D0, t0)...
         int q = 0; // index of next query evaluation in sequence (D0, t0) ...
         Q q_0 = new Q(my_formula.my_formula);
@@ -36,19 +36,11 @@ public class Monitor {
         for (int i = 0; i < 1; i++) {
             // carry over constants and relations of D_i to D'_i
             try {
-                my_auxiliary_structure = (Structure) ((Structure) a_structure_sequence.my_structure.get(i)).clone();
+                my_auxiliary_structure = new Structure ((Structure) a_structure_sequence.my_structure.get(i));
             } catch(Exception exp) {
                 logger.fatal(exp.getMessage());
             }
 
-            /*
-            my_auxiliary_structure = null;
-            if (((Structure) a_structure_sequence.my_structure.get(i)) == null) {
-                logger.fatal("Clone failed 000000000000000000000" + i);
-            } else {
-                logger.fatal("Clone succeed 11111111111111111111" + i);
-            }*/
-            
             formulaTransformation(a_structure_sequence, i);
             
             logger.debug("After Signature Extension & Formula Transformation");
@@ -109,7 +101,7 @@ public class Monitor {
 	
 	private void transformTemporalSubformula(final Formula a_formula,
 	        final TemporalStructure a_ts, final int a_pos) {
-	    if (a_formula == null) {
+	    if (a_formula == null || a_formula instanceof AtomicFormula) {
 	        return;
 	    }
 	    

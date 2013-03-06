@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Structure implements Cloneable{
+public class Structure {
     // Attributes
     private final Map my_variable_assignment;
     private final Map my_relation_assignment;
-    private final Logger logger = new Logger();
+    private static final Logger logger = new Logger();
     
     // Constructors
     /**
@@ -22,6 +22,11 @@ public class Structure implements Cloneable{
     public Structure() {
         my_variable_assignment = new Hashtable();
         my_relation_assignment = new Hashtable();
+    }
+    
+    public Structure(final Structure a_structure) {
+        this.my_relation_assignment = new Hashtable(a_structure.my_relation_assignment);
+        this.my_variable_assignment = new Hashtable(a_structure.my_variable_assignment);
     }
     
     // Public Methods
@@ -87,10 +92,6 @@ public class Structure implements Cloneable{
             final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(a_name);
             return temp_rel_assign.belongtoRelation(a_value);
         }
-    }
-    
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 }    
 

@@ -18,25 +18,27 @@ public class MFOTLFormula implements Cloneable{
     public TemporalFormula my_formula;
     public final String my_formula_str;
 
-    private String[] my_token;    
+    private String[] my_tokens;
     private final Set<TemporalFormula> my_temporal_subformula;
     private final Pattern my_token_pattern = Pattern.compile("([a-zA-Z]\\w*)|(\\d*)");
     private final Logger my_logger = new Logger(true);
     
     // Constructors
-    public MFOTLFormula(final String a_formula) {
+    //@ ensures my_formula_str == a_formula
+    public MFOTLFormula(final /*@ non_null @*/ String a_formula) {
         my_logger.debug("Initialize: MFOTLFormula(String)");
         my_formula_str = a_formula;
         /**
          * lexical analysis and formula building
          */
-        runLexer(a_formula);
-        my_logger.info("Read formula: " + a_formula + ", with " + my_token.length + " tokens");
-        my_formula = new TemporalFormula(my_token);
+        runLexer();
+
+        
+        my_formula = new TemporalFormula(my_tokens);
         my_temporal_subformula = new HashSet<TemporalFormula>();
     }
     
-    public MFOTLFormula(final MFOTLFormula a_MFOTLFormula) {
+    public MFOTLFormula(final /*@ non_null @*/ MFOTLFormula a_MFOTLFormula) {
         this(a_MFOTLFormula.my_formula_str);
     }
         
@@ -46,7 +48,7 @@ public class MFOTLFormula implements Cloneable{
      * </p> 
      */
     //@ pure
-    public boolean evaluate(final Structure a_structure) {
+    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
         return my_formula.evaluate(a_structure);
     }
     
@@ -90,8 +92,8 @@ public class MFOTLFormula implements Cloneable{
      * </p>
      */
     //@ assignable my_token
-	private void runLexer(final String a_formula_str) {
-	    String temp_formula_str = a_formula_str;
+	private void runLexer() {
+	    String temp_formula_str = my_formula_str;
         String temp_formula_with_space = "";
         String temp_token = "";
         
@@ -127,7 +129,9 @@ public class MFOTLFormula implements Cloneable{
         
         temp_formula_str = temp_formula_with_space.replaceAll("[ ]+", " ");
         my_logger.info("Formula with Space: " + temp_formula_str);
-        my_token = temp_formula_str.split(" ");
+        my_tokens = temp_formula_str.split(" ");
+        
+        my_logger.info("Read formula: " + my_formula_str + ", with " + my_tokens.length + " tokens");
 	}
 
     protected Object clone() throws CloneNotSupportedException {
