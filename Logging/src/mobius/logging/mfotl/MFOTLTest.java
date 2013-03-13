@@ -4,25 +4,32 @@ public class MFOTLTest {
     /**
      * @param args
      * 
-     * Test for formula parsing and evaluating
+     * Test for formula parsing, evaluating and monitoring
      */
     public static void main(final String[] args) {
-        // 
-        //final Monitor test_monitor = new Monitor("! E x ( in (x) & ! ( E y ( y = y U [ 0 , 6 ) out (x) )))");
-        final Monitor test_monitor2 = new Monitor("! E x ( in (x) & ! ( N[0,5) out(x) ))");
-        
+        final Signature test_signature = new Signature();
         final TemporalStructure test_temporal_structure = new TemporalStructure();
-        
         initializeTemporalStructure(test_temporal_structure);
+        initializeSignature(test_signature);
         
-        //test_monitor.runMonitor(test_temporal_structure);
-        test_monitor2.runMonitor(test_temporal_structure);
+        final Monitor test_monitor = new Monitor("! E x ( in (x) & ! ( N[0,5) out(x) ))", test_signature);        
+        test_monitor.runMonitor(test_temporal_structure); 
     }
     
-    /*
-     * Create a sequence of structures for testing
+    /**
+     * Create a signature for the formula 
+     * @param a_signature
      */
-    private static void initializeTemporalStructure(final TemporalStructure a_temporal_structure) {
+    private static void initializeSignature(final /*@ non_null @*/ Signature a_signature) {
+        a_signature.addPredicate(new Predicate("in", 1));
+        a_signature.addPredicate(new Predicate("out", 1));
+    }
+    
+    /**
+     * Create a sequence of structures for testing
+     * @param a_temporal_structure
+     */
+    private static void initializeTemporalStructure(final /*@ non_null @*/ TemporalStructure a_temporal_structure) {
         Structure temp_structure = new Structure();
         int[] temp_value = {1};
         final String temp_rel1 = "in";

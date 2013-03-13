@@ -74,7 +74,7 @@ class Predicate implements Cloneable {
     // Attributes
     private final int my_arity;
     private final String my_symbol;
-    private final Variable[] my_var;
+    //private final Variable[] my_var;
     
     // Constructors
     
@@ -83,37 +83,32 @@ class Predicate implements Cloneable {
         my_arity = a_predicate.my_arity + a_inc;
         
         
-        my_var = new Variable[my_arity];
-        System.arraycopy(my_var, 0, a_predicate.my_var, 0, a_predicate.my_arity);
-        for (int i = 0; i < a_inc; i++) {
+        //my_var = new Variable[my_arity];
+        //System.arraycopy(my_var, 0, a_predicate.my_var, 0, a_predicate.my_arity);
+        //for (int i = 0; i < a_inc; i++) {
             // TODO ensure no conflict, and maintain order of variable
-            my_var[i+a_predicate.my_arity] = new Variable("add_v" + i);
-        }
+          //  my_var[i+a_predicate.my_arity] = new Variable("add_v" + i);
+        //}
     }
     
     /*
      * @ ensures _var.length == _arity;
      * @ ensures _arity > 0;
      */
-    public Predicate(final String a_name, final int a_arity, final String[] _var) {
+    public Predicate(final String a_name, final int a_arity) {
         my_symbol = a_name;
         my_arity = a_arity;
         
-        my_var = new Variable[my_arity];
-        for (int i = 0; i < my_arity; i++) {
-            my_var[i] = new Variable(_var[i]);
-        }
+        //my_var = new Variable[my_arity];
+        //for (int i = 0; i < my_arity; i++) {
+            //my_var[i] = new Variable(_var[i]);
+        //}
     }
     
     // Public Methods
     
-    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
-        int[] temp_val = new int[my_arity];
-        for (int i = 0; i < my_arity; i++) {
-            temp_val[i] = my_var[i].evaluate(a_structure);
-        }
-        
-        return a_structure.evaluateRelation(my_symbol, temp_val);
+    public boolean evaluate(final /*@ non_null @*/ Structure a_structure, final int[] a_val) {
+        return a_structure.evaluateRelation(my_symbol, a_val);
     }
     
     /**
@@ -124,9 +119,9 @@ class Predicate implements Cloneable {
     public String toString() {
         String temp_result = my_symbol;
         
-        temp_result = temp_result.concat(" (" + my_var[0].getName());
+        temp_result = temp_result.concat(" ( var1");
         for (int i = 1; i < my_arity; i++) {
-            temp_result = temp_result.concat(", " + my_var[i].getName());
+            temp_result = temp_result.concat(", var" + i);
         }
         temp_result = temp_result.concat(")");
         return temp_result;

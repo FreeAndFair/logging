@@ -17,9 +17,8 @@ public class Monitor {
     // Constructors
     
     //@ assignable my_formula;
-    public Monitor(final /*@ non_null @*/ String a_formula) {
-        my_signature = new Signature();
-        createSignature();
+    public Monitor(final /*@ non_null @*/ String a_formula, final /*@ non_null @*/ Signature a_signature) {
+        my_signature = a_signature;
         my_formula = new MFOTLFormula(a_formula, my_signature);
     }
     
@@ -152,7 +151,7 @@ public class Monitor {
 	        temp_freevar_array[j++] = i;
 	    }
 	    // Create p_alpha
-	    Predicate temp_p_predicate = new Predicate("p", temp_free_var.size(), temp_freevar_array);
+	    Predicate temp_p_predicate = new Predicate("p", temp_free_var.size());
 	    
 	    if (a_temporal_formula.my_main_operator.my_name.equals("U")) { // create r_alpha, s_alpha
 	        
@@ -161,11 +160,6 @@ public class Monitor {
 	    }
 	}
 	
-	private void createSignature() {
-	    Predicate temp_predicate;
-	    
-	}
-
 	// internal class
 	/**
 	 * <p>
