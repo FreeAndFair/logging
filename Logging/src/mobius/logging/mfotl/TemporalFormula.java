@@ -11,7 +11,7 @@ import java.util.Set;
  * @author Jian Wang
  *
  */
-public class TemporalFormula extends Formula implements Cloneable{
+public class TemporalFormula extends Formula{
     // Attributes
     /**
      * TemporalFormula ::= AtomicFormula
@@ -27,15 +27,17 @@ public class TemporalFormula extends Formula implements Cloneable{
     public Set my_bound_variable = new HashSet();
     public Set my_variable = new HashSet();
     
+    private Signature my_signature;
     private String[] my_tokens;
     private static final Logger my_logger = new Logger(false);
     
     private int mop;
 
     // Constructor
-    public TemporalFormula(final /*@ non_null @*/ String[] a_tokens) {
+    public TemporalFormula(final /*@ non_null @*/ String[] a_tokens, final /*@ non_null @*/ Signature a_signature) {
         super();
         
+        my_signature = a_signature;
         my_tokens = new String[a_tokens.length];
         System.arraycopy(a_tokens, 0, my_tokens, 0, my_tokens.length);
         
@@ -119,9 +121,18 @@ public class TemporalFormula extends Formula implements Cloneable{
         
         return temp_result;
     }
-    
+/*    
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+  */  
+    public Set<Formula> getDirectSubformula() {
+        Set<Formula> temp_set = new HashSet();
+        
+        temp_set.add(my_left_subformula);
+        temp_set.add(my_right_subformula);
+        
+        return temp_set;
     }
     
     // Private Methods
@@ -161,7 +172,7 @@ public class TemporalFormula extends Formula implements Cloneable{
     }
     
     private void parseAtomicFormula() {
-        my_right_subformula = new AtomicFormula(my_tokens);
+        my_right_subformula = new AtomicFormula(my_tokens, my_signature);
         my_variable.addAll(((AtomicFormula) my_right_subformula).my_variable);
     }
     
@@ -205,28 +216,28 @@ public class TemporalFormula extends Formula implements Cloneable{
             my_main_operator = new FirstorderOperator(my_tokens[mop]);
         }
         
-        final String[] _parts1 = new String[mop];
-        final String[] _parts2 = new String[my_tokens.length - 1 - mop2];
+        final String[] token_parts1 = new String[mop];
+        final String[] token_parts2 = new String[my_tokens.length - 1 - mop2];
         
-        System.arraycopy(my_tokens, 0, _parts1, 0, _parts1.length);
-        System.arraycopy(my_tokens, mop2 + 1, _parts2, 0, _parts2.length);
+        System.arraycopy(my_tokens, 0, token_parts1, 0, token_parts1.length);
+        System.arraycopy(my_tokens, mop2 + 1, token_parts2, 0, token_parts2.length);
         
         my_logger.debug("********Part1**********");
-        my_logger.debug(_parts1);
+        my_logger.debug(token_parts1);
 
         my_logger.debug("********Part2**********");
-        my_logger.debug(_parts2);
+        my_logger.debug(token_parts2);
         my_logger.info("\n");
         
-        if (_parts1.length > 0) {
-            my_left_subformula = new TemporalFormula(_parts1);
+        if (token_parts1.length > 0) {
+            my_left_subformula = new TemporalFormula(token_parts1, my_signature);
             my_bound_variable.addAll(((TemporalFormula) my_left_subformula).my_bound_variable);
             my_variable.addAll(my_bound_variable);
             my_variable.addAll(((TemporalFormula) my_left_subformula).my_variable);
             my_is_firstorder &= my_left_subformula.my_is_firstorder;
         }
-        if (_parts2.length > 0) {
-            my_right_subformula = new TemporalFormula(_parts2);
+        if (token_parts2.length > 0) {
+            my_right_subformula = new TemporalFormula(token_parts2, my_signature);
             my_bound_variable.addAll(((TemporalFormula) my_right_subformula).my_bound_variable);
             my_variable.addAll(my_bound_variable);
             my_variable.addAll(((TemporalFormula) my_right_subformula).my_variable);
@@ -272,4 +283,5 @@ public class TemporalFormula extends Formula implements Cloneable{
         
         return pos;
     }
+
 }

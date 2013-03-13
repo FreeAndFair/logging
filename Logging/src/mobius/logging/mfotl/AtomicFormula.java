@@ -9,32 +9,49 @@ import java.util.Set;
  * for the leave notes of formula
  */
 
-public class AtomicFormula extends Formula implements Cloneable {
+public class AtomicFormula extends Formula {
     // Attributes
     public Predicate my_predicator;
     public boolean my_value = false;
     public Set my_variable = new HashSet();
+    
+    private final Signature my_signature;
     private static final Logger my_logger = new Logger();
     
     // Constructors
-    public AtomicFormula(final String[] a_var, final int a_arity, final String a_operator) {
+ 
+    public AtomicFormula(final String[] a_var, final int a_arity, final String a_operator, 
+            final Signature a_signature) {
         super();
         
         my_logger.info("\nBuild atomic formula ->");
         my_logger.debug(a_var);
         my_logger.debug(a_operator);
         
+        my_signature = a_signature;
+        
         my_predicator = new Predicate(a_operator, a_arity, a_var);
+
         for (String i : a_var) {
             my_variable.add(i);
         }
+        
+        if ("=".equals(a_operator) || "<".equals(a_operator))
+            return;
+        
+        if (! my_signature.contains(my_predicator)) {
+            my_logger.fatal("Invalid Relation!");
+        }
+
     }
     
-    public AtomicFormula(final String[] a_formula) {
+    public AtomicFormula(final /*@ non_null @*/ String[] a_formula, final /*@ non_null @*/ Signature a_signature) {
         super();
         
         my_logger.info("\nBuild atomic formula ->");        
         my_logger.debug(a_formula);
+        
+        my_signature = a_signature;
         
         if (a_formula[1].equals("=") || a_formula[1].equals("<")) {
             final String[] temp_var = {a_formula[0], a_formula[2]};
@@ -51,6 +68,11 @@ public class AtomicFormula extends Formula implements Cloneable {
                 }
             }
             my_predicator = new Predicate(a_formula[0], temp_var.length , temp_var);
+            
+            if (! my_signature.contains(my_predicator)) {
+                my_logger.fatal("Invalid Relation!");
+            }
+            
         }
     }
     
@@ -65,12 +87,5 @@ public class AtomicFormula extends Formula implements Cloneable {
     //@ pure
     public String toString() {
         return my_predicator.toString();
-    }
-    
-    //@ pure
-    public Object clone() throws CloneNotSupportedException {
-        AtomicFormula new_obj = (AtomicFormula) super.clone();
-        new_obj.my_predicator = (Predicate) this.my_predicator.clone();
-        return new_obj;
     }
 }

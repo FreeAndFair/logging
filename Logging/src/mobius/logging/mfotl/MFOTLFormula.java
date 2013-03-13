@@ -13,10 +13,11 @@ import java.util.regex.Pattern;
  * which has a linked list type.
  * </p>
  */
-public class MFOTLFormula implements Cloneable{
+public class MFOTLFormula { // implements Cloneable{
     // Attributes
     public TemporalFormula my_formula;
     public final String my_formula_str;
+    public final Signature my_signature;
 
     private String[] my_tokens;
     private final Set<TemporalFormula> my_temporal_subformula;
@@ -25,21 +26,22 @@ public class MFOTLFormula implements Cloneable{
     
     // Constructors
     //@ ensures my_formula_str == a_formula
-    public MFOTLFormula(final /*@ non_null @*/ String a_formula) {
+    public MFOTLFormula(final /*@ non_null @*/ String a_formula, final /*@ non_null @*/ Signature a_signature) {
         my_logger.debug("Initialize: MFOTLFormula(String)");
+        
+        my_signature = a_signature;
         my_formula_str = a_formula;
         /**
          * lexical analysis and formula building
          */
         runLexer();
-
         
-        my_formula = new TemporalFormula(my_tokens);
+        my_formula = new TemporalFormula(my_tokens, my_signature);
         my_temporal_subformula = new HashSet<TemporalFormula>();
     }
     
-    public MFOTLFormula(final /*@ non_null @*/ MFOTLFormula a_MFOTLFormula) {
-        this(a_MFOTLFormula.my_formula_str);
+    public MFOTLFormula(final /*@ non_null @*/ MFOTLFormula a_MFOTLFormula, final /*@ non_null @*/ Signature a_signature) {
+        this(a_MFOTLFormula.my_formula_str, a_signature);
     }
         
     /**
@@ -133,13 +135,13 @@ public class MFOTLFormula implements Cloneable{
         
         my_logger.info("Read formula: " + my_formula_str + ", with " + my_tokens.length + " tokens");
 	}
-
+/*
     protected Object clone() throws CloneNotSupportedException {
         MFOTLFormula new_MFOTLFormula = (MFOTLFormula) super.clone();
         new_MFOTLFormula.my_formula = (TemporalFormula) this.my_formula.clone();
         return new_MFOTLFormula;
     }
-	
+	*/
 	/*
 	 * TODO implement removing syntactic sugar
 	 */

@@ -8,6 +8,7 @@ public class Monitor {
     // Attributes
     final private MFOTLFormula my_formula;
     private MFOTLFormula my_formula_hat;
+    private Signature my_signature;
     final private Logger logger = new Logger();
     
     private static int my_auxiliary_index = 0;
@@ -17,7 +18,9 @@ public class Monitor {
     
     //@ assignable my_formula;
     public Monitor(final /*@ non_null @*/ String a_formula) {
-        my_formula = new MFOTLFormula(a_formula);
+        my_signature = new Signature();
+        createSignature();
+        my_formula = new MFOTLFormula(a_formula, my_signature);
     }
     
     // Public Methods
@@ -30,7 +33,6 @@ public class Monitor {
         // i: current index in input sequence (D0, t0)...
         int q = 0; // index of next query evaluation in sequence (D0, t0) ...
         Q q_0 = new Q(my_formula.my_formula);
-        
         
         //for (int i = 0; i < a_structure_sequence.my_structure.size(); i++) {
         for (int i = 0; i < 1; i++) {
@@ -76,26 +78,23 @@ public class Monitor {
 	    }
 	}
 	
+	/**
+	 * 
+	 * @param a_ts
+	 * @param a_pos
+	 */
 	//@ assignable my_formula_hat
 	private void formulaTransformation(final TemporalStructure a_ts, final int a_pos) {
 	    try {
-	        my_formula_hat = (MFOTLFormula) my_formula.clone();
+	        my_formula_hat = new MFOTLFormula(my_formula, my_signature);
 	    } catch (Exception cnse) {
 	        logger.fatal(cnse.getMessage());
 	    }
 	    
-	    /*
-	    my_formula_hat.my_formula = null;
-	    if (my_formula.my_formula == null) {
-	        logger.fatal("000000000000000000000000");
-	    } else {
-	        logger.fatal("11111111111111111");
-	    }*/
-	    
 	    if (my_formula_hat.my_formula.my_is_temporal) {
-	        my_formula_hat = null;
-	    } else {
 	        transformTemporalSubformula(my_formula_hat.my_formula, a_ts, a_pos);
+	    } else {
+	        return;
 	    }
 	}
 	
@@ -113,9 +112,31 @@ public class Monitor {
 	            temp_var2[j++] = i;
 	        }
 	        
+	        String temp_formula_name = "p" + my_auxiliary_index;
+	        my_auxiliary_index ++;
 	        ((TemporalFormula) a_formula).my_auxiliary_predicate = new AtomicFormula(temp_var2, temp_var2.length, 
-	                "p"+my_auxiliary_index);
-	        my_auxiliary_structure.initRelationAssign("p"+my_auxiliary_index++);
+	                temp_formula_name, my_signature);
+	        
+	        my_auxiliary_structure.initRelationAssign(temp_formula_name);
+	        
+	        if (((TemporalFormula) a_formula).my_main_operator.my_name.equals("P")) {
+	            // TODO improve it to non-atomic ones
+                int temp_time_interval = a_ts.my_time_stamp.get(a_pos) - a_ts.my_time_stamp.get(a_pos-1); 
+                if (((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).inRange(temp_time_interval)) {
+                    // TODO detailed return value
+                    return;   
+                }
+                RelationAssignment temp_ra = a_ts.my_structure.get(a_pos-1).getRelationAssign(temp_formula_name);
+                my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra);
+	        } else if (((TemporalFormula) a_formula).my_main_operator.my_name.equals("N")) {
+                int temp_time_interval = a_ts.my_time_stamp.get(a_pos+1) - a_ts.my_time_stamp.get(a_pos); 
+                if (((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).inRange(temp_time_interval)) {
+                    // TODO detailed return value
+                    return;   
+                }
+                RelationAssignment temp_ra = a_ts.my_structure.get(a_pos+1).getRelationAssign(temp_formula_name);
+                my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra);
+	        }
 	    } else {
 	        transformTemporalSubformula(((TemporalFormula) a_formula).my_left_subformula, a_ts, a_pos);
 	        transformTemporalSubformula(((TemporalFormula) a_formula).my_right_subformula, a_ts, a_pos);
@@ -138,6 +159,11 @@ public class Monitor {
 	    } else if (a_temporal_formula.my_main_operator.my_name.equals("S")) { // create r_alpha
 	        
 	    }
+	}
+	
+	private void createSignature() {
+	    Predicate temp_predicate;
+	    
 	}
 
 	// internal class

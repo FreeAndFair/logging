@@ -8,8 +8,8 @@ import java.util.List;
  */
 public class TemporalStructure {
     // Attributes
-    public List my_structure;
-    public List my_time_stamp;
+    public List<Structure> my_structure;
+    public List<Integer> my_time_stamp;
     
     // Constructor
     public TemporalStructure() {

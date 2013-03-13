@@ -314,40 +314,6 @@ class Interval {
     }
 }
 
-class Signature {
-    public Set my_constant;
-    public Set<Predicate> my_predicate;
-    
-    public Signature() {
-        my_constant = new HashSet();
-        my_predicate = new HashSet();
-        initializeConstant();
-        initializePredicate();
-    }
-    
-    /*
-     * 
-     */
-    private void initializeConstant() {
-        
-    }
-    
-    /*
-     * 
-     */
-    private void initializePredicate() {
-        
-    }
-    
-    public void addPredicate(final Predicate a_predicator) {
-        my_predicate.add(a_predicator);
-    }
-    
-    public void addConstant() {
-        
-    }
-}
-
 class ReservedSymbol {
     private static final Set<String> TEMP_OPER;
     private static final Set<String> FIRST_OPER;

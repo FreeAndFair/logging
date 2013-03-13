@@ -70,11 +70,27 @@ public class Structure {
      * @param a_value
      */
     public void addRelationAssign(final String a_name, final int[] a_value) {
-        final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(a_name);
+        final RelationAssignment temp_rel_assign = (RelationAssignment) my_relation_assignment.get(a_name);
         if (temp_rel_assign == null) {
             logger.error("No relation found!!");
         }
         temp_rel_assign.addRelation(a_value);
+    }
+    
+    /**
+     * 
+     * @param a_name
+     * @param a_ra
+     */
+    public void addRelationAssign(final String a_name, final RelationAssignment a_ra) {
+        final RelationAssignment temp_rel_assign = (RelationAssignment) my_relation_assignment.get(a_name);
+        for (Object i : a_ra.getRelationAssign()) {
+            temp_rel_assign.addRelation((int[]) i);
+        }
+    }
+    
+    public RelationAssignment getRelationAssign(final String a_name) {
+        return (RelationAssignment) my_relation_assignment.get(a_name);
     }
     
     /**
