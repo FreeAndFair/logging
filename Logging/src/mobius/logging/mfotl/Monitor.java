@@ -9,7 +9,7 @@ public class Monitor {
     final private MFOTLFormula my_formula;
     private MFOTLFormula my_formula_hat;
     private Signature my_signature;
-    final private Logger logger = new Logger();
+    final private Logger my_logger = new Logger();
     
     private static int my_auxiliary_index = 0;
     private Structure my_auxiliary_structure;
@@ -33,23 +33,24 @@ public class Monitor {
         int q = 0; // index of next query evaluation in sequence (D0, t0) ...
         Q q_0 = new Q(my_formula.my_formula);
         
-        //for (int i = 0; i < a_structure_sequence.my_structure.size(); i++) {
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < a_structure_sequence.my_structure.size(); i++) {
+        //for (int i = 0; i < 1; i++) {
             // carry over constants and relations of D_i to D'_i
-            try {
-                my_auxiliary_structure = new Structure ((Structure) a_structure_sequence.my_structure.get(i));
-            } catch(Exception exp) {
-                logger.fatal(exp.getMessage());
-            }
+            my_logger.debug("Before Formula Transformation!");
+            my_logger.debug(((Structure) a_structure_sequence.my_structure.get(i)).toString());
+            
+            my_auxiliary_structure = new Structure ((Structure) a_structure_sequence.my_structure.get(i));
 
-            formulaTransformation(a_structure_sequence, i);
+            transformFormula(a_structure_sequence, i);
             
-            logger.debug("After Signature Extension & Formula Transformation");
-            logger.debug(my_formula_hat.my_formula.toString());
-            logger.debug(my_formula.my_formula.toString());
-            logger.debug(my_formula_hat.toString());
-            logger.debug(my_formula.toString());
+            my_logger.debug("After Signature Extension & Formula Transformation");
+            my_logger.debug(my_formula_hat.my_formula.toString());
+            my_logger.debug(my_formula.my_formula.toString());
+            my_logger.debug(my_formula_hat.toString());
+            my_logger.debug(my_formula.toString());
             
+            my_logger.debug("Start Evaluate Formula...");
+            my_logger.debug(my_auxiliary_structure.toString());
             if (my_formula_hat.evaluate(my_auxiliary_structure)) {
                 // TODO exit here, complete implementation
             } else {
@@ -60,50 +61,31 @@ public class Monitor {
     }
 
     // Private Methods
-	private void signatureExtension() {
-		/*
-		 * R' = R Union {P_a|a temporal sub-formula of phi}
-		 */
-	    Set<TemporalFormula> temp_temporal_subformula = my_formula.getTemporalSubformula();
-	    
-	    for (TemporalFormula i : temp_temporal_subformula) {
-	        /*
-	         * Built new relation from temporal subformula (MFOTL, Basin et al., page 5)
-	         */
-	        logger.debug("Temporal Free Var: ");
-	        logger.debug(i.getFreeVariable());
-	        
-	        createAuxiliaryPredicate(i);
-	    }
-	}
-	
 	/**
-	 * 
+	 * transform formula
 	 * @param a_ts
 	 * @param a_pos
 	 */
 	//@ assignable my_formula_hat
-	private void formulaTransformation(final TemporalStructure a_ts, final int a_pos) {
-	    try {
-	        my_formula_hat = new MFOTLFormula(my_formula, my_signature);
-	    } catch (Exception cnse) {
-	        logger.fatal(cnse.getMessage());
-	    }
+	private void transformFormula(final /*@ non_null @*/ TemporalStructure a_ts, final int a_pos) {
+	    my_formula_hat = new MFOTLFormula(my_formula, my_signature);
 	    
 	    if (my_formula_hat.my_formula.my_is_temporal) {
 	        transformTemporalSubformula(my_formula_hat.my_formula, a_ts, a_pos);
-	    } else {
-	        return;
 	    }
 	}
 	
-	private void transformTemporalSubformula(final Formula a_formula,
+	/**
+	 * transform temporal sub-formula 
+	 * @param a_formula
+	 * @param a_ts
+	 * @param a_pos
+	 */
+	private void transformTemporalSubformula(final /*@ non_null @*/ Formula a_formula,
 	        final TemporalStructure a_ts, final int a_pos) {
 	    if (a_formula == null || a_formula instanceof AtomicFormula) {
 	        return;
-	    }
-	    
-	    if (a_formula.my_is_temporal) {
+	    } else if (a_formula.my_is_temporal) {
 	        final Set<String> temp_var = ((TemporalFormula) a_formula).getFreeVariable();
 	        final String[] temp_var2 = new String[temp_var.size()];
 	        int j = 0;
@@ -125,7 +107,7 @@ public class Monitor {
                     // TODO detailed return value
                     return;   
                 }
-                RelationAssignment temp_ra = a_ts.my_structure.get(a_pos-1).getRelationAssign(temp_formula_name);
+                Set<int[]> temp_ra = a_ts.my_structure.get(a_pos-1).getRelationAssign(temp_formula_name);
                 my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra);
 	        } else if (((TemporalFormula) a_formula).my_main_operator.my_name.equals("N")) {
                 int temp_time_interval = a_ts.my_time_stamp.get(a_pos+1) - a_ts.my_time_stamp.get(a_pos); 
@@ -133,7 +115,7 @@ public class Monitor {
                     // TODO detailed return value
                     return;   
                 }
-                RelationAssignment temp_ra = a_ts.my_structure.get(a_pos+1).getRelationAssign(temp_formula_name);
+                Set<int[]> temp_ra = a_ts.my_structure.get(a_pos+1).getRelationAssign(temp_formula_name);
                 my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra);
 	        }
 	    } else {
@@ -141,6 +123,24 @@ public class Monitor {
 	        transformTemporalSubformula(((TemporalFormula) a_formula).my_right_subformula, a_ts, a_pos);
 	    }
 	}
+
+	private void extendSignature() {
+        /*
+         * R' = R Union {P_a|a temporal sub-formula of phi}
+         */
+        Set<TemporalFormula> temp_temporal_subformula = my_formula.getTemporalSubformula();
+        
+        for (TemporalFormula i : temp_temporal_subformula) {
+            /*
+             * Built new relation from temporal subformula (MFOTL, Basin et al., page 5)
+             */
+            my_logger.debug("Temporal Free Var: ");
+            my_logger.debug(i.getFreeVariable());
+            
+            createAuxiliaryPredicate(i);
+        }
+    }
+    
 
 	private void createAuxiliaryPredicate(TemporalFormula a_temporal_formula) {
 	    Set<String> temp_free_var = a_temporal_formula.getFreeVariable();

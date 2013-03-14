@@ -51,6 +51,13 @@ public class MFOTLFormula { // implements Cloneable{
      */
     //@ pure
     public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
+        my_logger.debug("InMethod: MFOTLFormula.evaluate");
+        
+        if (my_formula.evaluate(a_structure)) {
+            my_logger.debug("Formula evaluate True!!!!");
+        } else {
+            my_logger.debug("Formula evlauate False!!!!");
+        }
         return my_formula.evaluate(a_structure);
     }
     

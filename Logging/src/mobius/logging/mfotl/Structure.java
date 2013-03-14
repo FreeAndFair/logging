@@ -2,10 +2,9 @@ package mobius.logging.mfotl;
 
 //TODO add specs and docs
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,16 +31,18 @@ public class Structure {
     // Public Methods
     /**
      * evaluate variables
-     * @param _name
+     * @param a_name
      * @return
      */
-    public int evaluateVar(final /*@ non_null @*/ String _name) {
+    public int evaluateVar(final /*@ non_null @*/ String a_name) {
         int temp_int;
         try {
-            temp_int = Integer.parseInt(_name);
+            temp_int = Integer.parseInt(a_name);
+            logger.debug("Evaluate Constant" + temp_int);
         }
         catch(NumberFormatException nfe) {
-            temp_int = (Integer) my_variable_assignment.get(_name);            
+            temp_int = (Integer) my_variable_assignment.get(a_name);
+            logger.debug("Evaluate Var: " + a_name + " to " + temp_int);
         }
         
         return temp_int;
@@ -49,11 +50,11 @@ public class Structure {
     
     /**
      * add variable assignment
-     * @param _name
-     * @param _value
+     * @param a_name
+     * @param a_value
      */
-    public void addVarAssign(final String _name, final int _value) {
-        my_variable_assignment.put(_name, _value);
+    public void addVarAssign(final String a_name, final int a_value) {
+        my_variable_assignment.put(a_name, a_value);
     }
     
     /**
@@ -61,7 +62,7 @@ public class Structure {
      * @param a_relation_name
      */
     public void initRelationAssign(final String a_relation_name) {
-        my_relation_assignment.put(a_relation_name, new RelationAssignment());
+        my_relation_assignment.put(a_relation_name, new HashSet<int[]>());
     }
     
     /**
@@ -70,11 +71,13 @@ public class Structure {
      * @param a_value
      */
     public void addRelationAssign(final String a_name, final int[] a_value) {
-        final RelationAssignment temp_rel_assign = (RelationAssignment) my_relation_assignment.get(a_name);
+        final Set<int[]> temp_rel_assign = (HashSet<int[]>) my_relation_assignment.get(a_name);
         if (temp_rel_assign == null) {
             logger.error("No relation found!!");
         }
-        temp_rel_assign.addRelation(a_value);
+        final int[] temp_val = new int[a_value.length];
+        System.arraycopy(a_value, 0, temp_val, 0, a_value.length);
+        temp_rel_assign.add(temp_val);
     }
     
     /**
@@ -82,15 +85,15 @@ public class Structure {
      * @param a_name
      * @param a_ra
      */
-    public void addRelationAssign(final String a_name, final RelationAssignment a_ra) {
-        final RelationAssignment temp_rel_assign = (RelationAssignment) my_relation_assignment.get(a_name);
-        for (Object i : a_ra.getRelationAssign()) {
-            temp_rel_assign.addRelation((int[]) i);
+    public void addRelationAssign(final String a_name, final Set<int[]> a_ra) {
+        final Set<int[]> temp_rel_assign = (HashSet<int[]>) my_relation_assignment.get(a_name);
+        for (int[] i : a_ra) {
+            temp_rel_assign.add(i);
         }
     }
     
-    public RelationAssignment getRelationAssign(final String a_name) {
-        return (RelationAssignment) my_relation_assignment.get(a_name);
+    public Set<int[]> getRelationAssign(final String a_name) {
+        return (Set<int[]>) my_relation_assignment.get(a_name);
     }
     
     /**
@@ -105,19 +108,56 @@ public class Structure {
         } else if ("<".equals(a_name)) {
             return ((a_value.length == 2) && (a_value[0] < a_value[1]));
         } else {
-            final RelationAssignment temp_rel_assign = (RelationAssignment)my_relation_assignment.get(a_name);
-            return temp_rel_assign.belongtoRelation(a_value);
+            final Set<int[]> temp_rel_assign = (Set<int[]>) my_relation_assignment.get(a_name);
+            for (int[] i : temp_rel_assign) {
+                if (Arrays.equals(i, a_value))
+                    return true;
+            }
+            return false;
         }
     }
-}    
+    
+    public String toString() {
+        String result_temp_string = "";
+        for (Object i : my_variable_assignment.keySet()) {
+            result_temp_string = result_temp_string.concat(" " + (String)i);
+            result_temp_string = result_temp_string.concat(":=");
+            result_temp_string = result_temp_string.concat(" " + (Integer)my_variable_assignment.get(i) + ", ");
+        }
+        
+        result_temp_string = result_temp_string.concat("\n");
+        
+        for (Object i : my_relation_assignment.keySet()) {
+            result_temp_string = result_temp_string.concat(" " + (String)i);
+            
 
-class RelationAssignment {
+            String temp_result = "{";
+            for (int[] j: this.getRelationAssign((String)i)) {
+                temp_result = temp_result.concat("[");
+                for (int k = 0; k < j.length; k++) {
+                    temp_result = temp_result.concat("" + j[k] + " ");
+                }
+                temp_result = temp_result.concat("] ");
+            }
+            temp_result = temp_result.concat("}");
+            
+            result_temp_string = result_temp_string.concat(temp_result);
+            
+            result_temp_string = result_temp_string.concat("\n");
+        }
+        
+        return result_temp_string;
+    }
+}
+
+class RelationAssignment1 {
     // Attribute
-    private final Set my_assignment;
+    private final Set<int[]> my_assignment;
+    private final Logger my_logger = new Logger();
 
     // Constructor
-    public RelationAssignment() {
-        my_assignment = new HashSet();
+    public RelationAssignment1() {
+        my_assignment = new HashSet<int[]>();
     }
     
     // Public Methods
@@ -126,11 +166,12 @@ class RelationAssignment {
      * @param a_val
      */
     public void addRelation(final int[] a_val) {
-        final List tmp_list = new ArrayList();
-        for (int i = 0; i < a_val.length; i++) {
-            tmp_list.add(a_val[i]);
-        }
-        my_assignment.add(tmp_list);
+        //my_logger.debug("!!!!!!!!!!!!!!!!!!!!1Add" + a_val[0]);
+        
+        final int[] temp_array = new int[a_val.length];
+        System.arraycopy(a_val, 0, temp_array, 0, a_val.length);
+        
+        my_assignment.add(temp_array);
     }
     
     /**
@@ -139,16 +180,21 @@ class RelationAssignment {
      * @return
      */
     public boolean belongtoRelation(final int[] a_value) {
+        /*
         final Set tmp_set = new HashSet();
         for (int i = 0; i < a_value.length; i++) {
             tmp_set.add(a_value[i]);
-        }
+        }*/
         
-        return my_assignment.contains(tmp_set);
+        return my_assignment.contains(a_value);
     }
     
     //@ pure
     public Set getRelationAssign() {
         return my_assignment;
+    }
+    
+    public String toString() {
+        return "";
     }
 }

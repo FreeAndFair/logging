@@ -29,7 +29,7 @@ public class TemporalFormula extends Formula{
     
     private Signature my_signature;
     private String[] my_tokens;
-    private static final Logger my_logger = new Logger(false);
+    private static final Logger my_logger = new Logger();
     
     private int mop;
 
@@ -103,8 +103,11 @@ public class TemporalFormula extends Formula{
      * TODO complete this function
      */
     public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
+        my_logger.debug("InMethod: TemporalFormula.evaluate");
         boolean temp_result = true;
-        
+        if (my_main_operator == null) {
+            return my_right_subformula.evaluate(a_structure);
+        }
         if ("&".equals(my_main_operator.my_name)) {
             if (my_left_subformula != null) {
                 temp_result = my_left_subformula.evaluate(a_structure);
@@ -117,15 +120,15 @@ public class TemporalFormula extends Formula{
             temp_result |= my_right_subformula.evaluate(a_structure);
         } else if ("!".equals(my_main_operator.my_name)) {
             temp_result ^= my_right_subformula.evaluate(a_structure);
+        } else if ("E".equals(my_main_operator.my_name)) {
+            my_logger.debug(my_right_subformula.toString());
+            return (((AtomicFormula) my_right_subformula).evaluateExist(((QuantifierOperator)my_main_operator).my_bound_variable, a_structure));
+        } else if ("A".equals(my_main_operator.my_name)) {
+            // TODO implement this
         }
         
         return temp_result;
     }
-/*    
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-  */  
     public Set<Formula> getDirectSubformula() {
         Set<Formula> temp_set = new HashSet();
         
@@ -133,6 +136,11 @@ public class TemporalFormula extends Formula{
         temp_set.add(my_right_subformula);
         
         return temp_set;
+    }
+    
+    public boolean evaluateExist() {
+        // TODO implement
+        return false;
     }
     
     // Private Methods
@@ -286,5 +294,4 @@ public class TemporalFormula extends Formula{
         
         return pos;
     }
-
 }

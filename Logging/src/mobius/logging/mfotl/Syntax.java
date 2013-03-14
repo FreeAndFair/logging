@@ -117,14 +117,7 @@ class Predicate implements Cloneable {
      * </p>
      */
     public String toString() {
-        String temp_result = my_symbol;
-        
-        temp_result = temp_result.concat(" ( var1");
-        for (int i = 1; i < my_arity; i++) {
-            temp_result = temp_result.concat(", var" + i);
-        }
-        temp_result = temp_result.concat(")");
-        return temp_result;
+        return (my_symbol + "[arity =" + my_arity + "]");
     }
     
     //@ pure
@@ -145,7 +138,7 @@ class Predicate implements Cloneable {
 
 class QuantifierOperator extends Operator {
     // Attribute
-    private Set<String> my_bound_variable;
+    public Set<String> my_bound_variable;
 
     // Constructor
     public QuantifierOperator(final /*@ non_null @*/ String a_name) {

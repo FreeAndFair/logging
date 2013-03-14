@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class AtomicFormula extends Formula {
     // Attributes
-    public Predicate my_predicator;
+    public Predicate my_predicate;
     public boolean my_value = false;
     public Variable[] my_variable;
     
@@ -30,7 +30,7 @@ public class AtomicFormula extends Formula {
         
         my_signature = a_signature;
         
-        my_predicator = new Predicate(a_operator, a_arity);
+        my_predicate = new Predicate(a_operator, a_arity);
 
         my_variable = new Variable[a_arity];
         for (int i = 0; i < a_arity; i++) {
@@ -40,7 +40,7 @@ public class AtomicFormula extends Formula {
         if ("=".equals(a_operator) || "<".equals(a_operator))
             return;
         
-        if (! my_signature.contains(my_predicator)) {
+        if (! my_signature.contains(my_predicate)) {
             my_logger.fatal("Invalid Relation!");
         }
 
@@ -55,7 +55,7 @@ public class AtomicFormula extends Formula {
         my_signature = a_signature;
         
         if (a_formula[1].equals("=") || a_formula[1].equals("<")) {
-            my_predicator = new Predicate(a_formula[1], 2);
+            my_predicate = new Predicate(a_formula[1], 2);
             
             my_variable = new Variable[2];
             my_variable[0] = new Variable(a_formula[0]);
@@ -71,9 +71,9 @@ public class AtomicFormula extends Formula {
                 my_variable[j] = new Variable(temp_var[j]);
             }
             
-            my_predicator = new Predicate(a_formula[0], temp_var.length);
+            my_predicate = new Predicate(a_formula[0], temp_var.length);
             
-            if (! my_signature.contains(my_predicator)) {
+            if (! my_signature.contains(my_predicate)) {
                 my_logger.fatal("Invalid Relation!");
             }
             
@@ -87,11 +87,24 @@ public class AtomicFormula extends Formula {
         for (int i = 0; i < my_variable.length; i++) {
             temp_val[i] = a_structure.evaluateVar(my_variable[i].getName());
         }
-        return my_predicator.evaluate(a_structure, temp_val);
+        return my_predicate.evaluate(a_structure, temp_val);
+    }
+    
+    public boolean evaluateExist(final Set a_var_set, Structure a_structure) {
+        //TODO implement this
+        my_logger.debug("InMethod: AtomicFormula.exist");
+        return false;
     }
     
     //@ pure
     public String toString() {
-        return my_predicator.toString();
+        String temp_string = my_predicate.toString();
+        temp_string = temp_string.concat("(" + my_variable[0].getName());
+        for (int i = 1; i < my_variable.length; i++) {
+            temp_string = temp_string.concat("," + my_variable[i].getName());
+        }
+        temp_string = temp_string.concat(")");
+        
+        return temp_string;
     }
 }
