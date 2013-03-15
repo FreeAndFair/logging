@@ -127,8 +127,6 @@ public class TemporalFormula extends Formula{
         } else if ("E".equals(my_main_operator.my_name)) {
             my_logger.debug("Check Existential " + my_right_subformula.toString());
             return (((AtomicFormula) my_right_subformula).evaluateExist(((QuantifierOperator)my_main_operator).my_bound_variable, a_structure));
-        } else if ("A".equals(my_main_operator.my_name)) {
-            // TODO implement this
         }
         
         return temp_result;
@@ -144,7 +142,7 @@ public class TemporalFormula extends Formula{
     }
     
     public boolean evaluateExist() {
-        // TODO implement
+        // TODO move evaluate exist here
         return false;
     }
     
