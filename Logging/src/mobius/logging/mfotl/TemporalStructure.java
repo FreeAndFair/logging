@@ -22,4 +22,9 @@ public class TemporalStructure {
         my_structure.add(a_structure);
         my_time_stamp.add(a_time_stamp);
     }
+    
+    //@ pure
+    public int getSize() {
+        return my_structure.size();
+    }
 }

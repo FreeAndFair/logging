@@ -10,8 +10,10 @@ public class MFOTLTest {
         final Signature test_signature = initializeSignature();  
         final TemporalStructure test_temporal_structure = initializeTemporalStructure();
         
-        //final Monitor test_monitor = new Monitor("! E x ( in (x) & ! ( N[0,5) out(x) ))", test_signature);    
-        final Monitor test_monitor = new Monitor("Ex ( in (x) ) & out (3)", test_signature);    
+        //final Monitor test_monitor = new Monitor("! E x ( in (x) & ! ( N[0,5) out(x) ))", test_signature);
+        //final Monitor test_monitor = new Monitor("E x ( in (x) ) & out (3)", test_signature);    
+        final Monitor test_monitor = new Monitor("P out (3)", test_signature);    
+        //final Monitor test_monitor = new Monitor("out (3) & in (1)", test_signature);    
         test_monitor.runMonitor(test_temporal_structure); 
     }
     

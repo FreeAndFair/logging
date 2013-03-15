@@ -29,7 +29,7 @@ public class TemporalFormula extends Formula{
     
     private Signature my_signature;
     private String[] my_tokens;
-    private static final Logger my_logger = new Logger();
+    private static final Logger my_logger = new Logger(false);
     
     private int mop;
 
@@ -100,15 +100,19 @@ public class TemporalFormula extends Formula{
     /**
      * When the <code>evaluate()</code> method is called, the temporal subformula is
      * already replaced with first order formulas. 
-     * TODO complete this function
      */
     public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
         boolean temp_result = true;
-        if (my_main_operator == null) {
+        if (my_main_operator == null) { // Atomic Formula
             return my_right_subformula.evaluate(a_structure);
         }
-        if ("&".equals(my_main_operator.my_name)) {
+        
+        if (my_auxiliary_predicate != null) { // Temporal Formula transformed
+            return my_auxiliary_predicate.evaluate(a_structure);
+        }
+        
+        if ("&".equals(my_main_operator.my_name)) { // First Order Formula
             if (my_left_subformula != null) {
                 temp_result = my_left_subformula.evaluate(a_structure);
             }
@@ -121,7 +125,7 @@ public class TemporalFormula extends Formula{
         } else if ("!".equals(my_main_operator.my_name)) {
             temp_result ^= my_right_subformula.evaluate(a_structure);
         } else if ("E".equals(my_main_operator.my_name)) {
-            my_logger.debug(my_right_subformula.toString());
+            my_logger.debug("Check Existential " + my_right_subformula.toString());
             return (((AtomicFormula) my_right_subformula).evaluateExist(((QuantifierOperator)my_main_operator).my_bound_variable, a_structure));
         } else if ("A".equals(my_main_operator.my_name)) {
             // TODO implement this
@@ -129,6 +133,7 @@ public class TemporalFormula extends Formula{
         
         return temp_result;
     }
+    
     public Set<Formula> getDirectSubformula() {
         Set<Formula> temp_set = new HashSet();
         

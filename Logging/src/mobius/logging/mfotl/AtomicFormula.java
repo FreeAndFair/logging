@@ -16,7 +16,7 @@ public class AtomicFormula extends Formula {
     public Variable[] my_variable;
     
     private final Signature my_signature;
-    private static final Logger my_logger = new Logger();
+    private static final Logger my_logger = new Logger(false);
     
     // Constructors
  
@@ -82,7 +82,7 @@ public class AtomicFormula extends Formula {
     
     // Public Methods
     //@ assignable my_value;
-    public boolean evaluate(final /*@ non-null @*/ Structure a_structure) {
+    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
         int[] temp_val = new int[my_variable.length];
         for (int i = 0; i < my_variable.length; i++) {
             temp_val[i] = a_structure.evaluateVar(my_variable[i].getName());
@@ -90,12 +90,31 @@ public class AtomicFormula extends Formula {
         return my_predicate.evaluate(a_structure, temp_val);
     }
     
-    public boolean evaluateExist(final Set a_var_set, Structure a_structure) {
+    /**
+     * 
+     */
+    public boolean evaluateExist(final /*@ non_null @*/ Set a_var_set, final /*@ non_null @*/ Structure a_structure) {
         //TODO implement this
         my_logger.debug("InMethod: AtomicFormula.exist");
+        
+        if ("=".equals(my_predicate.getSymbol())) {
+            
+        } else if ("<".equals(my_predicate.getSymbol())) {
+            // TODO implement this part
+        }
+        
+        Set<int[]> temp_relass = a_structure.getRelationAssign(my_predicate.getSymbol());
+        
+        for (int i = 0; i < my_variable.length; i++) {
+            
+        }
+        
         return false;
     }
     
+    /**
+     * toString method for Atomic Formula
+     */
     //@ pure
     public String toString() {
         String temp_string = my_predicate.toString();
