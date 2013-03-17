@@ -6,6 +6,7 @@ import java.util.Set;
 
 public class Monitor {
     // Attributes
+    
     final private MFOTLFormula my_formula;
     private MFOTLFormula my_formula_hat;
     private Signature my_signature;
