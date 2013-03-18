@@ -3,6 +3,7 @@ package mobius.logging.mfotl;
 //TODO add specs and docs
 
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Set;
 
 public class Logger {
@@ -29,26 +30,36 @@ public class Logger {
     
     // Public Method
     
-    public void debug(final String _debug) {
+    public void debug(final String a_debug_info) {
         if (my_print_info) {
-            my_logger.println("debug: " + _debug);
+            my_logger.println("debug: " + a_debug_info);
         }
     }
     
-    public void debug(final String _debug[]) {
+    public void debug(final String[] a_debug_info) {
         if (my_print_info) {
             my_logger.print("debug: ");
-            for (int i = 0; i < _debug.length; i++) {
-                my_logger.print(_debug[i]);
+            for (int i = 0; i < a_debug_info.length; i++) {
+                my_logger.print(a_debug_info[i]);
             }
             my_logger.println("");
         }
     }
     
-    public void debug(final Set a_debug) {
+    public void debug(final Set a_debug_info) {
         if (my_print_info) {
             my_logger.print("debug: ");
-            for (Object i: a_debug) {
+            for (Object i: a_debug_info) {
+                my_logger.print(i);
+            }
+            my_logger.println("");
+        }
+    }
+    
+    public void debug(final List a_debug_info) {
+        if (my_print_info) {
+            my_logger.print("debug: ");
+            for (Object i: a_debug_info) {
                 my_logger.print(i);
             }
             my_logger.println("");

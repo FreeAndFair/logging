@@ -35,14 +35,20 @@ public class Structure {
      * @return
      */
     public int evaluateVar(final /*@ non_null @*/ String a_name) {
-        int temp_int;
+        int temp_int = 0;
+        
         try {
             temp_int = Integer.parseInt(a_name);
-            logger.debug("Evaluate Constant" + temp_int);
+            logger.debug("Evaluate Constant: " + temp_int);
         }
         catch(NumberFormatException nfe) {
-            temp_int = (Integer) my_variable_assignment.get(a_name);
-            logger.debug("Evaluate Var: " + a_name + " to " + temp_int);
+            if (my_variable_assignment.containsKey(a_name)) {
+                temp_int = (Integer) my_variable_assignment.get(a_name);
+                logger.debug("Evaluate Var: " + a_name + " to " + temp_int);
+            } else {
+                logger.fatal("No variable assignment found");
+                System.exit(1);
+            }
         }
         
         return temp_int;
@@ -53,7 +59,7 @@ public class Structure {
      * @param a_name
      * @param a_value
      */
-    public void addVarAssign(final String a_name, final int a_value) {
+    public void addVarAssign(final /*@ non_null @*/ String a_name, final int a_value) {
         my_variable_assignment.put(a_name, a_value);
     }
     
@@ -61,7 +67,7 @@ public class Structure {
      * 
      * @param a_relation_name
      */
-    public void initRelationAssign(final String a_relation_name) {
+    public void initRelationAssign(final /*@ non_null @*/ String a_relation_name) {
         my_relation_assignment.put(a_relation_name, new HashSet<int[]>());
     }
     

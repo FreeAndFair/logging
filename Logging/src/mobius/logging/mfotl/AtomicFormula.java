@@ -76,7 +76,6 @@ public class AtomicFormula extends Formula {
             if (! my_signature.contains(my_predicate)) {
                 my_logger.fatal("Invalid Relation!");
             }
-            
         }
     }
     
@@ -84,32 +83,31 @@ public class AtomicFormula extends Formula {
     //@ assignable my_value;
     public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
         int[] temp_val = new int[my_variable.length];
+        
         for (int i = 0; i < my_variable.length; i++) {
             temp_val[i] = a_structure.evaluateVar(my_variable[i].getName());
+            my_variable[i].setValue(temp_val[i]);
         }
+        
         return my_predicate.evaluate(a_structure, temp_val);
     }
     
     /**
      * 
      */
-    public boolean evaluateExist(final /*@ non_null @*/ Set a_var_set, final /*@ non_null @*/ Structure a_structure) {
-        //TODO implement this
-        my_logger.debug("InMethod: AtomicFormula.exist");
+    public Set evaluateExist(final /*@ non_null @*/ Set a_var_set, final /*@ non_null @*/ Structure a_structure) {
+        //TODO add "=" and "<"
+        my_logger.debug("InMethod: AtomicFormula.evaluateExist");
         
-        if ("=".equals(my_predicate.getSymbol())) {
-            
-        } else if ("<".equals(my_predicate.getSymbol())) {
-            // TODO implement this part
-        }
-        
-        Set<int[]> temp_relass = a_structure.getRelationAssign(my_predicate.getSymbol());
+        Set<int[]> temp_rela = a_structure.getRelationAssign(my_predicate.getSymbol());
         
         for (int i = 0; i < my_variable.length; i++) {
-            
+            if (a_var_set.contains(my_variable[i].getName())) {
+               
+            }
         }
         
-        return false;
+        return temp_rela;
     }
     
     /**

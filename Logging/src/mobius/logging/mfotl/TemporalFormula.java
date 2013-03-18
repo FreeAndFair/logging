@@ -1,6 +1,8 @@
 package mobius.logging.mfotl;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 //TODO add specs and docs
@@ -20,6 +22,8 @@ public class TemporalFormula extends Formula{
     public Formula my_left_subformula;
     public Formula my_right_subformula;
     public AtomicFormula my_auxiliary_predicate;
+    public AtomicFormula my_auxiliary_predicate2;
+    public AtomicFormula my_auxiliary_predicate3;
 
     public Operator my_main_operator;
     public boolean my_is_true = false;
@@ -27,7 +31,7 @@ public class TemporalFormula extends Formula{
     public Set my_bound_variable = new HashSet();
     public Set my_variable = new HashSet();
     
-    private Signature my_signature;
+    final private Signature my_signature;
     private String[] my_tokens;
     private static final Logger my_logger = new Logger(false);
     
@@ -60,8 +64,8 @@ public class TemporalFormula extends Formula{
      * @return
      */
     //@ pure
-    public Set getFreeVariable() {
-        final Set temp_free_var = new HashSet();
+    public List getFreeVariable() {
+        final LinkedList temp_free_var = new LinkedList();
         
         for (String i : (Set<String>)my_variable) {
             if (!my_bound_variable.contains(i)) {
@@ -98,18 +102,27 @@ public class TemporalFormula extends Formula{
     }
     
     /**
-     * When the <code>evaluate()</code> method is called, the temporal subformula is
-     * already replaced with first order formulas. 
+     * When the <code>evaluate()</code> method is called, the temporal sub-formula is
+     * already replaced with first order formulas.
      */
     public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
         boolean temp_result = true;
-        if (my_main_operator == null) { // Atomic Formula
-            return my_right_subformula.evaluate(a_structure);
-        }
         
         if (my_auxiliary_predicate != null) { // Temporal Formula transformed
-            return my_auxiliary_predicate.evaluate(a_structure);
+            temp_result = my_auxiliary_predicate.evaluate(a_structure);
+            if (my_auxiliary_predicate2 != null) {
+                temp_result &= my_auxiliary_predicate2.evaluate(a_structure);
+            }
+            
+            if (my_auxiliary_predicate3 != null) {
+                temp_result &= my_auxiliary_predicate3.evaluate(a_structure);
+            }
+            return temp_result;
+        }
+        
+        if (my_main_operator == null) { // Atomic Formula
+            return my_right_subformula.evaluate(a_structure);
         }
         
         if ("&".equals(my_main_operator.my_name)) { // First Order Formula
@@ -117,16 +130,15 @@ public class TemporalFormula extends Formula{
                 temp_result = my_left_subformula.evaluate(a_structure);
             }
             temp_result &= my_right_subformula.evaluate(a_structure);
-        } else if ("|".equals(my_main_operator.my_name)) {
-            if (my_left_subformula != null) {
-                temp_result = my_left_subformula.evaluate(a_structure);
-            }
-            temp_result |= my_right_subformula.evaluate(a_structure);
         } else if ("!".equals(my_main_operator.my_name)) {
+            if (my_left_subformula != null) {
+                my_logger.fatal("Syntax Error!");
+                System.exit(1);
+            }
             temp_result ^= my_right_subformula.evaluate(a_structure);
         } else if ("E".equals(my_main_operator.my_name)) {
             my_logger.debug("Check Existential " + my_right_subformula.toString());
-            return (((AtomicFormula) my_right_subformula).evaluateExist(((QuantifierOperator)my_main_operator).my_bound_variable, a_structure));
+            temp_result = evaluateExist(a_structure);
         }
         
         return temp_result;
@@ -141,9 +153,10 @@ public class TemporalFormula extends Formula{
         return temp_set;
     }
     
-    public boolean evaluateExist() {
+    public boolean evaluateExist(final /*@ non_null @*/ Structure a_structure) {
         // TODO move evaluate exist here
-        return false;
+        boolean result_value = (((AtomicFormula) my_right_subformula).evaluateExist(((QuantifierOperator)my_main_operator).my_bound_variable, a_structure) != null);
+        return result_value;
     }
     
     // Private Methods
