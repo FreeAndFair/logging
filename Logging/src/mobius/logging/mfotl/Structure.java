@@ -10,58 +10,20 @@ import java.util.Set;
 
 public class Structure {
     // Attributes
-    private final Map my_variable_assignment;
     private final Map my_relation_assignment;
-    private static final Logger logger = new Logger();
+    private static final Logger my_logger = new Logger();
     
     // Constructors
-    /**
-     * initialization of Structure
-     */
     public Structure() {
-        my_variable_assignment = new Hashtable();
         my_relation_assignment = new Hashtable();
     }
     
     public Structure(final Structure a_structure) {
         this.my_relation_assignment = new Hashtable(a_structure.my_relation_assignment);
-        this.my_variable_assignment = new Hashtable(a_structure.my_variable_assignment);
+
     }
     
     // Public Methods
-    /**
-     * evaluate variables
-     * @param a_name
-     * @return
-     */
-    public int evaluateVar(final /*@ non_null @*/ String a_name) {
-        int temp_int = 0;
-        
-        try {
-            temp_int = Integer.parseInt(a_name);
-            logger.debug("Evaluate Constant: " + temp_int);
-        }
-        catch(NumberFormatException nfe) {
-            if (my_variable_assignment.containsKey(a_name)) {
-                temp_int = (Integer) my_variable_assignment.get(a_name);
-                logger.debug("Evaluate Var: " + a_name + " to " + temp_int);
-            } else {
-                logger.fatal("No variable assignment found");
-                System.exit(1);
-            }
-        }
-        
-        return temp_int;
-    }
-    
-    /**
-     * add variable assignment
-     * @param a_name
-     * @param a_value
-     */
-    public void addVarAssign(final /*@ non_null @*/ String a_name, final int a_value) {
-        my_variable_assignment.put(a_name, a_value);
-    }
     
     /**
      * 
@@ -79,7 +41,7 @@ public class Structure {
     public void addRelationAssign(final String a_name, final int[] a_value) {
         final Set<int[]> temp_rel_assign = (HashSet<int[]>) my_relation_assignment.get(a_name);
         if (temp_rel_assign == null) {
-            logger.error("No relation found!!");
+            my_logger.error("No relation found!!");
         }
         final int[] temp_val = new int[a_value.length];
         System.arraycopy(a_value, 0, temp_val, 0, a_value.length);
@@ -125,14 +87,7 @@ public class Structure {
     
     public String toString() {
         String result_temp_string = "";
-        for (Object i : my_variable_assignment.keySet()) {
-            result_temp_string = result_temp_string.concat(" " + (String)i);
-            result_temp_string = result_temp_string.concat(":=");
-            result_temp_string = result_temp_string.concat(" " + (Integer)my_variable_assignment.get(i) + ", ");
-        }
-        
-        result_temp_string = result_temp_string.concat("\n");
-        
+
         for (Object i : my_relation_assignment.keySet()) {
             result_temp_string = result_temp_string.concat(" " + (String)i);
             
@@ -156,51 +111,63 @@ public class Structure {
     }
 }
 
-class RelationAssignment1 {
-    // Attribute
-    private final Set<int[]> my_assignment;
-    private final Logger my_logger = new Logger();
+class Valuation {
+    // Attributes
+    private final Map my_variable_assignment;
+    private static final Logger my_logger = new Logger();
 
     // Constructor
-    public RelationAssignment1() {
-        my_assignment = new HashSet<int[]>();
+    public Valuation() {
+        my_variable_assignment = new Hashtable();
     }
     
-    // Public Methods
-    /**
-     * 
-     * @param a_val
-     */
-    public void addRelation(final int[] a_val) {
-        //my_logger.debug("!!!!!!!!!!!!!!!!!!!!1Add" + a_val[0]);
-        
-        final int[] temp_array = new int[a_val.length];
-        System.arraycopy(a_val, 0, temp_array, 0, a_val.length);
-        
-        my_assignment.add(temp_array);
+    public Valuation(final /*@ non_null @*/ Valuation a_valuation) {
+        this.my_variable_assignment = new Hashtable(a_valuation.my_variable_assignment);
     }
-    
+
     /**
-     * check if a set of values belongs to a relationship
-     * @param a_value
+     * evaluate variables
+     * @param a_name
      * @return
      */
-    public boolean belongtoRelation(final int[] a_value) {
-        /*
-        final Set tmp_set = new HashSet();
-        for (int i = 0; i < a_value.length; i++) {
-            tmp_set.add(a_value[i]);
-        }*/
+    public int evaluateVar(final /*@ non_null @*/ String a_name) {
+        int temp_int = 0;
         
-        return my_assignment.contains(a_value);
+        try {
+            temp_int = Integer.parseInt(a_name);
+            my_logger.debug("Evaluate Constant: " + temp_int);
+        }
+        catch(NumberFormatException nfe) {
+            if (my_variable_assignment.containsKey(a_name)) {
+                temp_int = (Integer) my_variable_assignment.get(a_name);
+                my_logger.debug("Evaluate Var: " + a_name + " to " + temp_int);
+            } else {
+                my_logger.fatal("No variable assignment found");
+                System.exit(1);
+            }
+        }
+        
+        return temp_int;
     }
-    
-    //@ pure
-    public Set getRelationAssign() {
-        return my_assignment;
+
+    /**
+     * add variable assignment
+     * @param a_name
+     * @param a_value
+     */
+    public void addVarAssign(final /*@ non_null @*/ String a_name, final int a_value) {
+        my_variable_assignment.put(a_name, a_value);
     }
-    
+
     public String toString() {
-        return "";
+        String result_temp_string = "";
+        
+        for (Object i : my_variable_assignment.keySet()) {
+            result_temp_string = result_temp_string.concat(" " + (String)i);
+            result_temp_string = result_temp_string.concat(":=");
+            result_temp_string = result_temp_string.concat(" " + (Integer)my_variable_assignment.get(i) + ", ");
+        }
+        
+        return result_temp_string;
     }
 }

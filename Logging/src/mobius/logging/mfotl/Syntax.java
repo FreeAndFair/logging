@@ -55,8 +55,8 @@ class Variable implements Cloneable {
     }
 
     //@ assignable my_value;
-    public int evaluate(final Structure a_structure) {
-        my_value = a_structure.evaluateVar(my_name);
+    public int evaluate(final Valuation a_valuation) {
+        my_value = a_valuation.evaluateVar(my_name);
         return my_value;
     }
     
@@ -169,10 +169,10 @@ class QuantifierOperator extends Operator {
 }
 
 class TemporalOperator extends Operator {
-    //public static final Hashtable<String, String> op = new Hashtable<String, String>();
-
+    // Attribute
     private final Interval my_interval;
     
+    // Constructors
     //@ assignable interval
     public TemporalOperator(final /*@ non_null @*/ String _symbol, final int _start, final int _end) {
         super(_symbol);
@@ -191,6 +191,7 @@ class TemporalOperator extends Operator {
         my_interval = new Interval();
     }
     
+    // Public Methods
     //@ assignable interval.starty
     public void setStart(final int a_start) {
         my_interval.setStart(a_start);
@@ -218,17 +219,26 @@ class TemporalOperator extends Operator {
     }
     
     //@ pure
-    public boolean inRange(final int a_testVal) {
-        return my_interval.inRange(a_testVal);
+    public boolean inRange(final int a_test_val) {
+        return my_interval.inRange(a_test_val);
+    }
+    
+    //@ pure
+    public boolean gtLower(final int a_test_val) {
+        return (a_test_val>my_interval.getStart());
+    }
+    
+    //@ pure
+    public boolean ltUpper(final int a_test_val) {
+        return (a_test_val < my_interval.getEnd() || my_interval.getEnd() == -1);
     }
     
     //@ pure
     public String toString() {
-        String temp_str = my_name;
-        temp_str = temp_str.concat(my_interval.toString());
-        return temp_str;
+        return (my_name + my_interval.toString());
     }
 }
+
 
 class FirstorderOperator extends Operator {
     public FirstorderOperator(final String a_name) {
@@ -240,11 +250,15 @@ class FirstorderOperator extends Operator {
     }
 }
 
+
 class Operator {
+    // Attributes
     public String my_name;
     
-    public Operator(final /*@non-null */ String _symbol) {
-        my_name = _symbol;
+    // Constructor
+    //@ assignable my_name
+    public Operator(final /*@non-null */ String a_name) {
+        my_name = a_name;
     }
 }
 
@@ -358,6 +372,7 @@ class ReservedSymbol {
         SYMBOL = Collections.unmodifiableSet(temp_set3);
     }
     
+    //@ pure
     public static boolean isTemporal(final String a_symbol) {
         return TEMP_OPER.contains(a_symbol);
     }
@@ -372,14 +387,17 @@ class ReservedSymbol {
         return QUANTIFIER_OPER.contains(a_symbol);
     }
     
+    //@ pure
     public static boolean isSymbol(final String a_symbol) {
         return SYMBOL.contains(a_symbol);
     }
     
+    //@ pure
     public static boolean isOperator(final String _symbol) {
         return (isTemporal(_symbol) || isFirstOrder(_symbol) || isQuantifier(_symbol));
     }
     
+    //@ pure
     public static boolean isReserved(final String _symbol) {
         return (isOperator(_symbol) || isSymbol(_symbol));
     }

@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * which has a linked list type.
  * </p>
  */
-public class MFOTLFormula { // implements Cloneable{
+public class MFOTLFormula {
     // Attributes
     public TemporalFormula my_formula;
     public final String my_formula_str;
@@ -53,12 +53,7 @@ public class MFOTLFormula { // implements Cloneable{
     public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: MFOTLFormula.evaluate");
         
-        if (my_formula.evaluate(a_structure)) {
-            my_logger.debug("Formula evaluate True!!!!");
-        } else {
-            my_logger.debug("Formula evlauate False!!!!");
-        }
-        return my_formula.evaluate(a_structure);
+        return (my_formula.evaluate(a_structure).size() != 0);
     }
     
     public Set<TemporalFormula> getTemporalSubformula() {

@@ -80,12 +80,18 @@ public class AtomicFormula extends Formula {
     }
     
     // Public Methods
+    
+    public String getName() {
+        return my_predicate.getSymbol();
+    }
+    
     //@ assignable my_value;
-    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
+    public boolean evaluate(final /*@ non_null @*/ Structure a_structure,
+            final /*@ non_null @*/ Valuation a_valuation) {
         int[] temp_val = new int[my_variable.length];
         
         for (int i = 0; i < my_variable.length; i++) {
-            temp_val[i] = a_structure.evaluateVar(my_variable[i].getName());
+            temp_val[i] = a_valuation.evaluateVar(my_variable[i].getName());
             my_variable[i].setValue(temp_val[i]);
         }
         

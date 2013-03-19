@@ -14,10 +14,11 @@ public class Formula {
      * @param a_structure
      * @return
      */
-    public boolean evaluate(final Structure a_structure) {
+    public Set evaluate(final Structure a_structure) {
         my_logger.debug("InMethod: Formula.evaluate");
-        return false;
+        return null;
     }
+    
     
     /**
      * return the truth evaluation assignment
@@ -26,7 +27,7 @@ public class Formula {
      * @return
      */
     public Set evaluateExist(final Set a_set, final Structure a_structure) {
-        my_logger.debug("InMethod: Formula.exist");
+        my_logger.debug("InMethod: Formula.evaluateE");
         return null;
     }
 }

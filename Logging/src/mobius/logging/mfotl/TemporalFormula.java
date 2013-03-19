@@ -28,8 +28,9 @@ public class TemporalFormula extends Formula{
     public Operator my_main_operator;
     public boolean my_is_true = false;
     
-    public Set my_bound_variable = new HashSet();
-    public Set my_variable = new HashSet();
+    final private List my_bound_variable = new LinkedList();
+    final private List my_variable = new LinkedList();
+    final private List my_free_variable = new LinkedList();
     
     final private Signature my_signature;
     private String[] my_tokens;
@@ -49,31 +50,28 @@ public class TemporalFormula extends Formula{
             my_logger.info("Temporal Formula with length 0");
         } else {
             parseFormula();
+            
+            for (String i : (LinkedList<String>)my_variable) {
+                if (!my_bound_variable.contains(i)) {
+                    my_free_variable.add(i);
+                }
+            }
+            
             my_logger.debug("In Formula: ");
             my_logger.debug(a_tokens);
-            my_logger.debug("All Variables: ");
-            my_logger.debug(my_variable);
-            my_logger.debug("Bound Variables: ");
-            my_logger.debug(my_bound_variable);
+            my_logger.debug("All Variables (Constants): " +  my_variable);
+            my_logger.debug("Bound Variables: " + my_bound_variable);
+            my_logger.debug("Free Variables: " + my_free_variable);
         }
     }
     
     // Public Methods
     /**
-     * 
      * @return
      */
     //@ pure
     public List getFreeVariable() {
-        final LinkedList temp_free_var = new LinkedList();
-        
-        for (String i : (Set<String>)my_variable) {
-            if (!my_bound_variable.contains(i)) {
-                temp_free_var.add(i);
-            }
-        }
-        
-        return temp_free_var;
+        return my_free_variable;
     }
     
     /**
@@ -83,7 +81,14 @@ public class TemporalFormula extends Formula{
         String temp_str = "";
         
         if (my_auxiliary_predicate != null) {
-            return my_auxiliary_predicate.toString();
+            temp_str = my_auxiliary_predicate.toString();
+            if (my_auxiliary_predicate2 != null) {
+                temp_str = temp_str.concat(my_auxiliary_predicate2.toString());
+            }
+            if (my_auxiliary_predicate3 != null) {
+                temp_str = temp_str.concat(my_auxiliary_predicate3.toString());
+            }
+            return temp_str;
         }
         
         if (my_left_subformula != null) {
@@ -105,56 +110,34 @@ public class TemporalFormula extends Formula{
      * When the <code>evaluate()</code> method is called, the temporal sub-formula is
      * already replaced with first order formulas.
      */
-    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
+    public Set evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
-        boolean temp_result = true;
+        Set result_set = new HashSet();
         
         if (my_auxiliary_predicate != null) { // Temporal Formula transformed
-            temp_result = my_auxiliary_predicate.evaluate(a_structure);
-            if (my_auxiliary_predicate2 != null) {
-                temp_result &= my_auxiliary_predicate2.evaluate(a_structure);
-            }
-            
-            if (my_auxiliary_predicate3 != null) {
-                temp_result &= my_auxiliary_predicate3.evaluate(a_structure);
-            }
-            return temp_result;
-        }
-        
-        if (my_main_operator == null) { // Atomic Formula
-            return my_right_subformula.evaluate(a_structure);
-        }
-        
-        if ("&".equals(my_main_operator.my_name)) { // First Order Formula
+            result_set = new HashSet(my_auxiliary_predicate.evaluate(a_structure));
+        } else if (my_main_operator == null) { // Atomic Formula
+            result_set = my_right_subformula.evaluate(a_structure);
+        } else if ("&".equals(my_main_operator.my_name)) { // First Order Formula
             if (my_left_subformula != null) {
-                temp_result = my_left_subformula.evaluate(a_structure);
+                result_set = my_left_subformula.evaluate(a_structure);
             }
-            temp_result &= my_right_subformula.evaluate(a_structure);
-        } else if ("!".equals(my_main_operator.my_name)) {
-            if (my_left_subformula != null) {
-                my_logger.fatal("Syntax Error!");
-                System.exit(1);
-            }
-            temp_result ^= my_right_subformula.evaluate(a_structure);
+            result_set.retainAll(my_right_subformula.evaluate(a_structure));
         } else if ("E".equals(my_main_operator.my_name)) {
             my_logger.debug("Check Existential " + my_right_subformula.toString());
-            temp_result = evaluateExist(a_structure);
+            boolean temp_result = evaluateExist(a_structure);
         }
         
-        return temp_result;
+        return result_set;
     }
     
-    public Set<Formula> getDirectSubformula() {
-        Set<Formula> temp_set = new HashSet();
-        
-        temp_set.add(my_left_subformula);
-        temp_set.add(my_right_subformula);
-        
-        return temp_set;
-    }
-    
+    /**
+     * 
+     * @param a_structure
+     * @return
+     */
+    //@ pure
     public boolean evaluateExist(final /*@ non_null @*/ Structure a_structure) {
-        // TODO move evaluate exist here
         boolean result_value = (((AtomicFormula) my_right_subformula).evaluateExist(((QuantifierOperator)my_main_operator).my_bound_variable, a_structure) != null);
         return result_value;
     }
@@ -195,6 +178,9 @@ public class TemporalFormula extends Formula{
         }
     }
     
+    /**
+     * parse atomic formula
+     */
     private void parseAtomicFormula() {
         my_right_subformula = new AtomicFormula(my_tokens, my_signature);
         
@@ -273,6 +259,11 @@ public class TemporalFormula extends Formula{
         }
     }
     
+    /**
+     * Test
+     * @return
+     */
+    //@ pure
     private int findMainOp() {
         my_logger.debug("InMethod: findMainOp");
         
@@ -302,7 +293,6 @@ public class TemporalFormula extends Formula{
             pos = -2;
         }
         
-        // TEST
         my_logger.debug("Main Operator Position: " + pos);
         if (pos >= 0) {
             my_logger.info(my_tokens[pos]);
