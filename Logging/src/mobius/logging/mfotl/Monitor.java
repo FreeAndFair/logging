@@ -1,9 +1,10 @@
 package mobius.logging.mfotl;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
-
-// TODO Implement the full algorithm
 
 public class Monitor {
     // Attributes
@@ -34,15 +35,10 @@ public class Monitor {
     public void runMonitor(final /*@ non_null @*/ TemporalStructure a_temporalstructure) {
         MFOTLFormula my_formula_hat;
         Structure my_auxiliary_structure;
-        // i: current index in input sequence (D0, t0)...
-        /*
-        int q = 0; // index of next query evaluation in sequence (D0, t0) ...
-        Q q_0 = new Q(my_formula.my_formula);
-        */
         // Copy original structure for extension
         for (int i = 0; i < a_temporalstructure.getSize(); i++) {
-            my_auxiliary_structure = new Structure ((Structure) a_temporalstructure.my_structure.get(i));
-            my_ats.insertStructure(my_auxiliary_structure, a_temporalstructure.my_time_stamp.get(i));
+            my_auxiliary_structure = new Structure ((Structure) a_temporalstructure.getStructure(i));
+            my_ats.insertStructure(my_auxiliary_structure, a_temporalstructure.getTime(i));
         }
         
         // Formula Transformation
@@ -53,13 +49,13 @@ public class Monitor {
         
         // Signature, Structure Extension & 
         my_logger.debug("Before Structure Extension ----------" + a_temporalstructure.toString());
-        //extendStructure(my_formula_hat.my_formula);
+        extendStructure(my_formula_hat.my_formula);
         my_logger.debug("After Structure Extension ----------" + my_ats.toString());
 
         //for (int i = 0; i < my_ats.getSize(); i++) {
         for (int i = 0; i < 1; i++) {
             my_logger.debug("Start Evaluating Formula.........." + i);
-            my_auxiliary_structure = my_ats.my_structure.get(i);
+            my_auxiliary_structure = my_ats.getStructure(i);
             my_logger.debug(my_auxiliary_structure.toString());
             if (my_formula_hat.evaluate(my_auxiliary_structure)){
                 my_logger.debug("Evaluated to True for Structue No. " + i);
@@ -94,7 +90,7 @@ public class Monitor {
 	         *          Union {p_a|a temporal sub-formula of the form S, U}
 	         *          Union {s_a|a temporal sub-formula of the form U}
 	         */
-	        final LinkedList<String> temp_free_var = (LinkedList) ((TemporalFormula) a_formula).getFreeVariable();
+	        final List<String> temp_free_var = (LinkedList) ((TemporalFormula) a_formula).getFreeVariable();
 	        final String[] temp_var = new String[temp_free_var.size()];
 	        
 	        // Introducing new predicate for all temporal predicate
@@ -149,7 +145,7 @@ public class Monitor {
 	 */
     //@ pure
 	private void extendStructure(final Formula a_formula) {
-	    if (a_formula == null) {
+	    if (a_formula == null || a_formula instanceof AtomicFormula) {
 	        return;
 	    }
 	    
@@ -162,44 +158,68 @@ public class Monitor {
         
         if (((TemporalFormula) a_formula).my_main_operator.my_name.equals("P")) {
             for (int a_pos = 1; a_pos < my_ats.getSize(); a_pos++) {
-                my_auxiliary_structure = my_ats.my_structure.get(a_pos);
+                my_auxiliary_structure = my_ats.getStructure(a_pos);
                 temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate.getName(); 
                 my_auxiliary_structure.initRelationAssign(temp_formula_name);
-                temp_time_interval = my_ats.my_time_stamp.get(a_pos) - my_ats.my_time_stamp.get(a_pos-1);
+                temp_time_interval = my_ats.getTime(a_pos) - my_ats.getTime(a_pos-1);
                 
                 if (((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).inRange(temp_time_interval)) {
                     my_logger.debug("Security Policy NOT followed!");
                 } else { // TODO BUG consider other cases
                     Set<int[]> temp_ra;
-                    temp_ra = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_ats.my_structure.get(a_pos-1));
+                    temp_ra = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_ats.getStructure(a_pos-1));
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra);
                 }
             }
         } else if (((TemporalFormula) a_formula).my_main_operator.my_name.equals("N")) {
             for (int a_pos = 0; a_pos < my_ats.getSize() - 1; a_pos++) {
-                my_auxiliary_structure = my_ats.my_structure.get(a_pos);
+                my_auxiliary_structure = my_ats.getStructure(a_pos);
                 temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate.getName();
                 my_auxiliary_structure.initRelationAssign(temp_formula_name);
-                temp_time_interval = my_ats.my_time_stamp.get(a_pos+1) - my_ats.my_time_stamp.get(a_pos);
+                temp_time_interval = my_ats.getTime(a_pos+1) - my_ats.getTime(a_pos);
                 
                 if (((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).inRange(temp_time_interval)) {
                     my_logger.debug("Security Policy Not followed!");
                 } else {
-                    // TODO BUG replace with evaluation
+                    // TODO BUG consider other cases
                     Set<int[]> temp_ra;
-                    temp_ra = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_ats.my_structure.get(a_pos-1));
-
+                    temp_ra = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_ats.getStructure(a_pos-1));
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra);
                 }
             }
         } else if (((TemporalFormula) a_formula).my_main_operator.my_name.equals("S")) {
             for (int a_pos = 0; a_pos < my_ats.getSize(); a_pos++) {
-                my_auxiliary_structure = my_ats.my_structure.get(a_pos);
+                my_auxiliary_structure = my_ats.getStructure(a_pos);
                 temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate2.getName();
                 my_auxiliary_structure.initRelationAssign(temp_formula_name);
-                temp_time_interval = my_ats.my_time_stamp.get(a_pos+1) - my_ats.my_time_stamp.get(a_pos);
+                temp_time_interval = my_ats.getTime(a_pos+1) - my_ats.getTime(a_pos);
                 // get r()
                 
+                // gama ^ Di * {0}
+                final Set<int[]> gama = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_auxiliary_structure);
+                for (int[] i : gama) {
+                    int[] temp_gama = new int[i.length+1];
+                    System.arraycopy(i, 0, temp_gama, 0, i.length);
+                    temp_gama[i.length] = 0;
+                    my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_gama);
+                }
+                // beta part
+                if (a_pos > 0) {
+                    final Set<int[]> beta = ((TemporalFormula) a_formula).my_left_subformula.evaluate(my_auxiliary_structure);
+                    final Set<int[]> beta2 = my_ats.getStructure(a_pos-1).getRelationAssign(temp_formula_name);
+                    final int time_beta = my_ats.getTime(a_pos);
+                    final int time_beta2 = my_ats.getTime(a_pos-1);
+                    for (int[] i : beta2) {
+                        int[] temp_gama2 = new int[i.length-1];
+                        System.arraycopy(i, 0, temp_gama2, 0, temp_gama2.length);
+                        if (beta.contains(temp_gama2)) {
+                            int[] temp_gama = new int[i.length];
+                            System.arraycopy(i, 0, temp_gama2, 0, i.length);
+                            temp_gama[i.length-1] += time_beta - time_beta2;
+                            my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_gama);
+                        }
+                    }
+                }
                 
                 // get p()
                 Set<int[]> temp_ra = my_auxiliary_structure.getRelationAssign(temp_formula_name);
@@ -212,28 +232,171 @@ public class Monitor {
                     }
                 }
             }
-            // TODO add new predicate R
         } else if (((TemporalFormula) a_formula).my_main_operator.my_name.equals("U")) {
+            int[] loc = new int[my_ats.getSize()];
+            final int interval_start = ((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).getStart();
+            final int interval_end = ((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).getEnd();
             for (int a_pos = 0; a_pos < my_ats.getSize(); a_pos++) {
-                my_auxiliary_structure = my_ats.my_structure.get(a_pos);
-                temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate.getName();
+                my_auxiliary_structure = my_ats.getStructure(a_pos);
+                temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate2.getName();
                 my_auxiliary_structure.initRelationAssign(temp_formula_name);
-                temp_time_interval = my_ats.my_time_stamp.get(a_pos+1) - my_ats.my_time_stamp.get(a_pos);
+                temp_time_interval = my_ats.getTime(a_pos+1) - my_ats.getTime(a_pos);
                 // get r()
-                int loc = 0;
+
                 
-                // get s()
+                // compute l_i, a lookahead offset
+                for (int i = a_pos; i< my_ats.getSize(); i++) {
+                    if (my_ats.getTime(i) - my_ats.getTime(a_pos) < interval_end) {
+                        loc[a_pos] = i;
+                    } else {
+                        break;
+                    }
+                }
+
+                // get r() := new_r Union update_r
+                if (a_pos == 0) {
+                    // new_r
+                    for (int i = 0; i < loc[a_pos]; i++) {
+                        if ((my_ats.getTime(i + a_pos) - my_ats.getTime(a_pos)) >= interval_start) { 
+                            Set<int[]> temp_r = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_ats.getStructure(i+a_pos));
+                            for (int[] j : temp_r) {
+                                int[] temp_j = new int[j.length + 1];
+                                System.arraycopy(j, 0, temp_j, 0, j.length);
+                                temp_j[j.length] = i;
+                                my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_j);
+                            }
+                        }
+                    }
+                    
+                    // update_r empty
+                } else {
+                    // new_r
+                    for (int i = loc[a_pos-1]; i < loc[a_pos]; i++) {
+                        if ((my_ats.getTime(i + a_pos) - my_ats.getTime(a_pos)) >= interval_start) { 
+                            Set<int[]> temp_r = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_ats.getStructure(i+a_pos));
+                            for (int[] j : temp_r) {
+                                int[] temp_j = new int[j.length + 1];
+                                System.arraycopy(j, 0, temp_j, 0, j.length);
+                                temp_j[j.length] = i;
+                                my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_j);
+                            }
+                        }
+                    }
+                    
+                    // update_r
+                    final Set<int[]> temp_r = my_ats.getStructure(a_pos-1).getRelationAssign(temp_formula_name);
+                    for (int[] i : temp_r) {
+                        if (i[i.length-1] > 0) {
+                            i[i.length-1] --;
+                            if ((my_ats.getTime(i[i.length-1]+a_pos) - my_ats.getTime(a_pos)) >= interval_start) {
+                                my_auxiliary_structure.addRelationAssign(temp_formula_name, i);
+                            }
+                        }
+                    }
+                }
+                
+                // get s() := new_s Union update_s
                 int pos_j, pos_j2;
-                
+                Set<int[]> new_s = new HashSet();
+                Set<int[]> update_s = new HashSet();
+                temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate3.getName();
+                if (a_pos == 0) {
+                    // new_s
+                    pos_j = 0;
+                    pos_j2 = loc[a_pos];
+                    
+                    for (int i = pos_j; i <= pos_j2; i++) {
+                        Set<int[]> temp_r = ((TemporalFormula) a_formula).my_left_subformula.evaluate(my_ats.getStructure(i));
+                        for (int j= pos_j2; j >= i; j--) {
+                            Set<int[]> temp_r2 = ((TemporalFormula) a_formula).my_left_subformula.evaluate(my_ats.getStructure(j));
+                            temp_r.retainAll(temp_r2);
+                        }
+                        if (!temp_r.isEmpty()) {
+                            for (int[] a_i : temp_r){
+                                int[] a_temp = new int[a_i.length+2];
+                                System.arraycopy(a_i, 0, a_temp, 0, a_i.length);
+                                a_temp[a_i.length] = i;
+                                a_temp[a_i.length+1] = pos_j2;
+                                new_s.add(a_temp);
+                            }
+                        } else {
+                            pos_j2--;
+                        }
+                    }
+                    
+                    // update_s = EMPTY
+                } else {
+                    // new_s
+                    pos_j = loc[a_pos-1];
+                    pos_j2 = loc[a_pos];
+                    
+                    for (int i = pos_j; i <= pos_j2; i++) {
+                        Set<int[]> temp_r = ((TemporalFormula) a_formula).my_left_subformula.evaluate(my_ats.getStructure(i));
+                        for (int j= pos_j2; j >= i; j--) {
+                            Set<int[]> temp_r2 = ((TemporalFormula) a_formula).my_left_subformula.evaluate(my_ats.getStructure(j));
+                            temp_r.retainAll(temp_r2);
+                        }
+                        if (!temp_r.isEmpty()) {
+                            for (int[] a_i : temp_r){
+                                int[] a_temp = new int[a_i.length+2];
+                                System.arraycopy(a_i, 0, a_temp, 0, a_i.length);
+                                a_temp[a_i.length] = i;
+                                a_temp[a_i.length+1] = pos_j2;
+                                new_s.add(a_temp);
+                            }
+                        } else {
+                            pos_j2--;
+                        }
+                    }
+                    
+                    // update_s
+                    Set<int[]> set_temp = my_ats.getStructure(a_pos-1).getRelationAssign(temp_formula_name);
+                    for (int[] a_i : set_temp) {
+                        if (a_i[a_i.length-1] > 0 && a_i[a_i.length-2] > 0) {
+                            a_i[a_i.length-1]--;
+                            a_i[a_i.length-2]--;
+                            update_s.add(a_i);
+                        }
+                        if (a_i[a_i.length-1] == loc[a_pos-1]) {
+                            //TODO check arrary range
+                            pos_j = a_i[a_i.length-2] - 1;
+                            int[] a_temp = new int[a_i.length-1];
+                            System.arraycopy(a_i, 0, a_temp, 0, a_temp.length);
+                            a_temp[a_temp.length-1] = a_i[a_i.length-1];
+                            for (int[] a_j : new_s) {
+                                int[] a_temp2 = new int[a_j.length-1];
+                                System.arraycopy(a_j, 0, a_temp2, 0, a_temp2.length);
+                                if (Arrays.equals(a_temp, a_temp2)) {
+                                    int[] a_temp3 = new int[a_i.length];
+                                    System.arraycopy(a_i, 0, a_temp3, 0, a_temp3.length);
+                                    a_temp3[a_temp3.length-2] = pos_j;
+                                    a_temp3[a_temp3.length-1] = a_j[a_j.length-1];
+                                    update_s.add(a_temp3);
+                                }
+                            }
+                        }
+                    }
+                }
                 
                 // get p()
+                Set<int[]> temp_sa = my_auxiliary_structure.getRelationAssign(temp_formula_name);
+                temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate3.getName();
                 Set<int[]> temp_ra = my_auxiliary_structure.getRelationAssign(temp_formula_name);
+                
                 temp_formula_name = ((TemporalFormula) a_formula).my_auxiliary_predicate.getName();
-                for (int[] i : temp_ra) {
-                    if (i[i.length-1] >= ((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).getStart()) {
-                        final int[] temp_j = new int[i.length-1];
-                        System.arraycopy(i, 0, temp_j, 0, temp_j.length);
-                        my_auxiliary_structure.addRelationAssign(temp_formula_name, i);
+                for (int[] a_i : temp_ra) {
+                    pos_j = a_i[a_i.length-1];
+                    final int[] a_temp = new int[a_i.length-1];
+                    System.arraycopy(a_i, 0, a_temp, 0, a_temp.length);
+                    for (int[] a_j : temp_sa) {
+                        pos_j2 = a_j[a_j.length-1];
+                        if ((a_j[a_j.length-2] == 0) && (pos_j <= pos_j2+1)) {
+                            final int[] a_temp2 = new int[a_j.length -2];
+                            System.arraycopy(a_j, 0, a_temp2, 0, a_temp2.length);
+                            if (Arrays.equals(a_temp, a_temp2)) {
+                                my_auxiliary_structure.addRelationAssign(temp_formula_name, a_temp);        
+                            }
+                        }
                     }
                 }
             }

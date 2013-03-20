@@ -50,8 +50,11 @@ public class MFOTLFormula {
      * </p> 
      */
     //@ pure
-    public boolean evaluate(final /*@ non_null @*/ Structure a_structure) {
+    public boolean evaluate(final Structure a_structure) {
         my_logger.debug("InMethod: MFOTLFormula.evaluate");
+        
+        if (a_structure == null)
+            return false;
         
         return (my_formula.evaluate(a_structure).size() != 0);
     }
