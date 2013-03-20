@@ -5,14 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-//TODO add specs and docs
-
-
-/**
- * 
- * @author Jian Wang
- *
- */
 public class TemporalFormula extends Formula{
     // Attributes
     /**
@@ -75,7 +67,7 @@ public class TemporalFormula extends Formula{
     }
     
     /**
-     * 
+     * <code>toString</code>
      */
     public String toString() {
         String temp_str = "";
@@ -125,21 +117,11 @@ public class TemporalFormula extends Formula{
             result_set.retainAll(my_right_subformula.evaluate(a_structure));
         } else if ("E".equals(my_main_operator.my_name)) {
             my_logger.debug("Check Existential " + my_right_subformula.toString());
-            boolean temp_result = evaluateExist(a_structure);
+            result_set = my_right_subformula.evaluate(a_structure);
+            // TODO BUG remove bound variable
         }
         
         return result_set;
-    }
-    
-    /**
-     * 
-     * @param a_structure
-     * @return
-     */
-    //@ pure
-    public boolean evaluateExist(final /*@ non_null @*/ Structure a_structure) {
-        boolean result_value = (((AtomicFormula) my_right_subformula).evaluateExist(((QuantifierOperator)my_main_operator).my_bound_variable, a_structure) != null);
-        return result_value;
     }
     
     // Private Methods

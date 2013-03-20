@@ -185,9 +185,9 @@ public class Monitor {
                 if (((TemporalOperator)((TemporalFormula) a_formula).my_main_operator).inRange(temp_time_interval)) {
                     my_logger.debug("Security Policy Not followed!");
                 } else {
-                    Set<int[]> temp_ra;
                     // TODO BUG replace with evaluation
-                    temp_ra = my_ats.my_structure.get(a_pos+1).getRelationAssign(temp_formula_name);
+                    Set<int[]> temp_ra;
+                    temp_ra = ((TemporalFormula) a_formula).my_right_subformula.evaluate(my_ats.my_structure.get(a_pos-1));
 
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra);
                 }
@@ -223,6 +223,8 @@ public class Monitor {
                 int loc = 0;
                 
                 // get s()
+                int pos_j, pos_j2;
+                
                 
                 // get p()
                 Set<int[]> temp_ra = my_auxiliary_structure.getRelationAssign(temp_formula_name);
@@ -238,7 +240,6 @@ public class Monitor {
         }
     }
 }
-
 
 // TODO Rest part for optimization
 	/*

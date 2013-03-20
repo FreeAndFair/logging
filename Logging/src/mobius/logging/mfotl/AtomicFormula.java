@@ -88,6 +88,7 @@ public class AtomicFormula extends Formula {
     //@ assignable my_value;
     public boolean evaluate(final /*@ non_null @*/ Structure a_structure,
             final /*@ non_null @*/ Valuation a_valuation) {
+        //TODO
         int[] temp_val = new int[my_variable.length];
         
         for (int i = 0; i < my_variable.length; i++) {
