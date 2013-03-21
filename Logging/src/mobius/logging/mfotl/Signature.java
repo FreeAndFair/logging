@@ -17,7 +17,7 @@ public class Signature {
         my_predicate.add(a_predicate);
     }
     
-    public boolean contains(final String a_name, final int a_arity) {
+    public /*@ pure @*/ boolean contains(final String a_name, final int a_arity) {
         boolean temp_result = false;
         for (Predicate i : my_predicate) {
             if (a_name.equals(i.getSymbol()) && (i.getArity() == a_arity)) {
@@ -28,7 +28,7 @@ public class Signature {
         return temp_result;
     }
     
-    public boolean contains(final /**/ Predicate a_predicate) {
+    public /*@ pure @*/ boolean contains(final Predicate a_predicate) {
         return this.contains(a_predicate.getSymbol(), a_predicate.getArity());
     }
 }

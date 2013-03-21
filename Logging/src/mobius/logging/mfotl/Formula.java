@@ -2,32 +2,34 @@ package mobius.logging.mfotl;
 
 import java.util.Set;
 
+/**
+ * Parent class for MFOTLFormula, AtomicFormula and TemporalFormula
+ * @author jianw
+ *
+ */
 public class Formula {
     // Attributes
-    public boolean my_is_firstorder = true;
-    public boolean my_is_temporal = false;
-    protected Logger my_logger = new Logger();
+    // TODO how to build the getter methods
+    protected boolean my_is_firstorder = true;
+    protected boolean my_is_temporal = false;
+    final private Logger my_logger = new Logger();
     
     // Public Methods
     /**
-     * return the truth value
-     * @param a_structure
+     * 
+     * @param the_structure
      * @return
      */
-    public Set evaluate(final Structure a_structure) {
+    public Set evaluate(final Structure the_structure) {
         my_logger.debug("InMethod: Formula.evaluate");
         return null;
     }
     
+    public boolean isFirstorder() {
+        return this.my_is_firstorder;
+    }
     
-    /**
-     * return the truth evaluation assignment
-     * @param a_set
-     * @param a_structure
-     * @return
-     */
-    public Set evaluateExist(final Set a_set, final Structure a_structure) {
-        my_logger.debug("InMethod: Formula.evaluateE");
-        return null;
+    public boolean isTemporal() {
+        return this.my_is_temporal;
     }
 }

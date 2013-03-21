@@ -11,14 +11,12 @@ public class TemporalFormula extends Formula{
      * TemporalFormula ::= AtomicFormula
      * TemporalFormula ::= TemporalFormula + Operator + TemporalFormula
      */
-    public Formula my_left_subformula;
-    public Formula my_right_subformula;
-    public AtomicFormula my_auxiliary_predicate;
-    public AtomicFormula my_auxiliary_predicate2;
-    public AtomicFormula my_auxiliary_predicate3;
+    private Formula my_left_subformula;
+    private Formula my_right_subformula;
+    
+    final private AtomicFormula[] my_auxiliary_predicate;
 
-    public Operator my_main_operator;
-    public boolean my_is_true = false;
+    private Operator my_main_operator;
     
     final private List my_bound_variable = new LinkedList();
     final private List my_variable = new LinkedList();
@@ -28,15 +26,14 @@ public class TemporalFormula extends Formula{
     private String[] my_tokens;
     private static final Logger my_logger = new Logger(false);
     
-    private int mop;
-
     // Constructor
-    public TemporalFormula(final /*@ non_null @*/ String[] a_tokens, final /*@ non_null @*/ Signature a_signature) {
+    public TemporalFormula(final String[] a_tokens, final Signature a_signature) {
         super();
         
         my_signature = a_signature;
         my_tokens = new String[a_tokens.length];
         System.arraycopy(a_tokens, 0, my_tokens, 0, my_tokens.length);
+        my_auxiliary_predicate = new AtomicFormula[3];
         
         if (my_tokens.length == 0) {
             my_logger.info("Temporal Formula with length 0");
@@ -58,56 +55,41 @@ public class TemporalFormula extends Formula{
     }
     
     // Public Methods
-    /**
-     * @return
-     */
-    //@ pure
-    public List getFreeVariable() {
+    public /*@ pure @*/ List getFreeVariable() {
         return my_free_variable;
     }
     
-    /**
-     * <code>toString</code>
-     */
-    public String toString() {
-        String temp_str = "";
-        
-        if (my_auxiliary_predicate != null) {
-            temp_str = my_auxiliary_predicate.toString();
-            if (my_auxiliary_predicate2 != null) {
-                temp_str = temp_str.concat(my_auxiliary_predicate2.toString());
-            }
-            if (my_auxiliary_predicate3 != null) {
-                temp_str = temp_str.concat(my_auxiliary_predicate3.toString());
-            }
-            return temp_str;
+    public /*@ pure @*/ Set<TemporalFormula> getTemporalSubformula(final /*@ non_null @*/ Formula a_formula) {
+        if (a_formula == null) {
+            return null;
         }
         
-        if (my_left_subformula != null) {
-            temp_str = temp_str.concat("(").concat(my_left_subformula.toString()).concat(")");
+        Set<TemporalFormula> my_temporal_subformula = new HashSet();
+        
+        if (a_formula.my_is_temporal) {
+            my_temporal_subformula.add((TemporalFormula) a_formula);
+        } else if (a_formula instanceof TemporalFormula) {
+                Set<TemporalFormula> tsubl = getTemporalSubformula(((TemporalFormula) a_formula).my_left_subformula);
+                my_temporal_subformula.addAll(tsubl);
+                Set<TemporalFormula> tsubr = getTemporalSubformula(((TemporalFormula) a_formula).my_right_subformula);
+                my_temporal_subformula.addAll(tsubr);
         }
         
-        if (my_main_operator != null) {
-            temp_str = temp_str.concat(" ").concat(my_main_operator.toString()).concat(" ");
-        }
-        
-        if (my_right_subformula != null) {
-            temp_str = temp_str.concat("(").concat(my_right_subformula.toString()).concat(")");
-        }
-        
-        return temp_str;
+        return my_temporal_subformula;
     }
+    
+
     
     /**
      * When the <code>evaluate()</code> method is called, the temporal sub-formula is
-     * already replaced with first order formulas.
+     * already replaced with first order formulas after formula tranformation.
      */
     public Set evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
         Set result_set = new HashSet();
         
-        if (my_auxiliary_predicate != null) { // Temporal Formula transformed
-            result_set = new HashSet(my_auxiliary_predicate.evaluate(a_structure));
+        if (my_auxiliary_predicate[0] != null) { // Temporal Formula transformed
+            result_set = new HashSet(my_auxiliary_predicate[0].evaluate(a_structure));
         } else if (my_main_operator == null) { // Atomic Formula
             result_set = my_right_subformula.evaluate(a_structure);
         } else if ("&".equals(my_main_operator.my_name)) { // First Order Formula
@@ -118,7 +100,7 @@ public class TemporalFormula extends Formula{
         } else if ("E".equals(my_main_operator.my_name)) {
             my_logger.debug("Check Existential " + my_right_subformula.toString());
             result_set = my_right_subformula.evaluate(a_structure);
-            // TODO BUG remove bound variable
+            // FIXME remove bound variable 
         }
         
         return result_set;
@@ -142,7 +124,7 @@ public class TemporalFormula extends Formula{
 
     private void parseFormula() {
         my_logger.debug("InMethod: parseFormula");
-        mop = findMainOp();
+        int mop = findMainOp();
         
         /**
          * if no main operator is found, then either it has a outer most parenthesis
@@ -156,25 +138,26 @@ public class TemporalFormula extends Formula{
         if (mop == -2) {
             parseAtomicFormula();
         } else {
-            parseTemporalFormula();
+            parseTemporalFormula(mop);
         }
     }
     
     /**
      * parse atomic formula
      */
+    //@ assignable my_right_subformula
     private void parseAtomicFormula() {
         my_right_subformula = new AtomicFormula(my_tokens, my_signature);
         
-        for (int i = 0; i < ((AtomicFormula) my_right_subformula).my_variable.length; i++) {
-            my_variable.add(((AtomicFormula) my_right_subformula).my_variable[i].getName());
+        for (int i = 0; i < ((AtomicFormula) my_right_subformula).my_variables.size(); i++) {
+            my_variable.add(((AtomicFormula) my_right_subformula).my_variables.get(i).getName());
         }
     }
     
     /**
      * parse non atomic formula
      */
-    private void parseTemporalFormula() {
+    private void parseTemporalFormula(final int mop) {
         int mop2;
         if (ReservedSymbol.isTemporal(my_tokens[mop])) {
             my_main_operator = new TemporalOperator(my_tokens[mop]);
@@ -281,5 +264,60 @@ public class TemporalFormula extends Formula{
         }
         
         return pos;
+    }
+    
+    public /*@ pure @*/ Formula getLeftSubformula() {
+        return this.my_left_subformula;
+    }
+    
+    public /*@ pure @*/ Formula getRightSubformula() {
+        return this.my_right_subformula;
+    }
+    
+    public /*@ pure @*/ Operator getMainOperator() {
+        return this.my_main_operator;
+    }
+    
+    public /*@ pure @*/ AtomicFormula getAuxiliaryFormula(final int a_int) {
+        if (a_int < 3) {
+            return this.my_auxiliary_predicate[a_int];
+        } else {
+            return null;
+        }
+    }
+    
+    public void setAuxiliaryFormula(final int a_int, final AtomicFormula a_atomic_formula) {
+        if (a_int <3) {
+            this.my_auxiliary_predicate[a_int] = a_atomic_formula;
+        }
+    }
+    
+    public String toString() {
+        String temp_str = "";
+        
+        if (my_auxiliary_predicate[0] != null) {
+            temp_str = my_auxiliary_predicate[0].toString();
+            if (my_auxiliary_predicate[1] != null) {
+                temp_str = temp_str.concat(my_auxiliary_predicate[1].toString());
+            }
+            if (my_auxiliary_predicate[2] != null) {
+                temp_str = temp_str.concat(my_auxiliary_predicate[2].toString());
+            }
+            return temp_str;
+        }
+        
+        if (my_left_subformula != null) {
+            temp_str = temp_str.concat("(").concat(my_left_subformula.toString()).concat(")");
+        }
+        
+        if (my_main_operator != null) {
+            temp_str = temp_str.concat(" ").concat(my_main_operator.toString()).concat(" ");
+        }
+        
+        if (my_right_subformula != null) {
+            temp_str = temp_str.concat("(").concat(my_right_subformula.toString()).concat(")");
+        }
+        
+        return temp_str;
     }
 }

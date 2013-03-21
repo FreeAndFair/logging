@@ -9,10 +9,9 @@ import java.util.Set;
 /**
  * Define Variables, and if it is free or not
  */
-class Variable implements Cloneable {
+class Variable {
     // Attributes
     private final String my_name;       // variable name
-    private boolean my_is_free;         // variable is free or not
     private int my_value;               // variable value after assignment or evaluation
     
     // Constructor
@@ -22,25 +21,12 @@ class Variable implements Cloneable {
     //@ ensures my_is_free == true;
     public Variable(final String a_name) {
         my_name = a_name;
-        my_is_free = true;
     }
     
     // Public Methods
     
-    //@ pure
-    public String getName() {
+    public /*@ pure @*/ String getName() {
         return my_name;
-    }
-    
-    //@ assignable my_is_free;
-    //@ ensures my_is_free == a_is_free;
-    public void setFree(final boolean a_is_free) {
-        my_is_free = a_is_free;
-    }
-    
-    //@ pure
-    public boolean isFree() {
-        return my_is_free;
     }
     
     //@ assignable my_value;
@@ -49,8 +35,7 @@ class Variable implements Cloneable {
         my_value = a_value;
     }
     
-    //@ pure
-    public int getValue() {
+    public /*@ pure @*/ int getValue() {
         return my_value;
     }
 
@@ -59,86 +44,56 @@ class Variable implements Cloneable {
         my_value = a_valuation.evaluateVar(my_name);
         return my_value;
     }
-    
-    //@ pure
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
 }
 
 /**
  * <code>Predicator</code> in logical expression
  * 
  */
-class Predicate implements Cloneable {
+class Predicate {
     // Attributes
     private final int my_arity;
     private final String my_symbol;
-    //private final Variable[] my_var;
     
     // Constructors
-    
+    //@ assignable my_symbol;
+    //@ assignable my_arity;
     public Predicate(final Predicate a_predicate, final int a_inc, final String a_name) {
         my_symbol = a_name;
         my_arity = a_predicate.my_arity + a_inc;
-        
-        
-        //my_var = new Variable[my_arity];
-        //System.arraycopy(my_var, 0, a_predicate.my_var, 0, a_predicate.my_arity);
-        //for (int i = 0; i < a_inc; i++) {
-            // TODO ensure no conflict, and maintain order of variable
-          //  my_var[i+a_predicate.my_arity] = new Variable("add_v" + i);
-        //}
     }
     
     /*
-     * @ ensures _var.length == _arity;
-     * @ ensures _arity > 0;
+     * @ ensures a_arity > 0;
      */
     public Predicate(final String a_name, final int a_arity) {
         my_symbol = a_name;
         my_arity = a_arity;
-        
-        //my_var = new Variable[my_arity];
-        //for (int i = 0; i < my_arity; i++) {
-            //my_var[i] = new Variable(_var[i]);
-        //}
     }
     
     // Public Methods
     
-    public boolean evaluate(final /*@ non_null @*/ Structure a_structure, final int[] a_val) {
-        return a_structure.evaluateRelation(my_symbol, a_val);
-    }
-    
     /**
-     * <p>
-     * return a <code>String</code> that represents the formula
-     * </p>
+     * return a String that represents the formula
      */
-    public String toString() {
+    public /*@ pure @*/ String toString() {
         return (my_symbol + "[arity =" + my_arity + "]");
     }
     
-    //@ pure
-    public String getSymbol() {
+    //@ ensures \result == my_symbol;
+    public /*@ pure @*/ String getSymbol() {
         return my_symbol;
     }
     
-    //@ pure
-    public int getArity() {
+    //@ ensures \result == my_arity;
+    public /*@ pure @*/ int getArity() {
         return my_arity;
-    }
-    
-    //@ pure
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 }
 
 class QuantifierOperator extends Operator {
     // Attribute
-    public Set<String> my_bound_variable;
+    private Set<String> my_bound_variable;
 
     // Constructor
     public QuantifierOperator(final /*@ non_null @*/ String a_name) {
@@ -152,9 +107,12 @@ class QuantifierOperator extends Operator {
         my_bound_variable = Collections.unmodifiableSet(a_set);
     }
     
-    //@ pure
-    public boolean isBoundVariable(final /*@ non_null @*/ String a_name) {
+    public /*@ pure @*/ boolean isBoundVariable(final /*@ non_null @*/ String a_name) {
         return my_bound_variable.contains(a_name);
+    }
+    
+    public /*@ pure @*/ Set<String> getBoundVariables() {
+        return this.my_bound_variable;
     }
     
     public String toString() {
@@ -253,12 +211,16 @@ class FirstorderOperator extends Operator {
 
 class Operator {
     // Attributes
-    public String my_name;
+    protected final String my_name;
     
     // Constructor
     //@ assignable my_name
     public Operator(final /*@non-null */ String a_name) {
         my_name = a_name;
+    }
+    
+    public /*@ pure @*/ String getName() {
+        return this.my_name;
     }
 }
 
@@ -372,33 +334,27 @@ class ReservedSymbol {
         SYMBOL = Collections.unmodifiableSet(temp_set3);
     }
     
-    //@ pure
-    public static boolean isTemporal(final String a_symbol) {
+    public /*@ pure @*/ static boolean isTemporal(final String a_symbol) {
         return TEMP_OPER.contains(a_symbol);
     }
 
-    //@ pure
-    public static boolean isFirstOrder(final String a_symbol) {
+    public /*@ pure @*/ static boolean isFirstOrder(final String a_symbol) {
         return FIRST_OPER.contains(a_symbol);
     }
     
-    //@ pure
-    public static boolean isQuantifier(final String a_symbol) {
+    public /*@ pure @*/ static boolean isQuantifier(final String a_symbol) {
         return QUANTIFIER_OPER.contains(a_symbol);
     }
     
-    //@ pure
-    public static boolean isSymbol(final String a_symbol) {
+    public /*@ pure @*/ static boolean isSymbol(final String a_symbol) {
         return SYMBOL.contains(a_symbol);
     }
     
-    //@ pure
-    public static boolean isOperator(final String _symbol) {
+    public /*@ pure @*/ static boolean isOperator(final String _symbol) {
         return (isTemporal(_symbol) || isFirstOrder(_symbol) || isQuantifier(_symbol));
     }
     
-    //@ pure
-    public static boolean isReserved(final String _symbol) {
+    public /*@ pure @*/ static boolean isReserved(final String _symbol) {
         return (isOperator(_symbol) || isSymbol(_symbol));
     }
 }

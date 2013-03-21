@@ -20,19 +20,16 @@ public class TemporalStructure {
     }
     
     // Public Methods
-    //@ pure
-    public void insertStructure(final Structure a_structure, final int a_time_stamp) {
+    public /*@ pure @*/ void insertStructure(final Structure a_structure, final int a_time_stamp) {
         my_structure.add(a_structure);
         my_time_stamp.add(a_time_stamp);
     }
     
-    //@ pure
-    public Structure getStructure(final int a_pos) {
+    public /*@ pure @*/ Structure getStructure(final int a_pos) {
         return my_structure.get(a_pos);
     }
     
-    //@ pure
-    public int getTime(final int a_pos) {
+    public /*@ pure @*/ int getTime(final int a_pos) {
         if (a_pos > my_time_stamp.size()) {
             return (int)my_time_stamp.get(my_time_stamp.size());
         } else {
@@ -40,8 +37,16 @@ public class TemporalStructure {
         }
     }
     
-    //@ pure
-    public int getSize() {
+    public /*@ pure @*/ int getSize() {
         return my_structure.size();
+    }
+    
+    public /*@ pure @*/ String toString() {
+        String result_string = "";
+        for (int i = 0; i < my_structure.size(); i++) {
+            result_string = result_string.concat("{" + my_structure.get(i).toString() 
+                    + ", " + my_time_stamp.get(i).toString() + "}");
+        }
+        return result_string;
     }
 }

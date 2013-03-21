@@ -29,14 +29,13 @@ public class Logger {
     }
     
     // Public Method
-    
-    public void debug(final String a_debug_info) {
+    public /*@ pure @*/ void debug(final String a_debug_info) {
         if (my_print_info) {
             my_logger.println("debug: " + a_debug_info);
         }
     }
     
-    public void debug(final String[] a_debug_info) {
+    public /*@ pure @*/ void debug(final String[] a_debug_info) {
         if (my_print_info) {
             my_logger.print("debug: ");
             for (int i = 0; i < a_debug_info.length; i++) {
@@ -46,7 +45,7 @@ public class Logger {
         }
     }
     
-    public void debug(final Set a_debug_info) {
+    public /*@ pure @*/ void debug(final Set a_debug_info) {
         if (my_print_info) {
             my_logger.print("debug: ");
             for (Object i: a_debug_info) {
@@ -56,7 +55,7 @@ public class Logger {
         }
     }
     
-    public void debug(final List a_debug_info) {
+    public /*@ pure @*/ void debug(final List a_debug_info) {
         if (my_print_info) {
             my_logger.print("debug: ");
             for (Object i: a_debug_info) {
@@ -66,7 +65,7 @@ public class Logger {
         }
     }
     
-    public void info(final String _info) {
+    public /*@ pure @*/ void info(final String _info) {
         if (my_print_info) {
             my_logger.println("info: " + _info);
         }
@@ -75,7 +74,7 @@ public class Logger {
     /*
      * fatal information, exit after output it
      */
-    public void fatal(final String _fatal) {
+    public /*@ pure @*/ void fatal(final String _fatal) {
         if (my_print_info) {
             my_logger.println("fatal: " + _fatal);
             
@@ -86,7 +85,7 @@ public class Logger {
     /*
      * error information, exit after output it
      */
-    public void error(final String _error) {
+    public /*@ pure @*/ void error(final String _error) {
         if (my_print_info) {
             my_logger.println("error: " + _error);
             System.exit(1);

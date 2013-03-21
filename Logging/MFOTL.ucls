@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.1" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" language="java" name="mobius.logging.mfotl.AtomicFormula" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/AtomicFormula.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="190" width="234" x="673" y="1173"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="mobius.logging.mfotl.Formula" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Formula.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="673" y="1039"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="mobius.logging.mfotl.MFOTLFormula" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/MFOTLFormula.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="244" width="237" x="592" y="411"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="mobius.logging.mfotl.MFOTLTest" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/MFOTLTest.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="136" width="253" x="297" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="mobius.logging.mfotl.Monitor" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Monitor.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="172" width="228" x="869" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="mobius.logging.mfotl.Signature" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Signature.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="136" width="164" x="928" y="979"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="mobius.logging.mfotl.Structure" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Structure.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1325" y="495"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="mobius.logging.mfotl.Valuation" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Structure.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="190" width="170" x="64" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="mobius.logging.mfotl.TemporalOperator" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="280" width="179" x="41" y="1173"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="mobius.logging.mfotl.FirstorderOperator" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="100" width="152" x="260" y="1173"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="mobius.logging.mfotl.Predicate" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="190" width="169" x="928" y="1493"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="mobius.logging.mfotl.Interval" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="280" width="126" x="41" y="1493"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="mobius.logging.mfotl.Operator" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="100" width="107" x="327" y="979"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="14" language="java" name="mobius.logging.mfotl.ReservedSymbol" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="334" width="190" x="614" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="mobius.logging.mfotl.QuantifierOperator" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="154" width="181" x="452" y="1173"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="16" language="java" name="mobius.logging.mfotl.Variable" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/Syntax.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="190" width="132" x="673" y="1493"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="17" language="java" name="mobius.logging.mfotl.TemporalFormula" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/TemporalFormula.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="317" y="560"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="false" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="18" language="java" name="mobius.logging.mfotl.TemporalStructure" project="Logging" 
+    file="/Logging/src/mobius/logging/mfotl/TemporalStructure.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="190" width="184" x="869" y="411"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <generalization id="19">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <association id="20">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="21" name="my_left_subformula"/>      
+      <multiplicity id="22" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="23">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="24" name="my_structure"/>      
+      <multiplicity id="25" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="26">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="27" name="my_predicate"/>      
+      <multiplicity id="28" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="29">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="13"/>  
+  </generalization>  
+  <association id="30">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="31" name="my_signature"/>      
+      <multiplicity id="32" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="33">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="34" name="my_main_operator"/>      
+      <multiplicity id="35" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="36">    
+    <bendpoint x="802" y="695"/>    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="37" name="my_signature"/>      
+      <multiplicity id="38" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="39">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="40" name="my_variables"/>      
+      <multiplicity id="41" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="42">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="13"/>  
+  </generalization>  
+  <association id="43">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="44" name="my_right_subformula"/>      
+      <multiplicity id="45" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="46">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="47" name="my_interval"/>      
+      <multiplicity id="48" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="12" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="49">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="50">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="13"/>  
+  </generalization>  
+  <association id="51">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="52" name="my_formula"/>      
+      <multiplicity id="53" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="17" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="54">    
+    <bendpoint x="1083" y="411"/>    
+    <bendpoint x="1083" y="695"/>    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="55" name="my_signature"/>      
+      <multiplicity id="56" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="57">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="58" name="my_formula"/>      
+      <multiplicity id="59" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="60">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="61" name="my_ats"/>      
+      <multiplicity id="62" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="63">    
+    <bendpoint x="937" y="1173"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="64" name="my_predicate"/>      
+      <multiplicity id="65" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="false"/>    
+    <operations public="true" package="true" protected="true" private="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
