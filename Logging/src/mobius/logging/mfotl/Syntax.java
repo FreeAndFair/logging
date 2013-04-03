@@ -7,12 +7,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Define Variables, and if it is free or not
+ * Define Variables
  */
 class Variable {
     // Attributes
     private final String my_name;       // variable name
-    private int my_value;               // variable value after assignment or evaluation
     
     // Constructor
     
@@ -24,25 +23,8 @@ class Variable {
     }
     
     // Public Methods
-    
     public /*@ pure @*/ String getName() {
         return my_name;
-    }
-    
-    //@ assignable my_value;
-    //@ ensures my_value == a_value;
-    public void setValue(final int a_value) {
-        my_value = a_value;
-    }
-    
-    public /*@ pure @*/ int getValue() {
-        return my_value;
-    }
-
-    //@ assignable my_value;
-    public int evaluate(final Valuation a_valuation) {
-        my_value = a_valuation.evaluateVar(my_name);
-        return my_value;
     }
 }
 

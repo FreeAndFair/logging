@@ -1,5 +1,7 @@
 package mobius.logging.mfotl;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +15,7 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     //@ public invariant 
     private final Predicate my_predicate;
     private final List<Variable> my_variables;
-    private static final Logger my_logger = new Logger(false);
+    private static final Logger my_logger = new Logger(true);
     
     // Constructors
     //@ public normal_behavior
@@ -73,13 +75,34 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     }
     
     // Private Method
-    private Set<int[]> findResultSet(Set<int[]> a_set) {
+    //@ public normal_behavior
+    //@   assignable \nothing;
+    private /*@ pure @*/ Set<List> findValuationSet(final Set<int[]> a_set) {
+        final Set<List> temp_set = new HashSet();
+
         for (int[] a_i : a_set) {
+            final List<VariableAssign> temp_l = new LinkedList();
             for (int i = 0; i < a_i.length; i++) {
+                final String var_name = my_variables.get(i).getName();
+                try {
+                    final int temp_int = Integer.parseInt(var_name);
+                    my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
+                    if (temp_int != a_i[i]) {
+                        break;
+                    }
+                }
+                catch(NumberFormatException nfe) {
+                    temp_l.add(new VariableAssign(var_name, a_i[i]));
+                    my_logger.debug("Evaluate Var: " + var_name + " to " + a_i[i]);
+                }
                 
+                if (i == a_i.length - 1) {
+                    temp_set.add(temp_l);
+                }
             }
         }
-        return null;
+        
+        return temp_set;
     }
     
     // Public Methods
@@ -91,21 +114,34 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     }
     
     //@ assignable my_value;
-    // TODO change to set based evaluation, 
-    public Set evaluate(final /*@ non_null @*/ Structure a_structure,
-            final /*@ non_null @*/ Valuation a_valuation) {
-        int[] temp_val = new int[my_variables.size()];
+    public Valuation evaluate(final Structure a_structure) {
+        final Valuation temp_valuation = new Valuation();
+        final Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getSymbol()); 
         
-        for (int i = 0; i < my_variables.size(); i++) {
-            temp_val[i] = a_valuation.evaluateVar(my_variables.get(i).getName());
-            my_variables.get(i).setValue(temp_val[i]);
+        int[] temp_constant = new int[this.my_variables.size()];
+        int temp_i;
+        for (temp_i = 0; temp_i < this.my_variables.size(); temp_i++) {
+            final String var_name = my_variables.get(temp_i).getName();
+            try {
+                final int temp_int = Integer.parseInt(var_name);
+                temp_constant[temp_i] = temp_int;
+                my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
+            }
+            catch(NumberFormatException nfe) {
+                final Set<List> set_result = findValuationSet(set_real);
+                temp_valuation.setTruth(!set_result.isEmpty());
+                temp_valuation.addVarAssign(set_result);
+                return temp_valuation;
+            }
         }
         
-        Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getSymbol()); 
+        if (temp_i == this.my_variables.size()) {
+            temp_valuation.setTruth(setContains(set_real, temp_constant));
+        } else {
+            temp_valuation.setTruth(false);
+        }
         
-        Set<int[]> set_result = findResultSet(set_real);
-        
-        return null;
+        return temp_valuation;
     }
     
     public /*@ pure @*/ Variable getVariable(final int a_pos) {
@@ -133,5 +169,14 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         }
         
         return temp_string;
+    }
+    
+    private boolean setContains(final Set<int[]> a_set, final int[] a_array) {
+        for (int[] temp_i : a_set) {
+            if (Arrays.equals(temp_i, a_array)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

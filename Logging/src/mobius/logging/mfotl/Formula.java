@@ -1,7 +1,5 @@
 package mobius.logging.mfotl;
 
-import java.util.Set;
-
 /**
  * Parent class for MFOTLFormula, AtomicFormula and TemporalFormula
  * @author jianw
@@ -20,7 +18,7 @@ public class Formula {
      * @param the_structure
      * @return
      */
-    public Set evaluate(final Structure the_structure) {
+    public Valuation evaluate(final Structure the_structure) {
         my_logger.debug("InMethod: Formula.evaluate");
         return null;
     }

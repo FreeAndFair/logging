@@ -84,26 +84,39 @@ public class TemporalFormula extends Formula{
      * When the <code>evaluate()</code> method is called, the temporal sub-formula is
      * already replaced with first order formulas after formula tranformation.
      */
-    public Set evaluate(final /*@ non_null @*/ Structure a_structure) {
+    public Valuation evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
-        Set result_set = new HashSet();
+        Valuation result_set = new Valuation();
         
         if (my_auxiliary_predicate[0] != null) { // Temporal Formula transformed
-            result_set = new HashSet(my_auxiliary_predicate[0].evaluate(a_structure));
+            result_set = my_auxiliary_predicate[0].evaluate(a_structure);
         } else if (my_main_operator == null) { // Atomic Formula
             result_set = my_right_subformula.evaluate(a_structure);
-        } else if ("&".equals(my_main_operator.my_name)) { // First Order Formula
-            if (my_left_subformula != null) {
-                result_set = my_left_subformula.evaluate(a_structure);
-            }
+        } else if ("&".equals(my_main_operator.my_name)) { // First Order Formula &
+            result_set = my_left_subformula.evaluate(a_structure);
             result_set.retainAll(my_right_subformula.evaluate(a_structure));
-        } else if ("E".equals(my_main_operator.my_name)) {
+        } else if ("!".equals(my_main_operator.my_name)) { // First Order Formula !
+            result_set = my_right_subformula.evaluate(a_structure);
+            result_set.negateAll();
+        } else if ("E".equals(my_main_operator.my_name)) { // First Order Formula E
             my_logger.debug("Check Existential " + my_right_subformula.toString());
             result_set = my_right_subformula.evaluate(a_structure);
-            // FIXME remove bound variable 
+            result_set.removeBoundVar(((QuantifierOperator) my_main_operator).getBoundVariables());
         }
         
         return result_set;
+    }
+    
+    public boolean evaluateTruth(final Structure a_structure) { // if no free variable exists
+        if (a_structure == null) {
+            return false;
+        }
+        
+        final Valuation a_val = this.evaluate(a_structure);
+        
+        my_logger.debug(a_val.toString());
+        
+        return a_val.getTruth();
     }
     
     // Private Methods

@@ -43,23 +43,11 @@ public class MFOTLFormula {
     public MFOTLFormula(final /*@ non_null @*/ MFOTLFormula a_MFOTLFormula, final /*@ non_null @*/ Signature a_signature) {
         this(a_MFOTLFormula.my_formula_str, a_signature);
     }
-        
-    public /*@ pure @*/ Set evaluate(final Structure a_structure) {
-        my_logger.debug("InMethod: MFOTLFormula.evaluate");
-        
-        if (a_structure == null)
-            return new HashSet();
-        
-        return my_formula.evaluate(a_structure);
-    }
-
+    
     public /*@ pure @*/ boolean evaluateTruth(final Structure a_structure) {
         my_logger.debug("InMethod: MFOTLFormula.evaluate");
         
-        if (a_structure == null)
-            return false;
-        
-        return (my_formula.evaluate(a_structure).size() != 0);
+        return my_formula.evaluateTruth(a_structure);
     }
     
     /**

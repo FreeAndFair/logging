@@ -45,7 +45,7 @@ public class TemporalStructure {
         String result_string = "";
         for (int i = 0; i < my_structure.size(); i++) {
             result_string = result_string.concat("{" + my_structure.get(i).toString() 
-                    + ", " + my_time_stamp.get(i).toString() + "}");
+                    + ", t:" + my_time_stamp.get(i).toString() + "}\n");
         }
         return result_string;
     }

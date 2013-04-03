@@ -5,6 +5,8 @@ package mobius.logging.mfotl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -89,83 +91,170 @@ public class Structure {
         String result_temp_string = "";
 
         for (Object i : my_relation_assignment.keySet()) {
-            result_temp_string = result_temp_string.concat(" " + (String)i);
-            
+            result_temp_string = result_temp_string.concat((String)i + ":");
 
             String temp_result = "{";
             for (int[] j: this.getRelationAssign((String)i)) {
                 temp_result = temp_result.concat("[");
                 for (int k = 0; k < j.length; k++) {
-                    temp_result = temp_result.concat("" + j[k] + " ");
+                    temp_result = temp_result.concat(j[k] + "");
+                    if (k != j.length-1) {
+                        temp_result = temp_result.concat(" ");
+                    }
                 }
-                temp_result = temp_result.concat("] ");
+                temp_result = temp_result.concat("]");
             }
             temp_result = temp_result.concat("}");
             
             result_temp_string = result_temp_string.concat(temp_result);
-            
-            result_temp_string = result_temp_string.concat("\n");
         }
         
         return result_temp_string;
     }
 }
 
+class VariableAssign {
+    public final String my_name;
+    public final int my_value;
+    
+    public VariableAssign(final String a_name, final int a_value) {
+        my_name = a_name;
+        my_value = a_value;
+    }
+    
+    public String toString() {
+        return "(" + my_name + ": " + my_value + ")";
+    }
+}
+
 class Valuation {
     // Attributes
-    private final Map my_variable_assignment;
+    private final Set<List> my_variable_assign;
+    private boolean my_var_all = false;
+    private final Set<List> my_neg_variable_assign;
+    private boolean my_neg_all = false;
+    private boolean my_truth = false; 
     private static final Logger my_logger = new Logger();
 
     // Constructor
     public Valuation() {
-        my_variable_assignment = new Hashtable();
+        my_variable_assign = new HashSet();
+        my_neg_variable_assign = new HashSet();
     }
     
     public Valuation(final /*@ non_null @*/ Valuation a_valuation) {
-        this.my_variable_assignment = new Hashtable(a_valuation.my_variable_assignment);
+        this.my_variable_assign = new HashSet(a_valuation.my_variable_assign);
+        this.my_neg_variable_assign = new HashSet(a_valuation.my_neg_variable_assign);
     }
 
-    /**
-     * evaluate variables
-     * @param a_name
-     * @return
-     */
-    public int evaluateVar(final /*@ non_null @*/ String a_name) {
-        int temp_int = 0;
-        
-        try {
-            temp_int = Integer.parseInt(a_name);
-            my_logger.debug("Evaluate Constant: " + temp_int);
+    public void addVarAssign(final Set a_assign_set) {
+        this.my_variable_assign.addAll(a_assign_set);
+    }
+
+    public void removeAll(final Valuation a_valuation) {
+        for (Object i : a_valuation.my_variable_assign) {
+            this.my_variable_assign.remove(i);
         }
-        catch(NumberFormatException nfe) {
-            if (my_variable_assignment.containsKey(a_name)) {
-                temp_int = (Integer) my_variable_assignment.get(a_name);
-                my_logger.debug("Evaluate Var: " + a_name + " to " + temp_int);
-            } else {
-                my_logger.fatal("No variable assignment found");
-                System.exit(1);
+    }
+    
+    public void retainAll(final Valuation a_valuation) { // A & B
+        if (!a_valuation.getTruth()) { // Right hand side B is unsatisfiable
+            this.my_variable_assign.clear();
+            this.my_neg_variable_assign.clear();
+            this.my_truth = false;
+            return;
+        }
+        
+        if (!a_valuation.my_neg_variable_assign.isEmpty()) { // A & ~B
+            this.my_variable_assign.removeAll(a_valuation.my_neg_variable_assign);
+            this.my_neg_variable_assign.addAll(a_valuation.my_variable_assign);
+        }
+        
+        this.my_truth = this.my_truth && a_valuation.getTruth();
+        
+        if (!a_valuation.getSet().isEmpty() && !this.getSet().isEmpty()) {
+            this.my_variable_assign.retainAll(a_valuation.my_variable_assign);
+            if (this.getSet().isEmpty()) {
+                this.my_truth = false;
             }
         }
+        if (a_valuation.getSet().isEmpty() && !a_valuation.getTruth()) {
+            this.my_variable_assign.clear();
+        }
+    }
+    
+    // For negation
+    public void negateAll() {
+        this.my_truth = !this.my_truth;
         
-        return temp_int;
+        final Set temp = new HashSet(this.my_neg_variable_assign);
+        this.my_neg_variable_assign.clear();
+        this.my_neg_variable_assign.addAll(my_variable_assign);
+        this.my_variable_assign.clear();
+        this.my_variable_assign.addAll(temp);
     }
-
-    /**
-     * add variable assignment
-     * @param a_name
-     * @param a_value
-     */
-    public void addVarAssign(final /*@ non_null @*/ String a_name, final int a_value) {
-        my_variable_assignment.put(a_name, a_value);
+    
+    // For existential check
+    public void removeBoundVar(final Set the_bound_var) {
+        for (List<VariableAssign> j : this.my_variable_assign) {
+            final Set<VariableAssign> temp_set = new HashSet();
+            for (VariableAssign k : j) {
+                if (the_bound_var.contains(k.my_name)) {
+                    temp_set.add(k);
+                    my_logger.debug("Remove free var: " + k.toString());
+                }
+            }
+            j.removeAll(temp_set);
+        }
     }
-
+    
+    //@ pure
+    public boolean isEmpty() {
+        if (this.my_variable_assign.isEmpty()) {
+            return this.my_neg_variable_assign.isEmpty();
+        } else {
+            return true;
+        }
+    }
+    
+    public Set<int[]> getSet() {
+        final Set<int[]> result_set = new HashSet();
+        for (List<VariableAssign> i : this.my_variable_assign) {
+            final int[] temp_array = new int[i.size()];
+            for (int j = 0; j < i.size(); j++) {
+                temp_array[j] = i.get(j).my_value;
+            }
+            result_set.add(temp_array);
+        }
+        return result_set;
+    }
+    
+    //@ assignable my_truth;
+    public void setTruth(final boolean a_value) {
+        this.my_truth = a_value;
+    }
+    
+    public boolean getTruth() {
+        return this.my_truth;
+    }
+    
     public String toString() {
-        String result_temp_string = "";
+        String result_temp_string = "ASSIGN: ";
         
-        for (Object i : my_variable_assignment.keySet()) {
-            result_temp_string = result_temp_string.concat(" " + (String)i);
-            result_temp_string = result_temp_string.concat(":=");
-            result_temp_string = result_temp_string.concat(" " + (Integer)my_variable_assignment.get(i) + ", ");
+        for (List<VariableAssign> i : this.my_variable_assign) {
+            for (int j = 0; j < i.size(); j++) {
+                result_temp_string = result_temp_string.concat(i.toString() + " ");
+            }
+            result_temp_string = result_temp_string.concat("\n");
+        }
+        
+        result_temp_string = result_temp_string.concat("\nNEG: ");
+        
+        for (List<VariableAssign> i : this.my_variable_assign) {
+            for (int j = 0; j < i.size(); j++) {
+                result_temp_string = result_temp_string.concat(i.toString() + " ");
+            }
+            result_temp_string = result_temp_string.concat("\n");
         }
         
         return result_temp_string;
