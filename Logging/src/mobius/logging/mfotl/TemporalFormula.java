@@ -149,8 +149,8 @@ public class TemporalFormula extends Formula{
     private void parseAtomicFormula() {
         my_right_subformula = new AtomicFormula(my_tokens, my_signature);
         
-        for (int i = 0; i < ((AtomicFormula) my_right_subformula).my_variables.size(); i++) {
-            my_variable.add(((AtomicFormula) my_right_subformula).my_variables.get(i).getName());
+        for (int i = 0; i < ((AtomicFormula) my_right_subformula).getVariableSize(); i++) {
+            my_variable.add(((AtomicFormula) my_right_subformula).getVariable(i).getName());
         }
     }
     

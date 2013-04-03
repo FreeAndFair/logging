@@ -44,11 +44,6 @@ public class MFOTLFormula {
         this(a_MFOTLFormula.my_formula_str, a_signature);
     }
         
-    /**
-     * <p>
-     * <code>evaluate</code> a MFOTL formula
-     * </p> 
-     */
     public /*@ pure @*/ Set evaluate(final Structure a_structure) {
         my_logger.debug("InMethod: MFOTLFormula.evaluate");
         
@@ -72,7 +67,7 @@ public class MFOTLFormula {
      * <code>lexer</code> processes the input formula string, and splits it input an array of String
      * </p>
      */
-    //@ assignable my_token
+    //@ assignable my_token;
 	private void runLexer() {
 	    String temp_formula_str = my_formula_str;
         String temp_formula_with_space = "";

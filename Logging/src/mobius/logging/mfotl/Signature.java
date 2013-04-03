@@ -3,9 +3,10 @@ package mobius.logging.mfotl;
 import java.util.Set;
 import java.util.HashSet;
 
+
 public class Signature {
     // Attributes
-    public Set<Predicate> my_predicate;
+    final private Set<Predicate> my_predicate;
     
     // Constructor
     public Signature() {

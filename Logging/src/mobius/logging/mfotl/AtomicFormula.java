@@ -2,19 +2,17 @@ package mobius.logging.mfotl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <code>AtomicFormula</code>
- * 
- * for the leave notes of formula
  */
 
 public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     // Attributes
     //@ public invariant 
     private final Predicate my_predicate;
-    public List<Variable> my_variables;
-    
+    private final List<Variable> my_variables;
     private static final Logger my_logger = new Logger(false);
     
     // Constructors
@@ -31,23 +29,16 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         my_logger.debug(a_var);
         my_logger.debug(a_operator);
         
-        //my_variables = new Variable[a_arity];
         my_variables = new LinkedList();
         
         for (int i = 0; i < a_arity; i++) {
             my_variables.add(new Variable(a_var[i]));
         }
         
-        /* debug code
-        if ("=".equals(a_operator) || "<".equals(a_operator)) {
-            return;
-        }*/
-        
         my_predicate = new Predicate(a_operator, a_arity);        
         if (! the_signature.contains(my_predicate)) {
             my_logger.fatal("Invalid Relation!");
         }
-
     }
     
     //@ assignable my_variable;
@@ -60,7 +51,6 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         my_variables = new LinkedList();
         
         if (a_formula[1].equals("=") || a_formula[1].equals("<")) {
-            my_variables = new LinkedList();
             my_variables.add(new Variable(a_formula[0]));
             my_variables.add(new Variable(a_formula[2]));
             my_predicate = new Predicate(a_formula[1], 2);
@@ -69,14 +59,9 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
             for (int i = 0; i < temp_var.length; i++) {
                 temp_var[i] = a_formula[(i+1)*2];
             }
-            
+            // my variables also contain constant
             for (int i = 0; i < temp_var.length; i++) {
-                try {
-                    my_logger.fatal("Constant in Atomic Formula" + Integer.parseInt(temp_var[i]));
-                }
-                catch(NumberFormatException nfe) {
-                    my_variables.add(new Variable(temp_var[i]));
-                }
+                my_variables.add(new Variable(temp_var[i]));
             }
             
             my_predicate = new Predicate(a_formula[0], temp_var.length);
@@ -85,6 +70,16 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
                 my_logger.fatal("Invalid Relation!");
             }
         }
+    }
+    
+    // Private Method
+    private Set<int[]> findResultSet(Set<int[]> a_set) {
+        for (int[] a_i : a_set) {
+            for (int i = 0; i < a_i.length; i++) {
+                
+            }
+        }
+        return null;
     }
     
     // Public Methods
@@ -96,8 +91,8 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     }
     
     //@ assignable my_value;
-    // TODO change to set based evaluation
-    public boolean evaluate(final /*@ non_null @*/ Structure a_structure,
+    // TODO change to set based evaluation, 
+    public Set evaluate(final /*@ non_null @*/ Structure a_structure,
             final /*@ non_null @*/ Valuation a_valuation) {
         int[] temp_val = new int[my_variables.size()];
         
@@ -106,13 +101,27 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
             my_variables.get(i).setValue(temp_val[i]);
         }
         
-        return a_structure.evaluateRelation(my_predicate.getSymbol(), temp_val);
+        Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getSymbol()); 
+        
+        Set<int[]> set_result = findResultSet(set_real);
+        
+        return null;
     }
     
-    /**
-     * <code>toString</code> method for Atomic Formula returns the predicate string and 
-     * the variables.
-     */
+    public /*@ pure @*/ Variable getVariable(final int a_pos) {
+        if (a_pos < this.my_variables.size()) {
+            return this.my_variables.get(a_pos);
+        } else {
+            return null;
+        }
+    }
+    
+    public /*@ pure @*/ int getVariableSize() {
+        return this.my_variables.size();
+    }
+    
+    //@ public normal_behavior
+    //@   assignable \nothing;
     public /*@ pure @*/ String toString() {
         String temp_string = my_predicate.toString();
         if (!my_variables.isEmpty()) {
