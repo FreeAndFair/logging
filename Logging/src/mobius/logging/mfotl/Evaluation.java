@@ -1,6 +1,7 @@
 package mobius.logging.mfotl;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -10,59 +11,65 @@ public class Evaluation {
     private boolean my_var_all = false;
     private final Set<List> my_neg_variable_assign;
     private boolean my_neg_all = true;
-    private boolean my_truth = false;
+    private final List<String> my_variables;
     private static final Logger my_logger = new Logger();
 
     // Constructors
     public Evaluation() {
         my_variable_assign = new HashSet();
         my_neg_variable_assign = new HashSet();
+        my_variables = new LinkedList();
+    }
+    
+    public Evaluation(final List<String> the_free_var) {
+        my_variable_assign = new HashSet();
+        my_neg_variable_assign = new HashSet();
+        my_variables = new LinkedList(the_free_var);
     }
     
     public Evaluation(final Evaluation a_valuation) {
         this.my_variable_assign = new HashSet(a_valuation.my_variable_assign);
         this.my_neg_variable_assign = new HashSet(a_valuation.my_neg_variable_assign);
+        this.my_variables = new LinkedList(a_valuation.my_variables);
     }
     
     // Public Methods
-
     public void addVarAssign(final Set<List> a_assign_set) {
         this.my_variable_assign.addAll(a_assign_set);
     }
-
+    
     // For conjunction
-    public void retainAll(final Evaluation a_valuation) { // A & B
-        if (!a_valuation.isTrue()) { // Right hand side B is unsatisfiable
+    public void conjunction(final Evaluation a_valuation) { // A & B
+        if (!this.isTrue() || !a_valuation.isTrue()) { // Right hand side B is unsatisfiable
             this.my_variable_assign.clear();
             this.my_var_all = false;
             this.my_neg_variable_assign.clear();
             this.my_neg_all = true;
-            this.my_truth = false;
             return;
         }
         
-        if (!a_valuation.my_neg_variable_assign.isEmpty()) { // A & ~B
-            removeAll(this.my_variable_assign, a_valuation.my_neg_variable_assign);
-            addAll(this.my_neg_variable_assign, a_valuation.my_variable_assign);
-        }
-        
-        this.my_truth = this.my_truth && a_valuation.isTrue();
-        
-        if (!a_valuation.getSet().isEmpty() && !this.getSet().isEmpty()) {
-            this.my_variable_assign.retainAll(a_valuation.my_variable_assign);
-            if (this.getSet().isEmpty()) {
-                this.my_truth = false;
-            }
-        }
-        if (a_valuation.getSet().isEmpty() && !a_valuation.isTrue()) {
+        if (this.my_var_all) { // A is valid, copy everything from B
             this.my_variable_assign.clear();
+            this.my_variable_assign.addAll(a_valuation.my_variable_assign);
+            this.my_var_all = a_valuation.my_var_all;
+            this.my_neg_variable_assign.clear();
+            this.my_neg_all = false;
+        } else {
+            if (a_valuation.my_var_all) { // B is valid, A stays unchanged
+                return;
+            } else { // Neither A nor B is valid
+                retainAll(this.my_variable_assign, a_valuation.my_variable_assign); // intersection of A, B variable assign
+                addAll(this.my_neg_variable_assign, a_valuation.my_neg_variable_assign); // union of A, B negation variable assign
+            }
         }
     }
     
-    // For negation
-    public void negateAll() {
-        this.my_truth ^= true;
+    private void retainAll(final Set<List> a_src, final Set<List> a_dst) {
         
+    }
+    
+    // For negation
+    public void negation() {
         final Set temp = new HashSet(this.my_neg_variable_assign);
         final boolean temp_b = this.my_neg_all;
         this.my_neg_variable_assign.clear();
@@ -75,12 +82,16 @@ public class Evaluation {
     
     // For existential check
     public void removeBoundVar(final Set the_bound_var) {
+        my_logger.debug("InMethod: Evaluation.removeBoundVar");
+        my_logger.debug(the_bound_var);
         for (List<VariableAssign> j : this.my_variable_assign) {
             final Set<VariableAssign> temp_set = new HashSet();
             for (VariableAssign k : j) {
                 if (the_bound_var.contains(k.getName())) {
                     temp_set.add(k);
                     my_logger.debug("Remove free var: " + k.toString());
+                } else {
+                    my_logger.debug(k.getName() + " is not bound");
                 }
             }
             j.removeAll(temp_set);
@@ -120,14 +131,25 @@ public class Evaluation {
         return result_set;
     }
     
-    //@ assignable my_truth;
-    public void setTruth(final boolean a_value) {
-        this.my_truth = a_value;
-    }
-    
     //@ pure
     public boolean isTrue() {
-        return this.my_truth;
+        boolean result_b;
+        
+        if (this.my_neg_all) {
+            if (this.my_var_all) {
+                result_b = true;
+            } else {
+                result_b = this.my_variable_assign.isEmpty() ^ true;
+            }
+        } else {
+            if (this.my_var_all) {
+                result_b = true;
+            } else {
+                result_b = (!this.my_neg_variable_assign.isEmpty()) || (!this.my_variable_assign.isEmpty());
+            }
+        }
+        
+        return result_b;
     }
     
     //@ assignable my_neg_all;
@@ -151,10 +173,15 @@ public class Evaluation {
     }
     
     //@ pure
+    public int getSize() {
+        return this.my_variables.size();
+    }
+    
+    //@ pure
     public String toString() {
-        String result_temp_string = "ASSIGN: ";
+        String result_temp_string = this.my_variables.toString() + "\nASSIGN: ";
         
-        for (List<VariableAssign> i : this.my_variable_assign) {
+        for (List<int[]> i : this.my_variable_assign) {
             for (int j = 0; j < i.size(); j++) {
                 result_temp_string = result_temp_string.concat(i.toString() + " ");
             }
@@ -163,7 +190,7 @@ public class Evaluation {
         
         result_temp_string = result_temp_string.concat("\nNEG: ");
         
-        for (List<VariableAssign> i : this.my_variable_assign) {
+        for (List<int[]> i : this.my_variable_assign) {
             for (int j = 0; j < i.size(); j++) {
                 result_temp_string = result_temp_string.concat(i.toString() + " ");
             }

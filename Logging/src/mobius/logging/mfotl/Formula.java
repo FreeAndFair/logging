@@ -1,5 +1,7 @@
 package mobius.logging.mfotl;
 
+import java.util.Set;
+
 /**
  * Parent class for MFOTLFormula, AtomicFormula and TemporalFormula
  * @author jianw
@@ -12,13 +14,15 @@ public class Formula {
     protected boolean my_is_temporal = false;
     final private Logger my_logger = new Logger();
     
+    protected Set<String> my_free_variable;
+    
     // Public Methods
     /**
      * 
      * @param the_structure
      * @return
      */
-    public Evaluation evaluate(final Structure the_structure) {
+    protected Evaluation evaluate(final Structure the_structure) {
         my_logger.debug("InMethod: Formula.evaluate");
         return null;
     }
@@ -29,5 +33,9 @@ public class Formula {
     
     public boolean isTemporal() {
         return this.my_is_temporal;
+    }
+    
+    protected Set<String> getFreeVariable() {
+        return null;
     }
 }

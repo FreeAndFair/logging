@@ -49,7 +49,7 @@ public class Logger {
         if (my_print_info) {
             my_logger.print("debug: ");
             for (Object i: a_debug_info) {
-                my_logger.print(i.toString());
+                my_logger.print(i.toString() + " ");
             }
             my_logger.println("");
         }

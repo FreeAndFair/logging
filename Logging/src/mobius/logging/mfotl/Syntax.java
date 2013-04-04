@@ -9,6 +9,7 @@ import java.util.Set;
 /**
  * Define Variables
  */
+
 class Variable {
     // Attributes
     private final String my_name;       // variable name
@@ -23,7 +24,8 @@ class Variable {
     }
     
     // Public Methods
-    public /*@ pure @*/ String getName() {
+    //@ pure
+    public String getName() {
         return my_name;
     }
 }

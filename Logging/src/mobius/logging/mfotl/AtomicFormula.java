@@ -15,6 +15,8 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     //@ public invariant 
     private final Predicate my_predicate;
     private final List<Variable> my_variables;
+
+    
     private static final Logger my_logger = new Logger(true);
     
     // Constructors
@@ -32,9 +34,17 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         my_logger.debug(a_operator);
         
         my_variables = new LinkedList();
+        my_free_variable = new HashSet();
         
         for (int i = 0; i < a_arity; i++) {
             my_variables.add(new Variable(a_var[i]));
+            try {
+                Integer.parseInt(a_var[i]);
+                my_logger.debug("Constant Var: " + a_var[i]);
+            } catch(NumberFormatException nfe) {
+                my_free_variable.add(a_var[i]);
+                my_logger.debug("Free Var: " + a_var[i]);
+            }
         }
         
         my_predicate = new Predicate(a_operator, a_arity);        
@@ -50,7 +60,9 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         
         my_logger.info("\nBuild atomic formula ->");        
         my_logger.debug(a_formula);
+        
         my_variables = new LinkedList();
+        my_free_variable = new HashSet();
         
         if (a_formula[1].equals("=") || a_formula[1].equals("<")) {
             my_variables.add(new Variable(a_formula[0]));
@@ -72,6 +84,16 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
                 my_logger.fatal("Invalid Relation!");
             }
         }
+        
+        for (int i = 0; i < my_variables.size(); i++) {
+            try {
+                Integer.parseInt(my_variables.get(i).getName());
+                my_logger.debug("Constant Var: " + my_variables.get(i).getName());
+            } catch(NumberFormatException nfe) {
+                my_free_variable.add(my_variables.get(i).getName());
+                my_logger.debug("Free Var: " + my_variables.get(i).getName());
+            }
+        }
     }
     
     // Private Method
@@ -82,24 +104,26 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
 
         for (int[] a_i : a_set) {
             final List<VariableAssign> temp_l = new LinkedList();
-            for (int i = 0; i < a_i.length; i++) {
-                final String var_name = my_variables.get(i).getName();
+            int int_i;
+            
+            for (int_i = 0; int_i < a_i.length; int_i++) {
+                final String var_name = my_variables.get(int_i).getName();
                 try {
                     final int temp_int = Integer.parseInt(var_name);
                     my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
-                    if (temp_int != a_i[i]) {
+                    if (temp_int != a_i[int_i]) {
                         break;
                     }
-                }
-                catch(NumberFormatException nfe) {
-                    temp_l.add(new VariableAssign(var_name, a_i[i]));
-                    my_logger.debug("Evaluate Var: " + var_name + " to " + a_i[i]);
-                }
-                
-                if (i == a_i.length - 1) {
-                    temp_set.add(temp_l);
+                } catch(NumberFormatException nfe) {
+                    temp_l.add(new VariableAssign(var_name, a_i[int_i]));
+                    my_logger.debug("Evaluate Var: " + var_name + " to " + a_i[int_i]);
                 }
             }
+            
+            if (int_i == a_i.length) {
+                temp_set.add(temp_l);
+            }
+
         }
         
         return temp_set;
@@ -118,30 +142,29 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         final Evaluation temp_valuation = new Evaluation();
         final Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getSymbol()); 
         
-        int[] temp_constant = new int[this.my_variables.size()];
+        // collect variables
+        
+        final int[] temp_constant = new int[this.my_variables.size()];
         int temp_i;
+        boolean has_variable = false;
         for (temp_i = 0; temp_i < this.my_variables.size(); temp_i++) {
             final String var_name = my_variables.get(temp_i).getName();
             try {
                 final int temp_int = Integer.parseInt(var_name);
                 temp_constant[temp_i] = temp_int;
                 my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
-            }
-            catch(NumberFormatException nfe) { // variable exist
+            } catch(NumberFormatException nfe) { // variable exist
+                has_variable = true;
+                
                 final Set<List> set_result = findValuationSet(set_real);
-                temp_valuation.setTruth(!set_result.isEmpty());
                 temp_valuation.addVarAssign(set_result);
                 return temp_valuation;
             }
         }
         
-        if (temp_i == this.my_variables.size()) { // no variable
-            temp_valuation.setTruth(setContains(set_real, temp_constant));
-            if (temp_valuation.isTrue()) {
+        if ((temp_i == this.my_variables.size()) && setContains(set_real, temp_constant)) { // no variables
+                temp_valuation.setVarAll(true); // valid expression
                 temp_valuation.setNegAll(false); // valid expression
-            }
-        } else {
-            temp_valuation.setTruth(false);
         }
         
         return temp_valuation;
@@ -157,6 +180,11 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     
     public /*@ pure @*/ int getVariableSize() {
         return this.my_variables.size();
+    }
+    
+    //@ pure
+    public Set<String> getFreeVariable() {
+        return this.my_free_variable;
     }
     
     //@ public normal_behavior

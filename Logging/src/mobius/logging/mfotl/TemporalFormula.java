@@ -18,13 +18,13 @@ public class TemporalFormula extends Formula{
 
     private Operator my_main_operator;
     
-    final private List my_bound_variable = new LinkedList();
-    final private List my_variable = new LinkedList();
-    final private List my_free_variable = new LinkedList();
+    final private Set<String> my_bound_variable = new HashSet();
+    final private Set<String> my_variable = new HashSet();
+    //final private Set<String> my_free_variable = new HashSet();
     
     final private Signature my_signature;
     private String[] my_tokens;
-    private static final Logger my_logger = new Logger(false);
+    private static final Logger my_logger = new Logger();
     
     // Constructor
     public TemporalFormula(final String[] a_tokens, final Signature a_signature) {
@@ -40,7 +40,7 @@ public class TemporalFormula extends Formula{
         } else {
             parseFormula();
             
-            for (String i : (LinkedList<String>)my_variable) {
+            for (String i : my_variable) {
                 if (!my_bound_variable.contains(i)) {
                     my_free_variable.add(i);
                 }
@@ -48,14 +48,14 @@ public class TemporalFormula extends Formula{
             
             my_logger.debug("In Formula: ");
             my_logger.debug(a_tokens);
-            my_logger.debug("All Variables (Constants): " +  my_variable);
+            my_logger.debug("????????? All Variables (Constants): " +  my_variable);
             my_logger.debug("Bound Variables: " + my_bound_variable);
             my_logger.debug("Free Variables: " + my_free_variable);
         }
     }
     
     // Public Methods
-    public /*@ pure @*/ List getFreeVariable() {
+    public /*@ pure @*/ Set getFreeVariable() {
         return my_free_variable;
     }
     
@@ -94,10 +94,10 @@ public class TemporalFormula extends Formula{
             result_set = my_right_subformula.evaluate(a_structure);
         } else if ("&".equals(my_main_operator.my_name)) { // First Order Formula &
             result_set = my_left_subformula.evaluate(a_structure);
-            result_set.retainAll(my_right_subformula.evaluate(a_structure));
+            result_set.conjunction(my_right_subformula.evaluate(a_structure));
         } else if ("!".equals(my_main_operator.my_name)) { // First Order Formula !
             result_set = my_right_subformula.evaluate(a_structure);
-            result_set.negateAll();
+            result_set.negation();
         } else if ("E".equals(my_main_operator.my_name)) { // First Order Formula E
             my_logger.debug("Check Existential " + my_right_subformula.toString());
             result_set = my_right_subformula.evaluate(a_structure);
@@ -162,9 +162,11 @@ public class TemporalFormula extends Formula{
     private void parseAtomicFormula() {
         my_right_subformula = new AtomicFormula(my_tokens, my_signature);
         
-        for (int i = 0; i < ((AtomicFormula) my_right_subformula).getVariableSize(); i++) {
-            my_variable.add(((AtomicFormula) my_right_subformula).getVariable(i).getName());
+        for (int i = 0; i < 1; i++) {
+            final String temp_s = ((AtomicFormula) my_right_subformula).getVariable(i).getName();
+            my_variable.add(temp_s);
         }
+        //my_variable.addAll(((AtomicFormula)my_right_subformula).getFreeVariable());
     }
     
     /**
