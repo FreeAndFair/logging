@@ -49,11 +49,12 @@ public class Logger {
         if (my_print_info) {
             my_logger.print("debug: ");
             for (Object i: a_debug_info) {
-                my_logger.print(i);
+                my_logger.print(i.toString());
             }
             my_logger.println("");
         }
-    }
+    }    
+
     
     public /*@ pure @*/ void debug(final List a_debug_info) {
         if (my_print_info) {

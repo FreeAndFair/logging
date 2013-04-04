@@ -114,8 +114,8 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     }
     
     //@ assignable my_value;
-    public Valuation evaluate(final Structure a_structure) {
-        final Valuation temp_valuation = new Valuation();
+    public Evaluation evaluate(final Structure a_structure) {
+        final Evaluation temp_valuation = new Evaluation();
         final Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getSymbol()); 
         
         int[] temp_constant = new int[this.my_variables.size()];
@@ -127,7 +127,7 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
                 temp_constant[temp_i] = temp_int;
                 my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
             }
-            catch(NumberFormatException nfe) {
+            catch(NumberFormatException nfe) { // variable exist
                 final Set<List> set_result = findValuationSet(set_real);
                 temp_valuation.setTruth(!set_result.isEmpty());
                 temp_valuation.addVarAssign(set_result);
@@ -135,8 +135,11 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
             }
         }
         
-        if (temp_i == this.my_variables.size()) {
+        if (temp_i == this.my_variables.size()) { // no variable
             temp_valuation.setTruth(setContains(set_real, temp_constant));
+            if (temp_valuation.isTrue()) {
+                temp_valuation.setNegAll(false); // valid expression
+            }
         } else {
             temp_valuation.setTruth(false);
         }
@@ -171,6 +174,7 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         return temp_string;
     }
     
+    //@ pure
     private boolean setContains(final Set<int[]> a_set, final int[] a_array) {
         for (int[] temp_i : a_set) {
             if (Arrays.equals(temp_i, a_array)) {

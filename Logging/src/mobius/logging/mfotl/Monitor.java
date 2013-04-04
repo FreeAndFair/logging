@@ -162,7 +162,7 @@ public class Monitor {
                 if (((TemporalOperator)((TemporalFormula) a_formula).getMainOperator()).inRange(temp_time_interval)) {
                     my_logger.debug("Security Policy NOT followed!");
                 } else { // TODO BUG consider other cases
-                    Valuation temp_ra = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_ats.getStructure(a_pos-1));
+                    Evaluation temp_ra = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_ats.getStructure(a_pos-1));
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
                 }
             }
@@ -177,7 +177,7 @@ public class Monitor {
                     my_logger.debug("Security Policy Not followed!");
                 } else {
                     // TODO BUG consider other cases
-                    Valuation temp_ra = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_ats.getStructure(a_pos-1));
+                    Evaluation temp_ra = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_ats.getStructure(a_pos-1));
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
                 }
             }
@@ -190,7 +190,7 @@ public class Monitor {
                 // get r()
                 
                 // gama ^ Di * {0}
-                final Valuation gama = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_auxiliary_structure);
+                final Evaluation gama = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_auxiliary_structure);
                 for (int[] i : gama.getSet()) {
                     int[] temp_gama = new int[i.length+1];
                     System.arraycopy(i, 0, temp_gama, 0, i.length);

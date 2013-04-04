@@ -18,7 +18,7 @@ public class Formula {
      * @param the_structure
      * @return
      */
-    public Valuation evaluate(final Structure the_structure) {
+    public Evaluation evaluate(final Structure the_structure) {
         my_logger.debug("InMethod: Formula.evaluate");
         return null;
     }

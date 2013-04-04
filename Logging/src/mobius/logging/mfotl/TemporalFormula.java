@@ -84,9 +84,9 @@ public class TemporalFormula extends Formula{
      * When the <code>evaluate()</code> method is called, the temporal sub-formula is
      * already replaced with first order formulas after formula tranformation.
      */
-    public Valuation evaluate(final /*@ non_null @*/ Structure a_structure) {
+    public Evaluation evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
-        Valuation result_set = new Valuation();
+        Evaluation result_set = new Evaluation();
         
         if (my_auxiliary_predicate[0] != null) { // Temporal Formula transformed
             result_set = my_auxiliary_predicate[0].evaluate(a_structure);
@@ -112,11 +112,11 @@ public class TemporalFormula extends Formula{
             return false;
         }
         
-        final Valuation a_val = this.evaluate(a_structure);
+        final Evaluation a_val = this.evaluate(a_structure);
         
         my_logger.debug(a_val.toString());
         
-        return a_val.getTruth();
+        return a_val.isTrue();
     }
     
     // Private Methods
