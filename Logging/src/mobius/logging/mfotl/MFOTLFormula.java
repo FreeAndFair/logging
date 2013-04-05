@@ -38,6 +38,7 @@ public class MFOTLFormula {
         runLexer();
         
         my_formula = new TemporalFormula(my_tokens, my_signature);
+        my_formula.init();
     }
     
     public MFOTLFormula(final /*@ non_null @*/ MFOTLFormula a_MFOTLFormula, final /*@ non_null @*/ Signature a_signature) {

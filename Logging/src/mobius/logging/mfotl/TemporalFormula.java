@@ -38,23 +38,26 @@ public class TemporalFormula extends Formula{
         if (my_tokens.length == 0) {
             my_logger.info("Temporal Formula with length 0");
         } else {
-            parseFormula();
-            
-            for (String i : my_variable) {
-                if (!my_bound_variable.contains(i)) {
-                    my_free_variable.add(i);
-                }
-            }
-            
             my_logger.debug("In Formula: ");
             my_logger.debug(a_tokens);
-            my_logger.debug("????????? All Variables (Constants): " +  my_variable);
-            my_logger.debug("Bound Variables: " + my_bound_variable);
-            my_logger.debug("Free Variables: " + my_free_variable);
         }
     }
     
     // Public Methods
+    public void init() {
+        parseFormula();
+        
+        for (String i : my_variable) {
+            if (!my_bound_variable.contains(i)) {
+                my_free_variable.add(i);
+            }
+        }
+        
+        my_logger.debug("????????? All Variables (Constants): " +  my_variable);
+        my_logger.debug("Bound Variables: " + my_bound_variable);
+        my_logger.debug("Free Variables: " + my_free_variable);
+    }
+    
     public /*@ pure @*/ Set getFreeVariable() {
         return my_free_variable;
     }
@@ -86,7 +89,7 @@ public class TemporalFormula extends Formula{
      */
     public Evaluation evaluate(final /*@ non_null @*/ Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
-        Evaluation result_set = new Evaluation();
+        Evaluation result_set = new Evaluation(this.my_free_variable);
         
         if (my_auxiliary_predicate[0] != null) { // Temporal Formula transformed
             result_set = my_auxiliary_predicate[0].evaluate(a_structure);
@@ -162,11 +165,7 @@ public class TemporalFormula extends Formula{
     private void parseAtomicFormula() {
         my_right_subformula = new AtomicFormula(my_tokens, my_signature);
         
-        for (int i = 0; i < 1; i++) {
-            final String temp_s = ((AtomicFormula) my_right_subformula).getVariable(i).getName();
-            my_variable.add(temp_s);
-        }
-        //my_variable.addAll(((AtomicFormula)my_right_subformula).getFreeVariable());
+        my_variable.addAll(my_right_subformula.getFreeVariable());
     }
     
     /**
@@ -224,6 +223,8 @@ public class TemporalFormula extends Formula{
         
         if (token_parts1.length > 0) {
             my_left_subformula = new TemporalFormula(token_parts1, my_signature);
+            ((TemporalFormula)my_left_subformula).init();
+            
             my_bound_variable.addAll(((TemporalFormula) my_left_subformula).my_bound_variable);
             my_variable.addAll(my_bound_variable);
             my_variable.addAll(((TemporalFormula) my_left_subformula).my_variable);
@@ -231,6 +232,8 @@ public class TemporalFormula extends Formula{
         }
         if (token_parts2.length > 0) {
             my_right_subformula = new TemporalFormula(token_parts2, my_signature);
+            ((TemporalFormula)my_right_subformula).init();
+            
             my_bound_variable.addAll(((TemporalFormula) my_right_subformula).my_bound_variable);
             my_variable.addAll(my_bound_variable);
             my_variable.addAll(((TemporalFormula) my_right_subformula).my_variable);

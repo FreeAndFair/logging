@@ -15,7 +15,6 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     //@ public invariant 
     private final Predicate my_predicate;
     private final List<Variable> my_variables;
-
     
     private static final Logger my_logger = new Logger(true);
     
@@ -139,32 +138,32 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     
     //@ assignable my_value;
     public Evaluation evaluate(final Structure a_structure) {
-        final Evaluation temp_valuation = new Evaluation();
+        final Evaluation temp_valuation = new Evaluation(this.my_free_variable);
         final Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getSymbol()); 
-        
-        // collect variables
         
         final int[] temp_constant = new int[this.my_variables.size()];
         int temp_i;
-        boolean has_variable = false;
         for (temp_i = 0; temp_i < this.my_variables.size(); temp_i++) {
             final String var_name = my_variables.get(temp_i).getName();
             try {
                 final int temp_int = Integer.parseInt(var_name);
                 temp_constant[temp_i] = temp_int;
                 my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
-            } catch(NumberFormatException nfe) { // variable exist
-                has_variable = true;
-                
+            } catch(NumberFormatException nfe) { // variable exists
                 final Set<List> set_result = findValuationSet(set_real);
                 temp_valuation.addVarAssign(set_result);
                 return temp_valuation;
             }
         }
         
-        if ((temp_i == this.my_variables.size()) && setContains(set_real, temp_constant)) { // no variables
-                temp_valuation.setVarAll(true); // valid expression
-                temp_valuation.setNegAll(false); // valid expression
+        if (temp_i == this.my_variables.size()) { 
+            if (setContains(set_real, temp_constant)) { // no variables
+                temp_valuation.setState(1); // valid expression
+            } else {
+                temp_valuation.setState(0);
+            }
+        } else {
+            my_logger.fatal("Error while evaluate atomic formula!");
         }
         
         return temp_valuation;

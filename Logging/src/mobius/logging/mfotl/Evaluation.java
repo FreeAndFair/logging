@@ -13,24 +13,33 @@ public class Evaluation {
     private boolean my_neg_all = true;
     private final List<String> my_variables;
     private static final Logger my_logger = new Logger();
+    private int my_state; // 0 false, 1 true, -1 remain undetermined
 
     // Constructors
+    /*
     public Evaluation() {
         my_variable_assign = new HashSet();
         my_neg_variable_assign = new HashSet();
         my_variables = new LinkedList();
-    }
+        my_state = -1;
+    }*/
     
-    public Evaluation(final List<String> the_free_var) {
+    public Evaluation(final Set<String> the_free_var) {
         my_variable_assign = new HashSet();
         my_neg_variable_assign = new HashSet();
-        my_variables = new LinkedList(the_free_var);
+        if (the_free_var == null) {
+            my_variables = new LinkedList();
+        } else {
+            my_variables = new LinkedList(the_free_var);
+        }
+        my_state = -1;
     }
     
     public Evaluation(final Evaluation a_valuation) {
         this.my_variable_assign = new HashSet(a_valuation.my_variable_assign);
         this.my_neg_variable_assign = new HashSet(a_valuation.my_neg_variable_assign);
         this.my_variables = new LinkedList(a_valuation.my_variables);
+        my_state = -1;
     }
     
     // Public Methods
@@ -40,13 +49,37 @@ public class Evaluation {
     
     // For conjunction
     public void conjunction(final Evaluation a_valuation) { // A & B
-        if (!this.isTrue() || !a_valuation.isTrue()) { // Right hand side B is unsatisfiable
+        if (this.my_state == 0 || a_valuation.my_state == 0) {
+            for (String s_i : a_valuation.my_variables) {
+                if (!this.my_variables.contains(s_i)) {
+                    this.my_variables.add(s_i);
+                }
+            }
+                
+        //}
+        //if (!this.isTrue() || !a_valuation.isTrue()) { // Right hand side B is unsatisfiable
+            this.my_state = 0; // unsatisfiable
+            
             this.my_variable_assign.clear();
             this.my_var_all = false;
             this.my_neg_variable_assign.clear();
             this.my_neg_all = true;
             return;
         }
+        
+        if (this.my_state == 1 && a_valuation.my_state == 1) {
+            for (String s_i : a_valuation.my_variables) {
+                if (!this.my_variables.contains(s_i)) {
+                    this.my_variables.add(s_i);
+                }
+            }
+            
+            return;
+        }
+        
+        if (this.my_state == 1)
+        
+        // if this.my_sate == -1, 1 && a_valuation.my_sate == -1, 1
         
         if (this.my_var_all) { // A is valid, copy everything from B
             this.my_variable_assign.clear();
@@ -70,6 +103,12 @@ public class Evaluation {
     
     // For negation
     public void negation() {
+        if (this.my_state == 1) {
+            this.my_state = 0;
+        } else if (this.my_state == 0) {
+            this.my_state = 1;
+        } else {
+        
         final Set temp = new HashSet(this.my_neg_variable_assign);
         final boolean temp_b = this.my_neg_all;
         this.my_neg_variable_assign.clear();
@@ -78,6 +117,7 @@ public class Evaluation {
         this.my_variable_assign.clear();
         this.my_variable_assign.addAll(temp);
         this.my_var_all = temp_b;
+        }
     }
     
     // For existential check
@@ -131,10 +171,21 @@ public class Evaluation {
         return result_set;
     }
     
+    public int getState() {
+        return this.my_state;
+    }
+    
+    public void setState(final int a_state) {
+        if (a_state >= -1 && a_state <= 1) {
+            this.my_state = a_state;
+        }
+    }
+    
     //@ pure
     public boolean isTrue() {
         boolean result_b;
         
+        /*
         if (this.my_neg_all) {
             if (this.my_var_all) {
                 result_b = true;
@@ -147,7 +198,8 @@ public class Evaluation {
             } else {
                 result_b = (!this.my_neg_variable_assign.isEmpty()) || (!this.my_variable_assign.isEmpty());
             }
-        }
+        }*/
+        result_b = (this.my_state == 1 || this.my_state == -1);
         
         return result_b;
     }
