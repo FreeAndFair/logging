@@ -96,7 +96,7 @@ public class Monitor {
 	        }
             String temp_formula_name = "p" + my_auxiliary_index;
             my_signature.addPredicate(new Predicate(temp_formula_name, temp_var.length));
-            ((TemporalFormula) a_formula).setAuxiliaryFormula(0, new AtomicFormula(temp_var, temp_var.length, 
+            ((TemporalFormula) a_formula).setAuxiliaryFormula(0, new AtomicFormula(temp_var, 
                     temp_formula_name, my_signature));
 	        
             if (((TemporalFormula) a_formula).getMainOperator().my_name.equals("S")) {
@@ -106,7 +106,7 @@ public class Monitor {
             
                 temp_formula_name = "r" + my_auxiliary_index;
                 my_signature.addPredicate(new Predicate(temp_formula_name, temp_var2.length));
-                ((TemporalFormula) a_formula).setAuxiliaryFormula(1, new AtomicFormula(temp_var2, temp_var2.length, 
+                ((TemporalFormula) a_formula).setAuxiliaryFormula(1, new AtomicFormula(temp_var2, 
                         temp_formula_name, my_signature));
             }
             
@@ -117,7 +117,7 @@ public class Monitor {
             
                 temp_formula_name = "r" + my_auxiliary_index;
                 my_signature.addPredicate(new Predicate(temp_formula_name, temp_var2.length));
-                ((TemporalFormula) a_formula).setAuxiliaryFormula(1, new AtomicFormula(temp_var2, temp_var2.length, 
+                ((TemporalFormula) a_formula).setAuxiliaryFormula(1, new AtomicFormula(temp_var2, 
                         temp_formula_name, my_signature));
                 
                 final String[] temp_var3 = new String[temp_var.length+2];
@@ -127,7 +127,7 @@ public class Monitor {
                             
                 temp_formula_name = "s" + my_auxiliary_index;
                 my_signature.addPredicate(new Predicate(temp_formula_name, temp_var3.length));
-                ((TemporalFormula) a_formula).setAuxiliaryFormula(2, new AtomicFormula(temp_var3, temp_var3.length, 
+                ((TemporalFormula) a_formula).setAuxiliaryFormula(2, new AtomicFormula(temp_var3, 
                         temp_formula_name, my_signature));
             }
             

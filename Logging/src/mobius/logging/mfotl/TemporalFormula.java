@@ -7,20 +7,14 @@ import java.util.Set;
 
 public class TemporalFormula extends Formula{
     // Attributes
-    /**
-     * TemporalFormula ::= AtomicFormula
-     * TemporalFormula ::= TemporalFormula + Operator + TemporalFormula
-     */
     private Formula my_left_subformula;
     private Formula my_right_subformula;
-    
+    private Operator my_main_operator;    
     final private AtomicFormula[] my_auxiliary_predicate;
-
-    private Operator my_main_operator;
     
+    final private Set<String> my_free_variable = new HashSet();
     final private Set<String> my_bound_variable = new HashSet();
     final private Set<String> my_variable = new HashSet();
-    //final private Set<String> my_free_variable = new HashSet();
     
     final private Signature my_signature;
     private String[] my_tokens;
@@ -62,7 +56,7 @@ public class TemporalFormula extends Formula{
         return my_free_variable;
     }
     
-    public /*@ pure @*/ Set<TemporalFormula> getTemporalSubformula(final /*@ non_null @*/ Formula a_formula) {
+    public /*@ pure @*/ Set<TemporalFormula> getTemporalSubformula(final Formula a_formula) {
         if (a_formula == null) {
             return null;
         }
@@ -87,7 +81,7 @@ public class TemporalFormula extends Formula{
      * When the <code>evaluate()</code> method is called, the temporal sub-formula is
      * already replaced with first order formulas after formula tranformation.
      */
-    public Evaluation evaluate(final /*@ non_null @*/ Structure a_structure) {
+    protected Evaluation evaluate(final Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
         Evaluation result_set = new Evaluation(this.my_free_variable);
         
@@ -158,19 +152,12 @@ public class TemporalFormula extends Formula{
         }
     }
     
-    /**
-     * parse atomic formula
-     */
     //@ assignable my_right_subformula
     private void parseAtomicFormula() {
         my_right_subformula = new AtomicFormula(my_tokens, my_signature);
-        
-        my_variable.addAll(my_right_subformula.getFreeVariable());
+        my_variable.addAll(((AtomicFormula)my_right_subformula).getFreeVariable());
     }
     
-    /**
-     * parse non atomic formula
-     */
     private void parseTemporalFormula(final int mop) {
         int mop2;
         if (ReservedSymbol.isTemporal(my_tokens[mop])) {
@@ -242,10 +229,6 @@ public class TemporalFormula extends Formula{
         }
     }
     
-    /**
-     * Test
-     * @return
-     */
     //@ pure
     private int findMainOp() {
         my_logger.debug("InMethod: findMainOp");

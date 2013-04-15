@@ -14,8 +14,6 @@ public class Formula {
     protected boolean my_is_temporal = false;
     final private Logger my_logger = new Logger();
     
-    protected Set<String> my_free_variable;
-    
     // Public Methods
     /**
      * 
@@ -33,9 +31,5 @@ public class Formula {
     
     public boolean isTemporal() {
         return this.my_is_temporal;
-    }
-    
-    protected Set<String> getFreeVariable() {
-        return null;
     }
 }

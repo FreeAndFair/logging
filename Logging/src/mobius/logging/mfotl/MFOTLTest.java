@@ -15,10 +15,10 @@ public class MFOTLTest {
         //final Monitor test_monitor = new Monitor("(P out (3) U (in (1)))", test_signature);
         //final Monitor test_monitor = new Monitor("P (P out (3))", test_signature);
         //final Monitor test_monitor = new Monitor("P out (3)", test_signature);
-        //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(y) )", test_signature);
+        final Monitor test_monitor = new Monitor("E x y ( out (x) & in(y) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(3) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) )", test_signature);
-        final Monitor test_monitor = new Monitor("! ( out (3) & in (1) )", test_signature);
+        //final Monitor test_monitor = new Monitor("! ( out (3) & in (1) )", test_signature);
         //final Monitor test_monitor = new Monitor("out (3) & in (1)", test_signature);
         //final Monitor test_monitor = new Monitor("out (3)", test_signature);
         test_monitor.runMonitor(test_temporal_structure);
