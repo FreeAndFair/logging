@@ -1,34 +1,8 @@
 package mobius.logging.mfotl;
 
-//TODO add specs and docs
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-/**
- * Define Variables
- */
-
-class Variable {
-    // Attributes
-    private final String my_name;       // variable name
-    
-    // Constructor
-    
-    //@ assignable my_name;
-    //@ ensures my_name == a_name;
-    //@ ensures my_is_free == true;
-    public Variable(final String a_name) {
-        my_name = a_name;
-    }
-    
-    // Public Methods
-    //@ pure
-    public String getName() {
-        return my_name;
-    }
-}
 
 /**
  * <code>Predicator</code> in logical expression
@@ -40,16 +14,7 @@ class Predicate {
     private final String my_symbol;
     
     // Constructors
-    //@ assignable my_symbol;
-    //@ assignable my_arity;
-    public Predicate(final Predicate a_predicate, final int a_inc, final String a_name) {
-        my_symbol = a_name;
-        my_arity = a_predicate.my_arity + a_inc;
-    }
-    
-    /*
-     * @ ensures a_arity > 0;
-     */
+    //@ ensures a_arity >= 0;
     public Predicate(final String a_name, final int a_arity) {
         my_symbol = a_name;
         my_arity = a_arity;
@@ -250,7 +215,7 @@ class Interval {
     }
     
     public boolean inRange(final int a_value) {
-        return ((a_value > my_start) & ((a_value < my_end) | (my_end == -1)));
+        return ((a_value >= my_start) && ((a_value < my_end) || (my_end == -1)));
     }
     
     public boolean isBounded() {

@@ -12,7 +12,7 @@ public class TemporalFormula extends Formula{
     private Operator my_main_operator;    
     final private AtomicFormula[] my_auxiliary_predicate;
     
-    final private Set<String> my_free_variable = new HashSet();
+    final private List<String> my_free_variable = new LinkedList();
     final private Set<String> my_bound_variable = new HashSet();
     final private Set<String> my_variable = new HashSet();
     
@@ -52,7 +52,7 @@ public class TemporalFormula extends Formula{
         my_logger.debug("Free Variables: " + my_free_variable);
     }
     
-    public /*@ pure @*/ Set getFreeVariable() {
+    public /*@ pure @*/ List<String> getFreeVariable() {
         return my_free_variable;
     }
     

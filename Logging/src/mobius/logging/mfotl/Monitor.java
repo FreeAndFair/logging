@@ -156,29 +156,36 @@ public class Monitor {
             for (int a_pos = 1; a_pos < my_ats.getSize(); a_pos++) {
                 my_auxiliary_structure = my_ats.getStructure(a_pos);
                 temp_formula_name = ((TemporalFormula) a_formula).getAuxiliaryFormula(0).getName(); 
-                my_auxiliary_structure.initRelationAssign(temp_formula_name);
                 temp_time_interval = my_ats.getTime(a_pos) - my_ats.getTime(a_pos-1);
                 
                 if (((TemporalOperator)((TemporalFormula) a_formula).getMainOperator()).inRange(temp_time_interval)) {
-                    my_logger.debug("Security Policy NOT followed!");
-                } else { // TODO BUG consider other cases
                     Evaluation temp_ra = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_ats.getStructure(a_pos-1));
-                    my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
+                    if (temp_ra.isTrue()) {
+                        my_auxiliary_structure.addNullaryRelation(temp_formula_name);
+                    } else {
+                        my_auxiliary_structure.initRelationAssign(temp_formula_name);
+                        my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
+                    }
+                } else {
+                    my_logger.debug("Security Policy NOT followed! ------- Time Interval: " + temp_time_interval);    
                 }
             }
         } else if (((TemporalFormula) a_formula).getMainOperator().my_name.equals("N")) {
             for (int a_pos = 0; a_pos < my_ats.getSize() - 1; a_pos++) {
                 my_auxiliary_structure = my_ats.getStructure(a_pos);
                 temp_formula_name = ((TemporalFormula) a_formula).getAuxiliaryFormula(0).getName();
-                my_auxiliary_structure.initRelationAssign(temp_formula_name);
                 temp_time_interval = my_ats.getTime(a_pos+1) - my_ats.getTime(a_pos);
                 
                 if (((TemporalOperator)((TemporalFormula) a_formula).getMainOperator()).inRange(temp_time_interval)) {
-                    my_logger.debug("Security Policy Not followed!");
+                    Evaluation temp_ra = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_ats.getStructure(a_pos+1));
+                    if (temp_ra.isTrue()) {
+                        my_auxiliary_structure.addNullaryRelation(temp_formula_name);
+                    } else {
+                        my_auxiliary_structure.initRelationAssign(temp_formula_name);
+                        my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
+                    }
                 } else {
-                    // TODO BUG consider other cases
-                    Evaluation temp_ra = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_ats.getStructure(a_pos-1));
-                    my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
+                    my_logger.debug("Security Policy Not followed! ------- Time Interval: " + temp_time_interval);
                 }
             }
         } else if (((TemporalFormula) a_formula).getMainOperator().my_name.equals("S")) {

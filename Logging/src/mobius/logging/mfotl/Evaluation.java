@@ -108,7 +108,7 @@ public class Evaluation {
         retainAll(this.my_var_assign, a_valuation.my_var_assign);
         this.my_neg_assign.addAll(a_valuation.my_neg_assign);
         this.my_state = -1;
-        if (this.my_var_assign.isEmpty() && a_valuation.my_var_assign.isEmpty()) {
+        if (this.my_var_assign.isEmpty() && this.my_neg_assign.isEmpty()) {
             this.my_state = 0;
         }
     }
@@ -257,8 +257,9 @@ public class Evaluation {
             for (VarAssigns va_j : a_dst) {
                 my_logger.debug(va_i.toString() + " <+> " + va_j.toString());
                 if (!va_i.retain(va_j)) {
-                    my_logger.debug("Dont concat conflict");
+                    my_logger.debug("Don't concat conflict");
                     a_src.remove(va_i);
+                    my_logger.debug("Left Size" + a_src.size());
                 }
             }
         }

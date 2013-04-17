@@ -3,23 +3,24 @@ package mobius.logging.mfotl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class Structure {
     // Attributes
     private final Map my_relation_assignment;
+    private final Set my_nullary_relation;
     private static final Logger my_logger = new Logger();
     
     // Constructors
     public Structure() {
         my_relation_assignment = new Hashtable();
+        my_nullary_relation = new HashSet();
     }
     
     public Structure(final Structure a_structure) {
         this.my_relation_assignment = new Hashtable(a_structure.my_relation_assignment);
-
+        this.my_nullary_relation = new HashSet(a_structure.my_nullary_relation);
     }
     
     // Public Methods
@@ -29,7 +30,9 @@ public class Structure {
      * @param a_relation_name
      */
     public void initRelationAssign(final /*@ non_null @*/ String a_relation_name) {
-        my_relation_assignment.put(a_relation_name, new HashSet<int[]>());
+        if (!my_relation_assignment.containsKey(a_relation_name)) {
+            my_relation_assignment.put(a_relation_name, new HashSet<int[]>());
+        }
     }
     
     /**
@@ -46,7 +49,7 @@ public class Structure {
         System.arraycopy(a_value, 0, temp_val, 0, a_value.length);
         temp_rel_assign.add(temp_val);
     }
-    
+
     /**
      * 
      * @param a_name
@@ -54,6 +57,12 @@ public class Structure {
      */
     public void addRelationAssign(final String a_name, final Set<int[]> a_ra) {
         final Set<int[]> temp_rel_assign = (HashSet<int[]>) my_relation_assignment.get(a_name);
+        if (temp_rel_assign == null) {
+            my_logger.fatal("Rel: " + a_name + " is Empty!");
+        }
+        if (a_ra == null) {
+            return;
+        }
         for (int[] i : a_ra) {
             temp_rel_assign.add(i);
         }
@@ -62,14 +71,24 @@ public class Structure {
     public Set<int[]> getRelationAssign(final String a_name) {
         return (Set<int[]>) my_relation_assignment.get(a_name);
     }
+
     
+    public void addNullaryRelation(final String a_name) {
+        this.my_nullary_relation.add(a_name);
+    }
+    
+    public boolean containsNullaryRelation(final String a_name) {
+        return this.my_nullary_relation.contains(a_name);
+    }
+
     /**
      * 
      * @param a_name
      * @param a_value
      * @return
      */
-    public boolean evaluateRelation(final /*@ non_null @*/ String a_name, final /*@ non_null @*/ int[] a_value) {
+    /*
+    public boolean evaluateRelation(final String a_name, final int[] a_value) {
         if ("=".equals(a_name)) {
             return ((a_value.length == 2) && (a_value[0] == a_value[1]));
         } else if ("<".equals(a_name)) {
@@ -82,7 +101,7 @@ public class Structure {
             }
             return false;
         }
-    }
+    }*/
     
     public String toString() {
         String result_temp_string = "";
@@ -104,6 +123,10 @@ public class Structure {
             temp_result = temp_result.concat("}");
             
             result_temp_string = result_temp_string.concat(temp_result);
+        }
+        
+        for (Object obj_i : my_nullary_relation) {
+            result_temp_string = result_temp_string.concat(" " + ((String)obj_i));
         }
         
         return result_temp_string;

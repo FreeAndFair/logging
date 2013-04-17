@@ -1,5 +1,11 @@
 package mobius.logging.mfotl;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class MFOTLTest {
     /**
      * @param args
@@ -11,11 +17,13 @@ public class MFOTLTest {
         final TemporalStructure test_temporal_structure = initializeTemporalStructure();
         
         //final Monitor test_monitor = new Monitor("! E x ( in (x) & ! ( N[0,5) out(x) ))", test_signature);
-        //final Monitor test_monitor = new Monitor("E x ( in (x) ) & out (3)", test_signature);
+        //final Monitor test_monitor = new Monitor("E x ( in (x) ) & out (4)", test_signature);
         //final Monitor test_monitor = new Monitor("(P out (3) U (in (1)))", test_signature);
+        final Monitor test_monitor = new Monitor("N out (4)", test_signature);
         //final Monitor test_monitor = new Monitor("P (P out (3))", test_signature);
         //final Monitor test_monitor = new Monitor("P out (3)", test_signature);
-        final Monitor test_monitor = new Monitor("E x y ( out (x) & in(y) )", test_signature);
+        //final Monitor test_monitor = new Monitor("E x ( out (x) & in(x) )", test_signature);
+        //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(y) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(3) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) )", test_signature);
         //final Monitor test_monitor = new Monitor("! ( out (3) & in (1) )", test_signature);
@@ -29,9 +37,27 @@ public class MFOTLTest {
      * @param a_signature
      */
     private static Signature initializeSignature() {
-        final /*@ non_null @*/ Signature a_signature = new Signature();
-        a_signature.addPredicate(new Predicate("in", 1));
-        a_signature.addPredicate(new Predicate("out", 1));
+        final Signature a_signature = new Signature();
+        
+        try {
+            FileInputStream fstream = new FileInputStream("./src/mobius/logging/mfotl/e1.sig");
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String str_line;
+            while ((str_line = br.readLine()) != null) {
+                System.out.println("Relation: " + str_line);
+                String[] str_tokens = str_line.split(" ");
+                int an_arity = str_tokens[1].split(",").length;
+                a_signature.addPredicate(new Predicate(str_tokens[0], an_arity));
+            }
+            br.close();
+            in.close();
+            fstream.close();
+        } catch (Exception e) {
+            System.out.println("Current dir using System:" + System.getProperty("user.dir"));
+            System.err.println("Error: " + e.getMessage());
+        }
+
         return a_signature;
     }
     
@@ -40,70 +66,55 @@ public class MFOTLTest {
      * @param a_temporal_structure
      */
     private static TemporalStructure initializeTemporalStructure() {
-        final /*@ non_null @*/ TemporalStructure a_temporal_structure = new TemporalStructure();
-        Structure temp_structure = new Structure();
-        int[] temp_value = {1};
-        final String temp_rel1 = "in";
-        final String temp_rel2 = "out";
-        
+        final TemporalStructure a_temporal_structure = new TemporalStructure();
         final Logger my_logger = new Logger(false);
         
-        temp_structure.initRelationAssign(temp_rel1);
-        temp_structure.addRelationAssign(temp_rel1, temp_value);
-        temp_structure.initRelationAssign(temp_rel2);
-        temp_value[0] = 3; // For testing
-        temp_structure.addRelationAssign(temp_rel2, temp_value);
-        my_logger.debug("-------------------------" + temp_structure.toString());
-        a_temporal_structure.insertStructure(temp_structure, 1);
-        
-        temp_structure = new Structure();
-        temp_structure.initRelationAssign(temp_rel1);
-        temp_value[0] = 2;
-        temp_structure.addRelationAssign(temp_rel1, temp_value);
-        temp_structure.initRelationAssign(temp_rel2);
-        my_logger.debug("-------------------------" + temp_structure.toString());
-        a_temporal_structure.insertStructure(temp_structure, 1);
-        
-        temp_structure = new Structure();
-        temp_structure.initRelationAssign(temp_rel1);
-        temp_value[0] = 2;
-        temp_structure.initRelationAssign(temp_rel2);
-        temp_structure.addRelationAssign(temp_rel2, temp_value);
-        my_logger.debug("-------------------------" + temp_structure.toString());
-        a_temporal_structure.insertStructure(temp_structure, 3);
-        
-        
-        temp_structure = new Structure();
-        temp_structure.initRelationAssign(temp_rel1);
-        temp_value[0] = 3;
-        temp_structure.addRelationAssign(temp_rel1, temp_value);
-        temp_structure.initRelationAssign(temp_rel2);
-        temp_value[0] = 1;
-        temp_structure.addRelationAssign(temp_rel2, temp_value);
-        my_logger.debug("-------------------------" + temp_structure.toString());
-        a_temporal_structure.insertStructure(temp_structure, 6);
-        
-        temp_structure = new Structure();
-        temp_structure.initRelationAssign(temp_rel1);
-        temp_structure.initRelationAssign(temp_rel2);
-        my_logger.debug("-------------------------" + temp_structure.toString());
-        a_temporal_structure.insertStructure(temp_structure, 7);
-        
-        temp_structure = new Structure();
-        temp_structure.initRelationAssign(temp_rel1);
-        temp_value[0] = 4;
-        temp_structure.addRelationAssign(temp_rel1, temp_value);
-        temp_structure.initRelationAssign(temp_rel2);
-        my_logger.debug("-------------------------" + temp_structure.toString());
-        a_temporal_structure.insertStructure(temp_structure, 9);
-        
-        temp_structure = new Structure();
-        temp_structure.initRelationAssign(temp_rel1);
-        temp_value[0] = 4;
-        temp_structure.initRelationAssign(temp_rel2);
-        temp_structure.addRelationAssign(temp_rel2, temp_value);
-        my_logger.debug("-------------------------" + temp_structure.toString());
-        a_temporal_structure.insertStructure(temp_structure, 13);
+        try {
+            FileInputStream fstream = new FileInputStream("./src/mobius/logging/mfotl/e1.log");
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String str_line, str_blk = br.readLine() + "\n";
+            
+            if (!str_blk.contains("@")) {
+                System.err.println("Log File is Not in Correct Format!!!");
+                System.exit(1);
+            }
+            
+            while ((str_line = br.readLine()) != null) {
+                if (str_line.contains("@")) {
+                    String[] str_tokens = str_blk.split("\n");
+                    int time = Integer.parseInt(str_tokens[0].substring(1));
+                    Structure temp_structure = new Structure();                    
+                    
+                    for (int i = 1; i < str_tokens.length; i++) {
+                        str_tokens[i] = str_tokens[i].substring(0, str_tokens[i].length()-1);
+                        String[] str_tokens2 = str_tokens[i].split(" ");
+                        String[] str_vals = str_tokens2[1].substring(1).split(",");
+                        int[] int_vals = new int[str_vals.length];
+                        for (int j = 0; j < int_vals.length; j++) {
+                            int_vals[j] = Integer.parseInt(str_vals[j]);
+                        }
+                        
+                        temp_structure.initRelationAssign(str_tokens2[0]);
+                        temp_structure.addRelationAssign(str_tokens2[0], int_vals);
+                    }
+
+                    my_logger.debug("-------------------------" + temp_structure.toString());
+                    a_temporal_structure.insertStructure(temp_structure, time);
+                    str_blk = str_line+"\n";
+                } else {
+                    str_blk += (str_line + "\n");
+                    continue;
+                }
+            }
+
+            br.close();
+            in.close();
+            fstream.close();
+        } catch (Exception e) {
+            //System.out.println("Current dir using System:" + System.getProperty("user.dir"));
+            System.err.println("Error: " + e.getMessage());
+        }
         
         return a_temporal_structure;
     }
