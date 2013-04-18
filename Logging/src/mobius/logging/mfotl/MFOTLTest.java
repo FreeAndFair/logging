@@ -3,7 +3,6 @@ package mobius.logging.mfotl;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class MFOTLTest {
@@ -16,10 +15,12 @@ public class MFOTLTest {
         final Signature test_signature = initializeSignature();  
         final TemporalStructure test_temporal_structure = initializeTemporalStructure();
         
-        //final Monitor test_monitor = new Monitor("! E x ( in (x) & ! ( N[0,5) out(x) ))", test_signature);
-        //final Monitor test_monitor = new Monitor("E x ( in (x) ) & out (4)", test_signature);
-        //final Monitor test_monitor = new Monitor("(P out (3) U (in (1)))", test_signature);
-        final Monitor test_monitor = new Monitor("N out (4)", test_signature);
+        final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
+        //final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
+        //final Monitor test_monitor = new Monitor("out (2) S [0,3) (in (2))", test_signature);
+        //final Monitor test_monitor = new Monitor(" (in (2))", test_signature);
+        //final Monitor test_monitor = new Monitor("N (N out (4))", test_signature);
+        //final Monitor test_monitor = new Monitor("E x (P[0,5) out (x))", test_signature);
         //final Monitor test_monitor = new Monitor("P (P out (3))", test_signature);
         //final Monitor test_monitor = new Monitor("P out (3)", test_signature);
         //final Monitor test_monitor = new Monitor("E x ( out (x) & in(x) )", test_signature);
@@ -70,18 +71,19 @@ public class MFOTLTest {
         final Logger my_logger = new Logger(false);
         
         try {
-            FileInputStream fstream = new FileInputStream("./src/mobius/logging/mfotl/e1.log");
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String str_line, str_blk = br.readLine() + "\n";
+            final FileInputStream fstream = new FileInputStream("./src/mobius/logging/mfotl/e1.log");
+            final DataInputStream data_in = new DataInputStream(fstream);
+            final BufferedReader buffer_reader = new BufferedReader(new InputStreamReader(data_in));
+            String str_line, str_blk = buffer_reader.readLine() + "\n";
             
             if (!str_blk.contains("@")) {
                 System.err.println("Log File is Not in Correct Format!!!");
                 System.exit(1);
             }
             
-            while ((str_line = br.readLine()) != null) {
-                if (str_line.contains("@")) {
+            do {
+                str_line = buffer_reader.readLine();
+                if (str_line == null || str_line.contains("@")) {
                     String[] str_tokens = str_blk.split("\n");
                     int time = Integer.parseInt(str_tokens[0].substring(1));
                     Structure temp_structure = new Structure();                    
@@ -106,10 +108,10 @@ public class MFOTLTest {
                     str_blk += (str_line + "\n");
                     continue;
                 }
-            }
+            } while (str_line != null);
 
-            br.close();
-            in.close();
+            buffer_reader.close();
+            data_in.close();
             fstream.close();
         } catch (Exception e) {
             //System.out.println("Current dir using System:" + System.getProperty("user.dir"));

@@ -30,8 +30,8 @@ public class TemporalStructure {
     }
     
     public /*@ pure @*/ int getTime(final int a_pos) {
-        if (a_pos > my_time_stamp.size()) {
-            return (int)my_time_stamp.get(my_time_stamp.size());
+        if (a_pos >= my_time_stamp.size()) {
+            return (int)my_time_stamp.get(my_time_stamp.size()-1);
         } else {
             return (int)my_time_stamp.get(a_pos);
         }

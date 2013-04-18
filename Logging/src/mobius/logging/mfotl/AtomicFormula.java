@@ -98,7 +98,11 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     //@   assignable \nothing;
     private /*@ pure @*/ Set<VarAssigns> findValuationSet(final Set<int[]> a_set) {
         final Set<VarAssigns> temp_set = new HashSet();
-
+        
+        if (a_set == null) {
+            return temp_set;
+        }
+        
         for (int[] a_i : a_set) {
             final VarAssigns temp_va = new VarAssigns();
 

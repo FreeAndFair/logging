@@ -169,7 +169,12 @@ public class Evaluation {
     
     //@ pure
     public Set<int[]> getSet() {
-        return null;
+        Set<int[]> result_set = new HashSet();
+        for (VarAssigns va_i : this.my_var_assign) {
+            int[] int_array = va_i.getArray();
+            result_set.add(int_array);
+        }
+        return result_set;
     }
     
     //@ pure
@@ -312,6 +317,14 @@ class VarAssigns {
         }
         
         return (temp_i != -1);
+    }
+    
+    public int[] getArray() {
+        int[] result_array = new int[this.my_values.size()];
+        for (int i = 0; i < result_array.length; i++) {
+            result_array[i] = this.my_values.get(i);
+        }
+        return result_array;
     }
     
     public String toString() {
