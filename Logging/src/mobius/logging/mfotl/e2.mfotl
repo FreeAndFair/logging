@@ -1,1 +1,7 @@
+out (3)
+out (3) & in (1)
+! ( out (3) & in (1) )
+
 ! E x ( in (x) & ! ( N[0,5) out(x) ))
+E x ( in (x) ) U [0,5) out (2)
+publish(r) | (True S [0,604800) approve(r))

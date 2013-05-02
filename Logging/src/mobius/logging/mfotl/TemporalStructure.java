@@ -26,7 +26,11 @@ public class TemporalStructure {
     }
     
     public /*@ pure @*/ Structure getStructure(final int a_pos) {
-        return my_structure.get(a_pos);
+        if (a_pos < my_structure.size()) {
+            return my_structure.get(a_pos);
+        } else {
+            return null;
+        }
     }
     
     public /*@ pure @*/ int getTime(final int a_pos) {

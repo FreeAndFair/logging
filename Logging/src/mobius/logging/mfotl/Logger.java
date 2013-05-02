@@ -10,22 +10,29 @@ public class Logger {
     // Attributes
     private final PrintStream my_logger;
     private final boolean my_print_info;
+    private final PrintStream my_warning;
     
     // Constructors
     
     public Logger() {
         my_logger = getLogger();
+        my_warning = getWarning();
         my_print_info = true;
     }
     
     public Logger(final boolean a_print_info) {
         my_logger = getLogger();
+        my_warning = getWarning();
         my_print_info = a_print_info;
     }
     
     // Private Method
     private PrintStream getLogger() {
         return System.out;
+    }
+    
+    private PrintStream getWarning() {
+        return System.err;
     }
     
     // Public Method
@@ -88,8 +95,12 @@ public class Logger {
      */
     public /*@ pure @*/ void error(final String _error) {
         if (my_print_info) {
-            my_logger.println("error: " + _error);
+            my_warning.println("error: " + _error);
             System.exit(1);
         }
+    }
+    
+    public void warning(final String a_warning) {
+        my_warning.println("warning: " + a_warning);
     }
 }

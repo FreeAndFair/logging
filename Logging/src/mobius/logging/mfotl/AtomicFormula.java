@@ -12,10 +12,11 @@ import java.util.Set;
 
 public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     // Attributes
-    //@ public invariant 
+    //@ public invariant
     private final Predicate my_predicate;
     private final List<String> my_variables;
     private final List<String> my_free_variable;
+    private boolean my_boolean;
     private static final Logger my_logger = new Logger(true);
     
     // Constructors
@@ -57,8 +58,16 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         
         my_variables = new LinkedList();
         my_free_variable = new LinkedList();
-        
-        if (a_formula[1].equals("=") || a_formula[1].equals("<")) { // Handle = and < later
+
+        if (a_formula.length == 1) {
+            if (a_formula[0].equals("True")) {
+                my_boolean = true;
+            } else if (a_formula[0].equals("False")) {
+                my_boolean = false;
+            }
+            my_logger.warning("Boolean Constant " + a_formula[0]);
+            my_predicate = null;
+        } else if (a_formula[1].equals("=") || a_formula[1].equals("<")) { // Handle = and < later
             my_variables.add(a_formula[0]);
             my_variables.add(a_formula[2]);
             my_predicate = new Predicate(a_formula[1], 2);
@@ -140,6 +149,11 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     //@ assignable my_value;
     public Evaluation evaluate(final Structure a_structure) {
         final Evaluation temp_valuation = new Evaluation(this.my_free_variable);
+        if (a_structure == null) {
+            my_logger.warning("NULL structure in Atomic Evaluation!");
+            temp_valuation.setState(0);
+            return temp_valuation;
+        }
         // Nullary true case
         if (a_structure.containsNullaryRelation(my_predicate.getSymbol())) {
             temp_valuation.setState(1);

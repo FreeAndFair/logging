@@ -12,13 +12,15 @@ public class MFOTLTest {
      * Test for formula parsing, evaluating and monitoring
      */
     public static void main(final String[] args) {
-        final Signature test_signature = initializeSignature();  
-        final TemporalStructure test_temporal_structure = initializeTemporalStructure();
+        final Signature test_signature = initializeSignature("./src/mobius/logging/mfotl/e1.sig");
+        final TemporalStructure test_temporal_structure = initializeTemporalStructure("./src/mobius/logging/mfotl/e1.log");
         
-        final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
+
+        final Monitor test_monitor = new Monitor("in (2) U [0,5) out (2)", test_signature);
+        
+        //final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
         //final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
         //final Monitor test_monitor = new Monitor("out (2) S [0,3) (in (2))", test_signature);
-        //final Monitor test_monitor = new Monitor(" (in (2))", test_signature);
         //final Monitor test_monitor = new Monitor("N (N out (4))", test_signature);
         //final Monitor test_monitor = new Monitor("E x (P[0,5) out (x))", test_signature);
         //final Monitor test_monitor = new Monitor("P (P out (3))", test_signature);
@@ -27,9 +29,7 @@ public class MFOTLTest {
         //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(y) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(3) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) )", test_signature);
-        //final Monitor test_monitor = new Monitor("! ( out (3) & in (1) )", test_signature);
-        //final Monitor test_monitor = new Monitor("out (3) & in (1)", test_signature);
-        //final Monitor test_monitor = new Monitor("out (3)", test_signature);
+
         test_monitor.runMonitor(test_temporal_structure);
     }
     
@@ -37,11 +37,11 @@ public class MFOTLTest {
      * Create a signature for the formula
      * @param a_signature
      */
-    private static Signature initializeSignature() {
+    private static Signature initializeSignature(final String a_file) {
         final Signature a_signature = new Signature();
         
         try {
-            FileInputStream fstream = new FileInputStream("./src/mobius/logging/mfotl/e1.sig");
+            FileInputStream fstream = new FileInputStream(a_file);
             DataInputStream in = new DataInputStream(fstream);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String str_line;
@@ -66,12 +66,12 @@ public class MFOTLTest {
      * Create a sequence of structures for testing
      * @param a_temporal_structure
      */
-    private static TemporalStructure initializeTemporalStructure() {
+    private static TemporalStructure initializeTemporalStructure(final String a_file) {
         final TemporalStructure a_temporal_structure = new TemporalStructure();
         final Logger my_logger = new Logger(false);
         
         try {
-            final FileInputStream fstream = new FileInputStream("./src/mobius/logging/mfotl/e1.log");
+            final FileInputStream fstream = new FileInputStream(a_file);
             final DataInputStream data_in = new DataInputStream(fstream);
             final BufferedReader buffer_reader = new BufferedReader(new InputStreamReader(data_in));
             String str_line, str_blk = buffer_reader.readLine() + "\n";

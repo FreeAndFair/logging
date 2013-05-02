@@ -43,7 +43,7 @@ public class Structure {
     public void addRelationAssign(final String a_name, final int[] a_value) {
         final Set<int[]> temp_rel_assign = (HashSet<int[]>) my_relation_assignment.get(a_name);
         if (temp_rel_assign == null) {
-            my_logger.error("No relation found!!");
+            my_logger.error("No relation " + a_name + " found!!");
         }
         final int[] temp_val = new int[a_value.length];
         System.arraycopy(a_value, 0, temp_val, 0, a_value.length);
@@ -65,6 +65,21 @@ public class Structure {
         }
         for (int[] i : a_ra) {
             temp_rel_assign.add(i);
+        }
+    }
+    
+    public void removeRelationAssign(final String a_name, final int[] a_value) {
+        final Set<int[]> temp_rel_assign = (HashSet<int[]>) my_relation_assignment.get(a_name);
+        if (temp_rel_assign == null) {
+            my_logger.fatal("Rel: " + a_name + " is Empty!");
+        }
+        if (a_value == null) {
+            return;
+        }
+        for (int[] i : temp_rel_assign) {
+            if (Arrays.equals(a_value, i)) {
+                temp_rel_assign.remove(i);
+            }
         }
     }
     
