@@ -1,4 +1,4 @@
-package mobius.logging.mfotl;
+package demtech.mfotl;
 
 //TODO add specs and docs
 

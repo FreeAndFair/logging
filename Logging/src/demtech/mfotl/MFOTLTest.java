@@ -1,4 +1,4 @@
-package mobius.logging.mfotl;
+package demtech.mfotl;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -12,11 +12,8 @@ public class MFOTLTest {
      * Test for formula parsing, evaluating and monitoring
      */
     public static void main(final String[] args) {
-        final Signature test_signature = initializeSignature("./src/mobius/logging/mfotl/e1.sig");
-        final TemporalStructure test_temporal_structure = initializeTemporalStructure("./src/mobius/logging/mfotl/e1.log");
-        
-
-        final Monitor test_monitor = new Monitor("in (2) U [0,5) out (2)", test_signature);
+        final Signature test_signature = initializeSignature("./src/demtech/mfotl/e1.sig");
+        final TemporalStructure test_temporal_structure = initializeTemporalStructure("./src/demtech/mfotl/e1.log");
         
         //final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
         //final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
@@ -25,6 +22,7 @@ public class MFOTLTest {
         //final Monitor test_monitor = new Monitor("E x (P[0,5) out (x))", test_signature);
         //final Monitor test_monitor = new Monitor("P (P out (3))", test_signature);
         //final Monitor test_monitor = new Monitor("P out (3)", test_signature);
+        final Monitor test_monitor = new Monitor("(in (2) U [0,5) out (2)) & True", test_signature);
         //final Monitor test_monitor = new Monitor("E x ( out (x) & in(x) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(y) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(3) )", test_signature);

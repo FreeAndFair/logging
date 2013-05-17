@@ -1,4 +1,4 @@
-package mobius.logging.mfotl;
+package demtech.mfotl;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,7 +12,6 @@ public class Evaluation {
     private final Set<VarAssigns> my_var_assign;
     private final Set<VarAssigns> my_neg_assign;
     private int my_state; // 0 false, 1 true, -1 satisfiable
-    
     private static final Logger my_logger = new Logger();
 
     // Constructors
@@ -99,7 +98,9 @@ public class Evaluation {
             return;
         }
         
-        // if this.my_sate == -1 && a_valuation.my_satebb == -1
+        // TODO fix following cases
+        //if this.my_sate == -1 && a_valuation.my_satebb == -1
+        
         for (String s_i : a_valuation.my_variables) {
             if (!this.my_variables.contains(s_i)) {
                 this.my_variables.add(s_i);
@@ -147,16 +148,6 @@ public class Evaluation {
         }
     }
     
-    protected int getState() {
-        return this.my_state;
-    }
-    
-    protected void setState(final int a_state) {
-        if (a_state >= -1 && a_state <= 1) {
-            this.my_state = a_state;
-        }
-    }
-    
     //@ pure
     public boolean isTrue() {
         return (this.my_state == 1 || this.my_state == -1);
@@ -192,6 +183,20 @@ public class Evaluation {
         }
         
         return result_temp_string;
+    }
+    
+    // Protected Methods
+    
+    //@ pure
+    protected int getState() {
+        return this.my_state;
+    }
+    
+    //@ assignable my_state;
+    protected void setState(final int a_state) {
+        if (a_state >= -1 && a_state <= 1) {
+            this.my_state = a_state;
+        }
     }
     
     // Private Methods
@@ -272,13 +277,17 @@ public class Evaluation {
 }
 
 class VarAssigns {
+    // Attributes
     private final List<String> my_names;
     private final List<Integer> my_values;
     
+    // Constructor
     public VarAssigns() {
         my_names = new LinkedList();
         my_values = new LinkedList();
     }
+    
+    // Public Methods
     
     public List getNames() {
         return this.my_names;
@@ -319,6 +328,7 @@ class VarAssigns {
         return (temp_i != -1);
     }
     
+    //@ pure
     public int[] getArray() {
         int[] result_array = new int[this.my_values.size()];
         for (int i = 0; i < result_array.length; i++) {
@@ -327,6 +337,7 @@ class VarAssigns {
         return result_array;
     }
     
+    //@ pure
     public String toString() {
         String result_str = "(";
         for (int i = 0; i < my_names.size(); i++) {

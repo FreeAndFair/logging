@@ -139,5 +139,5 @@ implements DebugOutput, Cloneable {
       public Writer getWriter() {
         // TODO Auto-generated method stub
         return null;
-    }
+      }
 }

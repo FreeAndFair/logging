@@ -1,41 +1,36 @@
-package mobius.logging.mfotl;
+package demtech.mfotl;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * <code>Predicator</code> in logical expression
- * 
- */
 class Predicate {
     // Attributes
+    private final String my_name;
     private final int my_arity;
-    private final String my_symbol;
     
-    // Constructors
+    // Constructor
     //@ ensures a_arity >= 0;
     public Predicate(final String a_name, final int a_arity) {
-        my_symbol = a_name;
+        my_name = a_name;
         my_arity = a_arity;
     }
     
     // Public Methods
-    
-    /**
-     * return a String that represents the formula
-     */
-    public /*@ pure @*/ String toString() {
-        return (my_symbol + "[arity =" + my_arity + "]");
+    //@ pure
+    public String toString() {
+        return (my_name + "[arity =" + my_arity + "]");
     }
     
-    //@ ensures \result == my_symbol;
-    public /*@ pure @*/ String getSymbol() {
-        return my_symbol;
+    //@ ensures \result == my_name;
+    //@ pure
+    public String getName() {
+        return my_name;
     }
     
     //@ ensures \result == my_arity;
-    public /*@ pure @*/ int getArity() {
+    //@ pure
+    public int getArity() {
         return my_arity;
     }
 }
@@ -80,31 +75,31 @@ class TemporalOperator extends Operator {
     private final Interval my_interval;
     
     // Constructors
-    //@ assignable interval
-    public TemporalOperator(final /*@ non_null @*/ String _symbol, final int _start, final int _end) {
+    //@ assignable my_interval
+    public TemporalOperator(final String _symbol, final int _start, final int _end) {
         super(_symbol);
         my_interval = new Interval(_start, _end);
     }
     
-    //@ assignable interval 
-    public TemporalOperator(final /*@ non_null @*/ String _symbol, final int _start) {
+    //@ assignable my_interval
+    public TemporalOperator(final String _symbol, final int _start) {
         super(_symbol);
         my_interval = new Interval(_start);
     }
     
-    //@ assignable interval
-    public TemporalOperator(final /*@ non_null @*/ String _symbol) {
+    //@ assignable my_interval
+    public TemporalOperator(final String _symbol) {
         super(_symbol);
         my_interval = new Interval();
     }
     
     // Public Methods
-    //@ assignable interval.starty
+    //@ pure
     public void setStart(final int a_start) {
         my_interval.setStart(a_start);
     }
     
-    //@ assignable interval.end
+    //@ pure
     public void setEnd(final int a_end) {
         my_interval.setEnd(a_end);
     }
@@ -168,21 +163,17 @@ class Operator {
         my_name = a_name;
     }
     
-    public /*@ pure @*/ String getName() {
+    //@ pure
+    public String getName() {
         return this.my_name;
     }
 }
 
-/**
- * 
- */
 class Interval {
     private int my_start;
     private int my_end;
     
-    /*
-     *@ requires _start >= 0  && _start <= _end
-     */
+    //@ requires _start >= 0  && _start <= _end
     public Interval (final int _start, final int _end) {
         my_start = _start;
         my_end = _end;
@@ -236,7 +227,7 @@ class ReservedSymbol {
     private ReservedSymbol() {}
     
     private static void fillTemporalSet(final Set<String> a_set) {
-        a_set.add("P"); // previous next
+        a_set.add("P");
         a_set.add("N");
         a_set.add("U");
         a_set.add("S");
@@ -283,27 +274,32 @@ class ReservedSymbol {
         SYMBOL = Collections.unmodifiableSet(temp_set3);
     }
     
-    public /*@ pure @*/ static boolean isTemporal(final String a_symbol) {
+    //@ pure
+    public static boolean isTemporal(final String a_symbol) {
         return TEMP_OPER.contains(a_symbol);
     }
 
-    public /*@ pure @*/ static boolean isFirstOrder(final String a_symbol) {
+    //@ pure
+    public static boolean isFirstOrder(final String a_symbol) {
         return FIRST_OPER.contains(a_symbol);
     }
     
-    public /*@ pure @*/ static boolean isQuantifier(final String a_symbol) {
+    //@ pure
+    public static boolean isQuantifier(final String a_symbol) {
         return QUANTIFIER_OPER.contains(a_symbol);
     }
     
-    public /*@ pure @*/ static boolean isSymbol(final String a_symbol) {
+    //@ pure
+    public static boolean isSymbol(final String a_symbol) {
         return SYMBOL.contains(a_symbol);
     }
     
-    public /*@ pure @*/ static boolean isOperator(final String _symbol) {
-        return (isTemporal(_symbol) || isFirstOrder(_symbol) || isQuantifier(_symbol));
+    //@ pure
+    public static boolean isOperator(final String a_symbol) {
+        return (isTemporal(a_symbol) || isFirstOrder(a_symbol) || isQuantifier(a_symbol));
     }
     
-    public /*@ pure @*/ static boolean isReserved(final String _symbol) {
-        return (isOperator(_symbol) || isSymbol(_symbol));
+    public /*@ pure @*/ static boolean isReserved(final String a_symbol) {
+        return (isOperator(a_symbol) || isSymbol(a_symbol));
     }
 }

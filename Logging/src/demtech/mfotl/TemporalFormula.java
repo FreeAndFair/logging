@@ -1,4 +1,4 @@
-package mobius.logging.mfotl;
+package demtech.mfotl;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -132,6 +132,7 @@ public class TemporalFormula extends Formula{
         my_tokens = tmpparts;
     }
 
+    //@ pure
     private void parseFormula() {
         my_logger.debug("InMethod: parseFormula");
         int mop = findMainOp();

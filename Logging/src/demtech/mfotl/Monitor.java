@@ -1,4 +1,4 @@
-package mobius.logging.mfotl;
+package demtech.mfotl;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -8,11 +8,9 @@ import java.util.Set;
 
 public class Monitor {
     // Attributes
-    final private Signature my_signature;
     final private Logger my_logger = new Logger();
-    MFOTLFormula my_formula_hat;
-    
-    private TemporalStructure my_ats;
+    final private Signature my_signature;
+    final private MFOTLFormula my_formula_hat;
     private static int my_auxiliary_index = 0;
     
     // Constructors
@@ -30,18 +28,15 @@ public class Monitor {
      * (MFOTL, Basin et al., page 10)
      * @param a_temporalstructure
      */
-    public void runMonitor(final TemporalStructure a_temporalstructure) {
-        // Copy link of original structure for extension
-        my_ats = a_temporalstructure;
-        
+    public void runMonitor(final TemporalStructure my_ats) {
         // Formula Transformation
         my_logger.debug("Before Formula Transformation ---------------------\n" + my_formula_hat.getFormula().toString());
         transformTemporalFormula(my_formula_hat.getFormula());
         my_logger.debug("After Formula Transformation ---------------------\n" + my_formula_hat.getFormula().toString());
         
-        // Signature, Structure Extension & 
+        // Signature and Structure Extension 
         my_logger.debug("Before Structure Extension ---------------------\n" + my_ats.toString());
-        extendStructure(my_formula_hat.getFormula());
+        extendStructure(my_formula_hat.getFormula(), my_ats);
         my_logger.debug("After Structure Extension ---------------------\n" + my_ats.toString());
 
         for (int i = 0; i < my_ats.getSize(); i++) {
@@ -53,17 +48,13 @@ public class Monitor {
                 // True returned, continue evaluating
             } else {
                 my_logger.debug("Evaluated to False for Structure No. " + i + "FFFFFFFFFFFFFFFFFFFFFFFFFF");
-                // False returned
+                // False returned, continue evaluating
             }
             my_logger.debug("End Evaluating Formula.........." + i + "\n");
         }
     }
 
     // Private Methods
-	/**
-	 * transform temporal formula 
-	 * @param a_formula
-	 */
     //@ assignable my_auxiliary_predicate;
     private void transformTemporalFormula(final Formula a_formula) {
         if (a_formula == null || a_formula instanceof AtomicFormula) {
@@ -76,11 +67,6 @@ public class Monitor {
 	    if (a_formula.my_is_temporal) {
 	        my_logger.debug("-------- ----------" + a_formula.toString());
 	        
-	        /**
-	         * R' = R   Union {r_a|a temporal sub-formula of phi}
-	         *          Union {p_a|a temporal sub-formula of the form S, U}
-	         *          Union {s_a|a temporal sub-formula of the form U}
-	         */
 	        final List<String> temp_free_var = (LinkedList) ((TemporalFormula) a_formula).getFreeVariable();
 	        final String[] temp_var = new String[temp_free_var.size()];
 	        
@@ -89,7 +75,8 @@ public class Monitor {
 	        for (String i: temp_free_var) {
 	            temp_var[pos_j++] = i;
 	        }
-            String temp_formula_name = "p" + my_auxiliary_index;
+
+	        String temp_formula_name = "p" + my_auxiliary_index;
             my_signature.addPredicate(new Predicate(temp_formula_name, temp_var.length));
             ((TemporalFormula) a_formula).setAuxiliaryFormula(0, new AtomicFormula(temp_var, 
                     temp_formula_name, my_signature));
@@ -119,7 +106,7 @@ public class Monitor {
                 System.arraycopy(temp_var, 0, temp_var3, 0, temp_var.length);
                 temp_var3[temp_var.length] = "s0";
                 temp_var3[temp_var.length+1] = "s1";
-                            
+                
                 temp_formula_name = "s" + my_auxiliary_index;
                 my_signature.addPredicate(new Predicate(temp_formula_name, temp_var3.length));
                 ((TemporalFormula) a_formula).setAuxiliaryFormula(2, new AtomicFormula(temp_var3, 
@@ -130,36 +117,32 @@ public class Monitor {
 	    }
 	}
 	
-	/**
-	 * extend structure sequence
-	 * @param a_formula
-	 */
     //@ pure
-	private void extendStructure(final Formula a_formula) {
+	private void extendStructure(final Formula a_formula, final TemporalStructure my_ats) {
 	    if (a_formula == null || a_formula instanceof AtomicFormula) {
 	        return;
 	    } 
 	    
-	    extendStructure(((TemporalFormula) a_formula).getLeftSubformula());
-	    extendStructure(((TemporalFormula) a_formula).getRightSubformula());
+	    extendStructure(((TemporalFormula) a_formula).getLeftSubformula(), my_ats);
+	    extendStructure(((TemporalFormula) a_formula).getRightSubformula(), my_ats);
 
 	    if (((TemporalFormula) a_formula).getMainOperator() == null) { 
             return;
         }
 	    
         if (((TemporalFormula) a_formula).getMainOperator().my_name.equals("P")) {
-            extendP((TemporalFormula) a_formula);
+            extendP((TemporalFormula) a_formula, my_ats);
         } else if (((TemporalFormula) a_formula).getMainOperator().my_name.equals("N")) {
-            extendN((TemporalFormula) a_formula);
+            extendN((TemporalFormula) a_formula, my_ats);
         } else if (((TemporalFormula) a_formula).getMainOperator().my_name.equals("S")) {
-            extendS((TemporalFormula) a_formula);
+            extendS((TemporalFormula) a_formula, my_ats);
         } else if (((TemporalFormula) a_formula).getMainOperator().my_name.equals("U")) {
-            extendU((TemporalFormula) a_formula);
+            extendU((TemporalFormula) a_formula, my_ats);
 
         }
     }
 
-	private void extendP(final TemporalFormula a_formula) {
+	private void extendP(final TemporalFormula a_formula, final TemporalStructure my_ats) {
         for (int a_pos = 1; a_pos < my_ats.getSize(); a_pos++) {
             final Structure my_auxiliary_structure = my_ats.getStructure(a_pos);
             final String temp_formula_name = ((TemporalFormula) a_formula).getAuxiliaryFormula(0).getName(); 
@@ -174,12 +157,12 @@ public class Monitor {
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
                 }
             } else {
-                my_logger.debug("Security Policy NOT followed! ------- Time Interval: " + temp_time_interval);    
+                my_logger.warning("Security Policy NOT followed! ------- Time Interval: " + temp_time_interval);    
             }
         }
 	}
 	
-    private void extendN(final TemporalFormula a_formula) {
+    private void extendN(final TemporalFormula a_formula, final TemporalStructure my_ats) {
         for (int a_pos = 0; a_pos < my_ats.getSize() - 1; a_pos++) {
             final Structure my_auxiliary_structure = my_ats.getStructure(a_pos);
             final String temp_formula_name = ((TemporalFormula) a_formula).getAuxiliaryFormula(0).getName();
@@ -194,12 +177,12 @@ public class Monitor {
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
                 }
             } else {
-                my_logger.debug("Security Policy Not followed! ------- Time Interval: " + temp_time_interval);
+                my_logger.warning("Security Policy Not followed! ------- Time Interval: " + temp_time_interval);
             }
         }
 	}
     
-    private void extendS(final TemporalFormula a_formula) {
+    private void extendS(final TemporalFormula a_formula, final TemporalStructure my_ats) {
         for (int a_pos = 0; a_pos < my_ats.getSize(); a_pos++) {
             final String temp_formula_name0 = ((TemporalFormula) a_formula).getAuxiliaryFormula(0).getName();
             final String temp_formula_name = ((TemporalFormula) a_formula).getAuxiliaryFormula(1).getName();
@@ -210,7 +193,7 @@ public class Monitor {
             // gama ^ Di * {0}, get r()
             final Evaluation gama0 = ((TemporalFormula) a_formula).getRightSubformula().evaluate(my_auxiliary_structure);
             if (gama0.isTrue()) {
-                System.err.print("!!!!!!!!!!!!!!!!!!!!Here1?????????????????????\n");
+                my_logger.warning("!!!!!!!!!!!!!!!!!!!!Here1?????????????????????\n");
                 int[] temp_gama = new int[1];
                 temp_gama[0] = 0;
                 my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_gama);
@@ -236,7 +219,7 @@ public class Monitor {
                 } else {
                     for (int[] i : beta2) {
                         System.err.print("!!!!!!!!!!!!!!!!!!!!Here3.3\n");
-                        int[] temp_gama2 = new int[i.length-1];
+                        final int[] temp_gama2 = new int[i.length-1];
                         System.arraycopy(i, 0, temp_gama2, 0, temp_gama2.length);
                         if (beta_eval.isTrue() || beta.contains(temp_gama2)) {
                             int[] temp_gama = new int[i.length];
@@ -267,7 +250,7 @@ public class Monitor {
         }
     }
     
-    private void extendU(final TemporalFormula a_formula) {
+    private void extendU(final TemporalFormula a_formula, final TemporalStructure my_ats) {
         final int[] lookahead_offset = new int[my_ats.getSize()];
         final int interval_start = ((TemporalOperator)a_formula.getMainOperator()).getStart();
         final int interval_end = ((TemporalOperator)a_formula.getMainOperator()).getEnd();
@@ -288,7 +271,7 @@ public class Monitor {
                     temp_structure[i].addRelationAssign(temp_formula_name, temp_r);
                 }
             }
-            my_logger.warning("" + i + "::" + temp_structure[i].toString());
+            my_logger.warning(" " + i + "::" + temp_structure[i].toString());
         }
         
         for (int a_pos = 0; a_pos < my_ats.getSize(); a_pos++) {
@@ -467,7 +450,7 @@ public class Monitor {
                 }*/
                 
                 // update_s
-                Set<int[]> set_temp = my_ats.getStructure(a_pos-1).getRelationAssign(temp_formula_name);
+                final Set<int[]> set_temp = my_ats.getStructure(a_pos-1).getRelationAssign(temp_formula_name);
                 for (int[] a_i : set_temp) {
                     // U_s part one, page 8
                     int[] temp_array = new int[a_i.length];
@@ -486,7 +469,7 @@ public class Monitor {
                         System.arraycopy(a_i, 0, a_temp, 0, a_temp.length);
                         a_temp[a_temp.length-1] = a_i[a_i.length-1];
                         for (int[] a_j : new_s) {
-                            int[] a_temp2 = new int[a_j.length-1];
+                            final int[] a_temp2 = new int[a_j.length-1];
                             System.arraycopy(a_j, 0, a_temp2, 0, a_temp2.length);
                             if (Arrays.equals(a_temp, a_temp2)) {
                                 int[] a_temp3 = new int[a_i.length];
@@ -502,9 +485,9 @@ public class Monitor {
             
             // get p()
             temp_formula_name = a_formula.getAuxiliaryFormula(2).getName();
-            Set<int[]> temp_sa = my_auxiliary_structure.getRelationAssign(temp_formula_name);
+            final Set<int[]> temp_sa = my_auxiliary_structure.getRelationAssign(temp_formula_name);
             temp_formula_name = a_formula.getAuxiliaryFormula(1).getName();
-            Set<int[]> temp_ra = my_auxiliary_structure.getRelationAssign(temp_formula_name);
+            final Set<int[]> temp_ra = my_auxiliary_structure.getRelationAssign(temp_formula_name);
             temp_formula_name = a_formula.getAuxiliaryFormula(0).getName();
             
             for (int[] a_i : temp_ra) {
@@ -528,22 +511,5 @@ public class Monitor {
                 }
             }
         }
-    }
-    
-    private void retainAll(final Set<int[]> a_src, final Set<int[]> a_dst) {
-        for (int[] i : a_src) {
-            if (! setContain(a_dst, i)) {
-                a_src.remove(i);
-            }
-        }
-    }
-    
-    private boolean setContain(final Set<int[]> a_set, final int[] an_array) {
-        for (int[] i : a_set) {
-            if (Arrays.equals(i, an_array)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
