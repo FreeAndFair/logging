@@ -44,11 +44,6 @@ public class MFOTLFormula {
         return my_formula.evaluateTruth(a_structure);
     }
     
-    /**
-     * <p>
-     * <code>lexer</code> processes the input formula string, and splits it input an array of String
-     * </p>
-     */
     //@ assignable my_token;
 	private void runLexer() {
 	    String temp_formula_str = my_formula_str;
