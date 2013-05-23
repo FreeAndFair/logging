@@ -20,8 +20,7 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     //@   assignable my_predicate;
     //@   assignable my_variables;
     //@   ensures \not_specified;
-    public AtomicFormula(final String[] a_var, final String a_operator, 
-            final Signature the_signature) {
+    public AtomicFormula(final String[] a_var, final String a_operator, final Signature the_signature) {
         super();
         
         my_logger.info("Build atomic formula with Constructor 0 -->");

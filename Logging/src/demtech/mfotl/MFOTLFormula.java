@@ -1,10 +1,6 @@
 package demtech.mfotl;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Pattern;
-
-//TODO add specs and docs
 
 /**
  * <p>
@@ -17,7 +13,6 @@ public class MFOTLFormula {
     // Attributes
     private final TemporalFormula my_formula;
     private final String my_formula_str;
-    private final Signature my_signature;
 
     private String[] my_tokens;
     private final Pattern my_token_pattern = Pattern.compile("([a-zA-Z]\\w*)|(\\d*)");
@@ -30,22 +25,20 @@ public class MFOTLFormula {
     public MFOTLFormula(final String the_formula, final Signature a_signature) {
         super();
         my_logger.debug("Initialize: MFOTLFormula(String)");
-        my_signature = a_signature;
         my_formula_str = the_formula;
-        /**
-         * lexical analysis and formula building
-         */
+
         runLexer();
         
-        my_formula = new TemporalFormula(my_tokens, my_signature);
+        my_formula = new TemporalFormula(my_tokens, a_signature);
         my_formula.init();
     }
     
-    public MFOTLFormula(final /*@ non_null @*/ MFOTLFormula a_MFOTLFormula, final /*@ non_null @*/ Signature a_signature) {
+    public MFOTLFormula(final MFOTLFormula a_MFOTLFormula, final Signature a_signature) {
         this(a_MFOTLFormula.my_formula_str, a_signature);
     }
     
-    public /*@ pure @*/ boolean evaluateTruth(final Structure a_structure) {
+    //@ pure
+    public boolean evaluateTruth(final Structure a_structure) {
         my_logger.debug("InMethod: MFOTLFormula.evaluate");
         
         return my_formula.evaluateTruth(a_structure);
@@ -99,15 +92,14 @@ public class MFOTLFormula {
         my_logger.info("Read formula: " + my_formula_str + ", with " + my_tokens.length + " tokens");
 	}
 	
-	public /*@ pure @*/ String getFormulaString() {
-	    return this.my_formula_str;
-	}
-	
-	public /*@ pure @*/ Signature getSignature() {
-	    return this.my_signature;
-	}
-	
-	public /*@ pure @*/ TemporalFormula getFormula() {
+
+    //@ pure
+	public TemporalFormula getFormula() {
 	    return this.my_formula;
 	}
+	
+	//@ pure
+    public String getFormulaString() {
+        return this.my_formula_str;
+    }
 }
