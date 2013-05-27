@@ -299,7 +299,8 @@ class ReservedSymbol {
         return (isTemporal(a_symbol) || isFirstOrder(a_symbol) || isQuantifier(a_symbol));
     }
     
-    public /*@ pure @*/ static boolean isReserved(final String a_symbol) {
+    //@ pure
+    public static boolean isReserved(final String a_symbol) {
         return (isOperator(a_symbol) || isSymbol(a_symbol));
     }
 }

@@ -3,7 +3,6 @@ package demtech.mfotl;
 import java.util.Set;
 import java.util.HashSet;
 
-
 public class Signature {
     // Attributes
     final private Set<Predicate> my_predicate;

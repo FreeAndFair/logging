@@ -10,8 +10,8 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     // Attributes
     //@ public invariant
     private final Predicate my_predicate;
-    private final List<String> my_variables;
-    private final List<String> my_free_variable;
+    private final List<String> my_variables = new LinkedList();
+    private final List<String> my_free_variable = new LinkedList();
     private static final Logger my_logger = new Logger(true);
     
     // Constructors
@@ -20,23 +20,17 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     //@   assignable my_predicate;
     //@   assignable my_variables;
     //@   ensures \not_specified;
-    public AtomicFormula(final String[] a_var, final String a_operator, final Signature the_signature) {
+    public AtomicFormula(final String[] a_vars, final String a_operator, final Signature the_signature) {
         super();
         
         my_logger.info("Build atomic formula with Constructor 0 -->");
-        my_logger.debug(a_var);
+        my_logger.debug(a_vars);
         my_logger.debug(a_operator);
         
-        my_variables = new LinkedList();
-        my_free_variable = new LinkedList();
+        my_variables.addAll(Arrays.asList(a_vars));
+        my_predicate = new Predicate(a_operator, a_vars.length);
         
-        for (int i = 0; i < a_var.length; i++) {
-            my_variables.add(a_var[i]);
-        }
-        
-        my_predicate = new Predicate(a_operator, a_var.length);
-        
-        if (! the_signature.contains(my_predicate)) {
+        if (!the_signature.contains(my_predicate)) {
             my_logger.fatal("Invalid Relation!");
         }
         
@@ -51,33 +45,24 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         my_logger.info("Build atomic formula Constructor 1 -->");        
         my_logger.debug(a_formula);
         
-        my_variables = new LinkedList();
-        my_free_variable = new LinkedList();
-
         if (a_formula.length == 1) {
-            my_logger.warning("Nullary Predicate/Constant: " + a_formula[0]);
+            my_logger.warning("Nullary Predicate: " + a_formula[0]);
             my_predicate = new Predicate(a_formula[0], 0);
-        } else if (a_formula[1].equals("=") || a_formula[1].equals("<")) { // TODO Handle = and < later
-            my_variables.add(a_formula[0]);
-            my_variables.add(a_formula[2]);
-            my_predicate = new Predicate(a_formula[1], 2);
         } else {
-            String[] temp_var = new String[(a_formula.length-2)/2];
+            final String[] temp_var = new String[(a_formula.length-2)/2];
             for (int i = 0; i < temp_var.length; i++) {
                 temp_var[i] = a_formula[(i+1)*2];
             }
 
-            for (int i = 0; i < temp_var.length; i++) {
-                my_variables.add(temp_var[i]); // including constants, which will be handled during evaluation
-            }
-            
+            my_variables.addAll(Arrays.asList(temp_var));
             my_predicate = new Predicate(a_formula[0], temp_var.length);
-            if (!a_signature.contains(my_predicate)) {
-                my_logger.fatal("Invalid Relation!");
-            }
+            
+            this.initFreeVar();
         }
         
-        this.initFreeVar();
+        if (!a_signature.contains(my_predicate)) {
+            my_logger.fatal("Invalid Relation!");
+        }
     }
 
 
@@ -89,68 +74,56 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         return my_predicate.getName();
     }
     
-    //@ assignable my_value;
+    //@ pure
     public Evaluation evaluate(final Structure a_structure) {
         final Evaluation temp_valuation = new Evaluation(this.my_free_variable);
         
-        if (a_structure == null) {
-            my_logger.warning("NULL structure in Atomic Evaluation!");
-            temp_valuation.setState(0);
-            return temp_valuation;
-        }
-        
-        // Constant True/False
-        if (my_predicate.getName().equals("True")) {
-            temp_valuation.setState(1);
-            return temp_valuation;
-        } else if (my_predicate.getName().equals("False")) {
-            temp_valuation.setState(0);
-            return temp_valuation;
-        }
-        
-        // Nullary true case
-        if (a_structure.containsNullaryRelation(my_predicate.getName())) {
-            temp_valuation.setState(1);
-            return temp_valuation;
-        }
-        
-        // other cases, TODO check following code
-        final Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getName()); 
-        final int[] temp_constant = new int[this.my_variables.size()];
-        int temp_i;
-        for (temp_i = 0; temp_i < this.my_variables.size(); temp_i++) {
-            final String var_name = my_variables.get(temp_i);
-            try {
-                final int temp_int = Integer.parseInt(var_name);
-                temp_constant[temp_i] = temp_int;
-                my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
-            } catch(NumberFormatException nfe) { // variable exists
-                final Set<VarAssigns> set_result = findValuationSet(set_real);
-                if (set_result.isEmpty()) {
-                    temp_valuation.setState(0);
-                } else {
-                    temp_valuation.addVarAssign(set_result);    
-                }
-                return temp_valuation;
-            }
-        }
-        
-        if (temp_i == this.my_variables.size()) { 
-            if (setContains(set_real, temp_constant)) { // no variables
-                temp_valuation.setState(1); // valid atomic formula
+        // Null-ary predicate
+        if (my_predicate.getArity() == 0) {
+            if (a_structure.containsNullaryRelation(my_predicate.getName())) {
+                temp_valuation.setState(1);
             } else {
-                temp_valuation.setState(0); // unsatisfiable atomic formula
+                temp_valuation.setState(0);
             }
+            return temp_valuation;
+        }
+        
+        // Other cases
+        final Set<int[]> set_real = a_structure.getRelationAssign(my_predicate.getName()); 
+        
+        if (set_real == null) {
+            temp_valuation.setState(0);
+            return temp_valuation;
+        }
+        
+        if (!my_free_variable.isEmpty()) {
+            final Set<VarAssigns> set_result = findValuationSet(set_real);
+            if (set_result.isEmpty()) {
+                temp_valuation.setState(0);
+            } else {
+                temp_valuation.addVarAssign(set_result);    
+            }
+            return temp_valuation;
+        }
+        
+        final int[] temp_constant = new int[this.my_variables.size()];        
+        for (int i = 0; i < this.my_variables.size(); i++) {
+            try {
+                final int temp_int = Integer.parseInt(my_variables.get(i));
+                temp_constant[i] = temp_int;
+                my_logger.debug("Evaluate Constant: " + my_variables.get(i) + " to " + temp_int);
+            } catch(NumberFormatException nfe) {
+                my_logger.fatal("Error while evaluate atomic formula!");
+            }
+        }
+        
+        if (setContains(set_real, temp_constant)) { // no variables
+            temp_valuation.setState(1); // valid atomic formula
         } else {
-            my_logger.fatal("Error while evaluate atomic formula!");
+            temp_valuation.setState(0); // unsatisfiable atomic formula
         }
         
         return temp_valuation;
-    }
-    
-    //@ pure
-    public int getVariableSize() {
-        return this.my_variables.size();
     }
     
     //@ pure
@@ -181,10 +154,6 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     private /*@ pure @*/ Set<VarAssigns> findValuationSet(final Set<int[]> a_set) {
         final Set<VarAssigns> temp_set = new HashSet();
         
-        if (a_set == null) {
-            return temp_set;
-        }
-        
         for (int[] a_i : a_set) {
             final VarAssigns temp_va = new VarAssigns();
 
@@ -193,13 +162,13 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
                 final String var_name = my_variables.get(int_i);
                 try {
                     final int temp_int = Integer.parseInt(var_name);
-                    my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
                     if (temp_int != a_i[int_i]) {
                         break;
                     }
+                    my_logger.debug("Evaluate Constant: " + var_name + " to " + temp_int);
                 } catch(NumberFormatException nfe) {
                     temp_va.add(var_name, a_i[int_i]);
-                    my_logger.debug("Evaluate Var: " + var_name + " to " + a_i[int_i]);
+                    my_logger.debug("Evaluate Variable: " + var_name + " to " + a_i[int_i]);
                 }
             }
             

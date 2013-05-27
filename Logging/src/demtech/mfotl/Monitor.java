@@ -8,21 +8,20 @@ import java.util.Set;
 
 public class Monitor {
     // Attributes
-    final private Logger my_logger = new Logger();
+    private static int my_auxiliary_index = 0;
     final private Signature my_signature;
     final private MFOTLFormula my_formula_hat;
-    private static int my_auxiliary_index = 0;
+    final private Logger my_logger = new Logger();
     
     // Constructors
     //@ assignable my_signature;
     //@ assignable my_formula;
-    public Monitor(final /*@ non_null @*/ String a_formula, final /*@ non_null @*/ Signature a_signature) {
+    public Monitor(final String a_formula, final Signature a_signature) {
         my_signature = a_signature;
         my_formula_hat = new MFOTLFormula(a_formula, my_signature);
     }
     
     // Public Methods
-
     /**
      * The main monitoring algorithm
      * (MFOTL, Basin et al., page 10)
@@ -47,14 +46,17 @@ public class Monitor {
                 my_logger.debug("Evaluated to True for Structue No. " + i + "TTTTTTTTTTTTTTTTTTTTTTTTTT");
                 // True returned, continue evaluating
             } else {
-                my_logger.debug("Evaluated to False for Structure No. " + i + "FFFFFFFFFFFFFFFFFFFFFFFFFF");
+                my_logger.warning("Evaluated to False for Structure No. " + i + "FFFFFFFFFFFFFFFFFFFFFFFFFF");
                 // False returned, continue evaluating
             }
             my_logger.debug("End Evaluating Formula.........." + i + "\n");
         }
     }
-
+    
     // Private Methods
+    /*
+     * this is used only applied once before the monitoring 
+     */
     //@ assignable my_auxiliary_predicate;
     private void transformTemporalFormula(final Formula a_formula) {
         if (a_formula == null || a_formula instanceof AtomicFormula) {

@@ -16,20 +16,18 @@ public class Structure {
     public Structure() {
         my_relation_assignment = new Hashtable();
         my_nullary_relation = new HashSet();
+        addNullaryRelation("True");
     }
     
     public Structure(final Structure a_structure) {
         this.my_relation_assignment = new Hashtable(a_structure.my_relation_assignment);
         this.my_nullary_relation = new HashSet(a_structure.my_nullary_relation);
+        addNullaryRelation("True");
     }
     
     // Public Methods
     
-    /**
-     * 
-     * @param a_relation_name
-     */
-    public void initRelationAssign(final /*@ non_null @*/ String a_relation_name) {
+    public void initRelationAssign(final String a_relation_name) {
         if (!my_relation_assignment.containsKey(a_relation_name)) {
             my_relation_assignment.put(a_relation_name, new HashSet<int[]>());
         }
@@ -88,7 +86,7 @@ public class Structure {
     }
 
     
-    public void addNullaryRelation(final String a_name) {
+    public final void addNullaryRelation(final String a_name) {
         this.my_nullary_relation.add(a_name);
     }
     
