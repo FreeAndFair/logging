@@ -84,8 +84,7 @@ public class Logger {
      */
     public /*@ pure @*/ void fatal(final String _fatal) {
         if (my_print_info) {
-            my_logger.println("fatal: " + _fatal);
-            
+            my_warning.println("fatal: " + _fatal);
             System.exit(0);
         }
     }

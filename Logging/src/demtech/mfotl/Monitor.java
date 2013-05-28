@@ -8,76 +8,80 @@ import java.util.Set;
 
 public class Monitor {
     // Attributes
-    final private Logger my_logger = new Logger();
+    private static int my_auxiliary_index = 0;
     final private Signature my_signature;
     final private MFOTLFormula my_formula_hat;
-    private static int my_auxiliary_index = 0;
+    final private Logger my_logger = new Logger();
     
     // Constructors
     //@ assignable my_signature;
     //@ assignable my_formula;
-    public Monitor(final /*@ non_null @*/ String a_formula, final /*@ non_null @*/ Signature a_signature) {
+    public Monitor(final String a_formula, final Signature a_signature) {
         my_signature = a_signature;
         my_formula_hat = new MFOTLFormula(a_formula, my_signature);
+        
+        this.preProcess();
     }
     
     // Public Methods
-
     /**
      * The main monitoring algorithm
      * (MFOTL, Basin et al., page 10)
      * @param a_temporalstructure
      */
-    public void runMonitor(final TemporalStructure my_ats) {
-        // Formula Transformation
-        my_logger.debug("Before Formula Transformation ---------------------\n" + my_formula_hat.getFormula().toString());
-        transformTemporalFormula(my_formula_hat.getFormula());
-        my_logger.debug("After Formula Transformation ---------------------\n" + my_formula_hat.getFormula().toString());
-        
-        // Signature and Structure Extension 
-        my_logger.debug("Before Structure Extension ---------------------\n" + my_ats.toString());
-        extendStructure(my_formula_hat.getFormula(), my_ats);
-        my_logger.debug("After Structure Extension ---------------------\n" + my_ats.toString());
+    public void runMonitor(final TemporalStructure a_ts) {
+        // Signature and Structure Extension
+        my_logger.debug("Before Structure Extension ---------------------\n" + a_ts.toString());
+        extendStructure(my_formula_hat.getFormula(), a_ts);
+        my_logger.debug("After Structure Extension ---------------------\n" + a_ts.toString());
 
-        for (int i = 0; i < my_ats.getSize(); i++) {
+        for (int i = 0; i < a_ts.getSize(); i++) {
             my_logger.debug("Start Evaluating Formula.........." + i);
-            final Structure my_auxiliary_structure = my_ats.getStructure(i);
+            final Structure my_auxiliary_structure = a_ts.getStructure(i);
             my_logger.debug(my_auxiliary_structure.toString());
             if (my_formula_hat.evaluateTruth(my_auxiliary_structure)){
                 my_logger.debug("Evaluated to True for Structue No. " + i + "TTTTTTTTTTTTTTTTTTTTTTTTTT");
                 // True returned, continue evaluating
             } else {
-                my_logger.debug("Evaluated to False for Structure No. " + i + "FFFFFFFFFFFFFFFFFFFFFFFFFF");
+                my_logger.warning("Evaluated to False for Structure No. " + i + "FFFFFFFFFFFFFFFFFFFFFFFFFF");
                 // False returned, continue evaluating
             }
             my_logger.debug("End Evaluating Formula.........." + i + "\n");
         }
     }
-
+    
+    // TODO add real-time incremented structure
+    public void addStructure(final Structure a_structure) {
+        
+    }
+    
+    //@ pure
+    private final void preProcess() {
+        // Formula Transformation
+        my_logger.debug("Before Formula Transformation ---------------------\n" + my_formula_hat.getFormula().toString());
+        transformFormula(my_formula_hat.getFormula());
+        my_logger.debug("After Formula Transformation ---------------------\n" + my_formula_hat.getFormula().toString());
+    }
+    
     // Private Methods
     //@ assignable my_auxiliary_predicate;
-    private void transformTemporalFormula(final Formula a_formula) {
+    private void transformFormula(final Formula a_formula) {
         if (a_formula == null || a_formula instanceof AtomicFormula) {
             return;
         }
 
-        transformTemporalFormula(((TemporalFormula) a_formula).getLeftSubformula());
-        transformTemporalFormula(((TemporalFormula) a_formula).getRightSubformula());
+        transformFormula(((TemporalFormula) a_formula).getLeftSubformula());
+        transformFormula(((TemporalFormula) a_formula).getRightSubformula());
 	    
 	    if (a_formula.my_is_temporal) {
-	        my_logger.debug("-------- ----------" + a_formula.toString());
+	        my_logger.debug("Transform Formula ----------" + a_formula.toString());
 	        
 	        final List<String> temp_free_var = (LinkedList) ((TemporalFormula) a_formula).getFreeVariable();
 	        final String[] temp_var = new String[temp_free_var.size()];
-	        
-	        // Introducing new predicate for all temporal predicate
-	        int pos_j = 0;
-	        for (String i: temp_free_var) {
-	            temp_var[pos_j++] = i;
-	        }
+	        temp_free_var.toArray(temp_var);
 
 	        String temp_formula_name = "p" + my_auxiliary_index;
-            my_signature.addPredicate(new Predicate(temp_formula_name, temp_var.length));
+	            my_signature.addPredicate(new Predicate(temp_formula_name, temp_var.length));
             ((TemporalFormula) a_formula).setAuxiliaryFormula(0, new AtomicFormula(temp_var, 
                     temp_formula_name, my_signature));
 	        
@@ -121,7 +125,7 @@ public class Monitor {
 	private void extendStructure(final Formula a_formula, final TemporalStructure my_ats) {
 	    if (a_formula == null || a_formula instanceof AtomicFormula) {
 	        return;
-	    } 
+	    }
 	    
 	    extendStructure(((TemporalFormula) a_formula).getLeftSubformula(), my_ats);
 	    extendStructure(((TemporalFormula) a_formula).getRightSubformula(), my_ats);
@@ -142,6 +146,7 @@ public class Monitor {
         }
     }
 
+	// Depends only on previous structure
 	private void extendP(final TemporalFormula a_formula, final TemporalStructure my_ats) {
         for (int a_pos = 1; a_pos < my_ats.getSize(); a_pos++) {
             final Structure my_auxiliary_structure = my_ats.getStructure(a_pos);
@@ -157,11 +162,12 @@ public class Monitor {
                     my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
                 }
             } else {
-                my_logger.warning("Security Policy NOT followed! ------- Time Interval: " + temp_time_interval);    
+                my_logger.warning("Security Policy NOT followed! ------- Time Interval: " + temp_time_interval);
             }
         }
 	}
 	
+	// Depends only on next structure
     private void extendN(final TemporalFormula a_formula, final TemporalStructure my_ats) {
         for (int a_pos = 0; a_pos < my_ats.getSize() - 1; a_pos++) {
             final Structure my_auxiliary_structure = my_ats.getStructure(a_pos);

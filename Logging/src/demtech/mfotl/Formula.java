@@ -1,7 +1,5 @@
 package demtech.mfotl;
 
-import java.util.Set;
-
 /**
  * Parent class for MFOTLFormula, AtomicFormula and TemporalFormula
  * @author jianw
@@ -9,7 +7,6 @@ import java.util.Set;
  */
 public class Formula {
     // Attributes
-    // TODO how to build the getter methods
     protected boolean my_is_firstorder = true;
     protected boolean my_is_temporal = false;
     final private Logger my_logger = new Logger();

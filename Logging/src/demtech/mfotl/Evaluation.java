@@ -1,6 +1,5 @@
 package demtech.mfotl;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,14 +14,7 @@ public class Evaluation {
     private static final Logger my_logger = new Logger();
 
     // Constructors
-    public Evaluation() {
-        my_var_assign = new HashSet();
-        my_neg_assign = new HashSet();
-        my_variables = new LinkedList();
-        my_state = 0;
-    }
-    
-    public Evaluation(final Collection<String> the_free_var) {
+    public Evaluation(final List<String> the_free_var) {
         my_var_assign = new HashSet();
         my_neg_assign = new HashSet();
         if (the_free_var == null) {
@@ -47,70 +39,33 @@ public class Evaluation {
         this.my_var_assign.addAll(a_assign_set);
     }
     
-    // For conjunction, TODO rewrite
-    public void conjunction(final Evaluation a_valuation) { // A & B
+    // For conjunction
+    public void conjunction(final Evaluation a_valuation) {
         if (this.my_state == 0 || a_valuation.my_state == 0) {
-            for (String s_i : a_valuation.my_variables) {
-                if (!this.my_variables.contains(s_i)) {
-                    this.my_variables.add(s_i);
-                }
-            }
-            this.my_state = 0; // unsatisfiable
+            this.my_state *= a_valuation.my_state;
             
+            this.my_variables.clear();
             this.my_var_assign.clear();
             this.my_neg_assign.clear();
             return;
         }
         
-        if (this.my_state == 1 && a_valuation.my_state == 1) {
-            for (String s_i : a_valuation.my_variables) {
-                if (!this.my_variables.contains(s_i)) {
-                    this.my_variables.add(s_i);
-                }
-            }
-            this.my_state = 1; // valid
+        if (this.my_state == 1 || a_valuation.my_state == 1) {
+            this.my_state *= a_valuation.my_state;
             
-            this.my_var_assign.clear();
-            this.my_neg_assign.clear();
-            return;
-        }
-        
-        if (a_valuation.my_state == 1) {
-            for (String s_i : a_valuation.my_variables) {
-                if (!this.my_variables.contains(s_i)) {
-                    this.my_variables.add(s_i);
-                }
-            }
-            return;
-        }
-        
-        if (this.my_state == 1) {
-            for (String s_i : a_valuation.my_variables) {
-                if (!this.my_variables.contains(s_i)) {
-                    this.my_variables.add(s_i);
-                }
-            }
-            this.my_state = a_valuation.my_state;
-            this.my_neg_assign.clear();
-            this.my_neg_assign.addAll(a_valuation.my_neg_assign);
-            this.my_var_assign.clear();
+            this.addVariables(a_valuation.my_variables);
             this.my_var_assign.addAll(a_valuation.my_var_assign);
+            this.my_neg_assign.addAll(a_valuation.my_neg_assign);
             return;
         }
         
-        // TODO fix following cases
-        //if this.my_sate == -1 && a_valuation.my_satebb == -1
-        
-        for (String s_i : a_valuation.my_variables) {
-            if (!this.my_variables.contains(s_i)) {
-                this.my_variables.add(s_i);
+        if (this.my_state == -1 && a_valuation.my_state == -1) {
+            this.addVariables(a_valuation.my_variables);
+            retainAll(a_valuation);
+            
+            if (this.my_var_assign.isEmpty() && this.my_neg_assign.isEmpty()) {
+                this.my_state = 0;
             }
-        }
-        retainAll(this.my_var_assign, a_valuation.my_var_assign);
-        this.my_neg_assign.addAll(a_valuation.my_neg_assign);
-        this.my_state = -1;
-        if (this.my_var_assign.isEmpty() && this.my_neg_assign.isEmpty()) {
-            this.my_state = 0;
         }
     }
     
@@ -129,7 +84,7 @@ public class Evaluation {
         }
     }
     
-    // For existential check
+    // For existential
     public void removeBoundVar(final Set<String> the_bound_var) {
         my_logger.debug("InMethod: Evaluation.removeBoundVar");
         my_logger.debug(the_bound_var);
@@ -197,80 +152,55 @@ public class Evaluation {
         if (a_state >= -1 && a_state <= 1) {
             this.my_state = a_state;
         }
+        
+        if (a_state == 0 || a_state == 1) {
+            this.my_variables.clear();
+        }
     }
     
     // Private Methods
+    // Get the cross production intersection of two sets
+    private void retainAll(final Evaluation a_valuation) {
+        for (VarAssigns va_i: this.my_var_assign) {
+            for (VarAssigns va_j: a_valuation.my_var_assign) {
+                final VarAssigns va_tmp = new VarAssigns(va_i);
+                va_tmp.addAll(va_j);
+                if (va_tmp.solveConflict()) {
+                    this.my_var_assign.add(va_tmp);
+                }
+            }
+            this.my_var_assign.remove(va_i);
+        }
+        
+        for (VarAssigns va_i: this.my_neg_assign) {
+            for (VarAssigns va_j: a_valuation.my_neg_assign) {
+                final VarAssigns va_tmp = new VarAssigns(va_i);
+                va_tmp.addAll(va_j);
+                if (va_tmp.solveConflict()) {
+                    this.my_neg_assign.add(va_tmp);
+                }
+            }
+            this.my_neg_assign.remove(va_i);
+        }
+    }
+    
     /*
-    private void removeAll(final Set<List> a_src, final Set<List> a_dst) {
-        if (a_src.isEmpty() || a_dst.isEmpty()) {
-            return;
-        }
-        
-        for (List<VarAssigns> list_i : a_src) {
-            boolean remove_list = false; 
-            for (List<VarAssigns> list_j : a_dst) {
-                if (compatible(list_i, list_j)) {
-                    remove_list = true;
-                }
-            }
+    private <T> List<T> intersection(final List<T> list1, final List<T> list2) {
+        final List<T> list = new LinkedList<T>();
 
-            if (remove_list) {
-                a_src.remove(list_i);
+        for (T t : list1) {
+            if(list2.contains(t)) {
+                list.add(t);
             }
         }
-    }
-    
-    private void addAll(final Set<List> a_src, final Set<List> a_dst) {
-        if (a_dst.isEmpty()) {
-            return;
-        }
-        
-        for (List<VarAssigns> list_i : a_src) {
-            for (List<VarAssigns> list_j : a_dst) {
-                if (compatible(list_i, list_j)) {
-                    for (VarAssigns va_i : list_j) {
-                        if (!listContains(list_i, va_i)) {
-                            list_i.add(va_i);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    //@ pure
-    private boolean compatible(final List<VarAssigns> a_src, final List<VarAssigns> a_dst) {
-        for (VarAssigns va_i : a_src) {
-            for (VarAssigns va_j : a_dst) {
-                if (va_i.getName().equals(va_j.getName()) && (va_i.getValue() != va_j.getValue())) {
-                        return false;
-                }
-            }
-        }
-        return true;
-    }
-    
-    //@ pure
-    private boolean listContains(final List<VarAssigns> a_list, final VarAssigns a_va) {
-        for (VarAssigns va_i : a_list) {
-            if (va_i.vequals(a_va)) {
-                return true;
-            }
-        }
-        return false;
+
+        return list;
     }*/
     
-
-    // Get the intersection of two sets, TODO implement
-    private void retainAll(final Set<VarAssigns> a_src, final Set<VarAssigns> a_dst) {
-        for (VarAssigns va_i : a_src) {
-            for (VarAssigns va_j : a_dst) {
-                my_logger.debug(va_i.toString() + " <+> " + va_j.toString());
-                if (!va_i.retain(va_j)) {
-                    my_logger.debug("Don't concat conflict");
-                    a_src.remove(va_i);
-                    my_logger.debug("Left Size" + a_src.size());
-                }
+    private void addVariables(final List<String> a_variables) {
+        for (String s_i : a_variables) {
+            if (!this.my_variables.contains(s_i)) {
+                this.my_variables.add(s_i);
             }
         }
     }
@@ -285,6 +215,11 @@ class VarAssigns {
     public VarAssigns() {
         my_names = new LinkedList();
         my_values = new LinkedList();
+    }
+    
+    public VarAssigns(final VarAssigns a_va) {
+        my_names = new LinkedList(a_va.my_names);
+        my_values = new LinkedList(a_va.my_values);
     }
     
     // Public Methods
@@ -317,6 +252,12 @@ class VarAssigns {
         my_values.add(a_val);
     }
     
+    public void addAll(final VarAssigns a_va) {
+        my_names.addAll(a_va.my_names);
+        my_values.addAll(a_va.my_values);
+    }
+    
+    //@ pure
     public boolean remove(final String a_var_name) {
         final int temp_i = my_names.indexOf(a_var_name);
         
@@ -335,6 +276,22 @@ class VarAssigns {
             result_array[i] = this.my_values.get(i);
         }
         return result_array;
+    }
+    
+    //@ pure
+    public boolean solveConflict() {
+        for(int i = 0; i < this.my_names.size(); i++) {
+            final int last = this.my_names.lastIndexOf(this.my_names.get(i));
+            if (i != last) {
+                if(this.my_values.get(i) == this.my_values.get(last)) {
+                    this.my_names.remove(last);
+                    this.my_values.remove(last);
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     
     //@ pure
