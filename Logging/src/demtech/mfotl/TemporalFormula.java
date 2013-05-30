@@ -18,7 +18,7 @@ public class TemporalFormula extends Formula{
     
     final private Signature my_signature;
     private String[] my_tokens;
-    private static final Logger my_logger = new Logger();
+    private static final Logger my_logger = new Logger(false);
     
     // Constructor
     public TemporalFormula(final String[] a_tokens, final Signature a_signature) {
@@ -274,6 +274,32 @@ public class TemporalFormula extends Formula{
     
     public /*@ pure @*/ Formula getRightSubformula() {
         return this.my_right_subformula;
+    }
+    
+    public TemporalFormula getLeftTemporalSub() {
+        if (this.my_left_subformula instanceof TemporalFormula && 
+                ((TemporalFormula)this.my_left_subformula).my_main_operator != null) {
+            return (TemporalFormula) this.my_left_subformula;
+        } else {
+            return null;
+        }
+    }
+
+    public TemporalFormula getRightTemporalSub() {
+        if (this.my_right_subformula instanceof TemporalFormula && 
+                ((TemporalFormula)this.my_right_subformula).my_main_operator != null) {
+            return (TemporalFormula) this.my_right_subformula;
+        } else {
+            return null;
+        }
+    }
+    
+    public AtomicFormula getAtomicSub() {
+        if (this.my_main_operator == null && this.my_right_subformula instanceof AtomicFormula) {
+            return (AtomicFormula)this.my_right_subformula;
+        } else {
+            return null;
+        }
     }
     
     public /*@ pure @*/ Operator getMainOperator() {

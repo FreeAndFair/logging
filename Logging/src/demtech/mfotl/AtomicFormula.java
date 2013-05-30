@@ -12,7 +12,7 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     private final Predicate my_predicate;
     private final List<String> my_variables = new LinkedList();
     private final List<String> my_free_variable = new LinkedList();
-    private static final Logger my_logger = new Logger(true);
+    private static final Logger my_logger = new Logger(false);
     
     // Constructors
     //@ public normal_behavior

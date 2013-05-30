@@ -16,7 +16,7 @@ public class MFOTLFormula {
 
     private String[] my_tokens;
     private final Pattern my_token_pattern = Pattern.compile("([a-zA-Z]\\w*)|(\\d*)");
-    private final Logger my_logger = new Logger(true);
+    private final Logger my_logger = new Logger(false);
     
     // Constructors
     //@ assignable my_signature;

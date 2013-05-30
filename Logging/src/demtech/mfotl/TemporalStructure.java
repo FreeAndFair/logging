@@ -26,19 +26,18 @@ public class TemporalStructure {
     }
     
     public /*@ pure @*/ Structure getStructure(final int a_pos) {
+        return my_structure.get(a_pos);
+    }
+
+    /*@ pure @*/
+    public void dropStructure(final int a_pos) {
         if (a_pos < my_structure.size()) {
-            return my_structure.get(a_pos);
-        } else {
-            return null;
+            my_structure.set(a_pos, null);
         }
     }
     
     public /*@ pure @*/ int getTime(final int a_pos) {
-        if (a_pos >= my_time_stamp.size()) {
-            return (int)my_time_stamp.get(my_time_stamp.size()-1);
-        } else {
-            return (int)my_time_stamp.get(a_pos);
-        }
+        return (int)my_time_stamp.get(a_pos);
     }
     
     public /*@ pure @*/ int getSize() {
