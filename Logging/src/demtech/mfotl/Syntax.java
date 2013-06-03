@@ -238,7 +238,6 @@ class ReservedSymbol {
         a_set.add("!");
         a_set.add("&");
         a_set.add("|");
-        a_set.add("->");
     }
     
     private static void fillQuantifierSet(final Set<String> a_set) {
