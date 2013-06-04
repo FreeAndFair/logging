@@ -45,7 +45,9 @@ public class Structure {
         }
         final int[] temp_val = new int[a_value.length];
         System.arraycopy(a_value, 0, temp_val, 0, a_value.length);
-        temp_rel_assign.add(temp_val);
+        if (!setContains(temp_rel_assign, temp_val)) {
+            temp_rel_assign.add(temp_val);
+        }
     }
 
     /**
@@ -94,28 +96,6 @@ public class Structure {
         return this.my_nullary_relation.contains(a_name);
     }
 
-    /**
-     * 
-     * @param a_name
-     * @param a_value
-     * @return
-     */
-    /*
-    public boolean evaluateRelation(final String a_name, final int[] a_value) {
-        if ("=".equals(a_name)) {
-            return ((a_value.length == 2) && (a_value[0] == a_value[1]));
-        } else if ("<".equals(a_name)) {
-            return ((a_value.length == 2) && (a_value[0] < a_value[1]));
-        } else {
-            final Set<int[]> temp_rel_assign = (Set<int[]>) my_relation_assignment.get(a_name);
-            for (int[] i : temp_rel_assign) {
-                if (Arrays.equals(i, a_value))
-                    return true;
-            }
-            return false;
-        }
-    }*/
-    
     public String toString() {
         String result_temp_string = "";
 
@@ -143,5 +123,18 @@ public class Structure {
         }
         
         return result_temp_string;
+    }
+    
+    //@ pure
+    private boolean setContains(final Set<int[]> a_set, final int[] a_array) {
+        if (a_set == null || a_array == null) {
+            return false;
+        }
+        for (int[] temp_i : a_set) {
+            if (Arrays.equals(temp_i, a_array)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

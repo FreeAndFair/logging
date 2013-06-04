@@ -29,12 +29,9 @@ public class MFOTLTest {
         //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(3) )", test_signature);
         //final Monitor test_monitor = new Monitor("E x y ( out (x) )", test_signature);
 
-        //test_monitor.runMonitor(test_ts);
-        
         for (int i = 0; i < test_ts.getSize(); i++) {
             test_monitor.addStructure(test_ts.getStructure(i), test_ts.getTime(i));
         }
-        System.out.println();
     }
     
     /**
@@ -118,7 +115,7 @@ public class MFOTLTest {
             data_in.close();
             fstream.close();
         } catch (Exception e) {
-            //System.out.println("Current dir using System:" + System.getProperty("user.dir"));
+            System.out.println("Current dir using System:" + System.getProperty("user.dir"));
             System.err.println("Error: " + e.getMessage());
         }
         
