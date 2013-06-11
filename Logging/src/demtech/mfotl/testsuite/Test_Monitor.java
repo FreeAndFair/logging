@@ -1,43 +1,65 @@
-package demtech.mfotl;
+package demtech.mfotl.testsuite;
+
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
-public class MFOTLTest {
-    /**
-     * @param args
-     * 
-     * Test for formula parsing, evaluating and monitoring
-     */
-    public static void main(final String[] args) {
-        final Signature test_signature = initializeSignature("./src/demtech/mfotl/e1.sig");
-        final TemporalStructure test_ts = initializeTemporalStructure("./src/demtech/mfotl/e1.log");
-        
-        //final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
-        //final Monitor test_monitor = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
-        //final Monitor test_monitor = new Monitor("out (4) S [0,3) (in (2))", test_signature);
-        //final Monitor test_monitor = new Monitor("N (N out (4))", test_signature);
-        //final Monitor test_monitor = new Monitor("N out (4)", test_signature);
-        //final Monitor test_monitor = new Monitor("E x (P[0,5) out (x))", test_signature);
-        //final Monitor test_monitor = new Monitor("P (P (P out (3)))", test_signature);
-        //final Monitor test_monitor = new Monitor("P out (3)", test_signature);
-        final Monitor test_monitor = new Monitor("(in (2) U [0,5) out (2)) & True", test_signature);
-        //final Monitor test_monitor = new Monitor("E x ( out (x) & in(x) )", test_signature);
-        //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(y) )", test_signature);
-        //final Monitor test_monitor = new Monitor("E x y ( out (x) & in(3) )", test_signature);
-        //final Monitor test_monitor = new Monitor("E x y ( out (x) )", test_signature);
+import junit.framework.TestCase;
 
-        for (int i = 0; i < test_ts.getSize(); i++) {
-            test_monitor.addStructure(test_ts.getStructure(i), test_ts.getTime(i));
-        }
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import demtech.mfotl.Logger;
+import demtech.mfotl.Monitor;
+import demtech.mfotl.Predicate;
+import demtech.mfotl.Signature;
+import demtech.mfotl.Structure;
+import demtech.mfotl.TemporalStructure;
+
+public class Test_Monitor extends TestCase {
+    final private Monitor my_monitor_test;
+    final private Signature test_signature = initializeSignature("./src/demtech/mfotl/e1.sig");
+    final private TemporalStructure test_ts = initializeTemporalStructure("./src/demtech/mfotl/e1.log");
+    
+    public Test_Monitor(final String a_name) {
+        super(a_name);
+        my_monitor_test = new Monitor("(in (2) U [0,5) out (2)) & True", test_signature);
+        
+        //my_monitor_test = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
+        //my_monitor_test = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
+        //my_monitor_test = new Monitor("out (4) S [0,3) (in (2))", test_signature);
+        //my_monitor_test = new Monitor("N (N out (4))", test_signature);
+        //my_monitor_test = new Monitor("N out (4)", test_signature);
+        //my_monitor_test = new Monitor("E x (P[0,5) out (x))", test_signature);
+        //my_monitor_test = new Monitor("P (P (P out (3)))", test_signature);
+        //my_monitor_test = new Monitor("P out (3)", test_signature);
+        //my_monitor_test = new Monitor("E x ( out (x) & in(x) )", test_signature);
+        //my_monitor_test = new Monitor("E x y ( out (x) & in(y) )", test_signature);
+        //my_monitor_test = new Monitor("E x y ( out (x) & in(3) )", test_signature);
+        //my_monitor_test = new Monitor("E x y ( out (x) )", test_signature);
     }
     
-    /**
-     * Create a signature for the formula
-     * @param a_signature
-     */
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    @Test
+    public void test() {
+        for (int i = 0; i < test_ts.getSize(); i++) {
+            my_monitor_test.addStructure(test_ts.getStructure(i), test_ts.getTime(i));
+        }
+    }
+
     private static Signature initializeSignature(final String a_file) {
         final Signature a_signature = new Signature();
         
