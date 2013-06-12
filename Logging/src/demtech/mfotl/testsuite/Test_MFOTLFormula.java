@@ -6,52 +6,53 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import demtech.mfotl.AtomicFormula;
+import demtech.mfotl.MFOTLFormula;
 import demtech.mfotl.Predicate;
 import demtech.mfotl.Signature;
 
 @RunWith(value = Parameterized.class)
-public class Test_AtomicFormula {
-    private final AtomicFormula a_atomicformula;
+public class Test_MFOTLFormula {
+    private final MFOTLFormula my_mfotl;
     private final Signature my_signature = initializeSignature("./src/demtech/mfotl/e1.sig");
     
-    public Test_AtomicFormula(final String a_afs) {
-        a_atomicformula = new AtomicFormula(a_afs.split(" "), my_signature);
+    public Test_MFOTLFormula(final String a_fs) {
+        my_mfotl = new MFOTLFormula(a_fs, my_signature);
     }
     
     @Parameters
     public static Collection<String[]> data() {
-        final String[][] data = new String[][] {{"out ( 5 )"}, {"in ( 3 )"}, {"True"}, {"False"}, {"True "}};
+        String[][] data = new String[][] {{"out ( 5 )"}, {"in ( 3 )"}, {"True"}, {"False"}, {"True "}};
         return Arrays.asList(data);
     }
-    
+
     @Before
     public void setUp() throws Exception {
-        
     }
 
     @After
     public void tearDown() throws Exception {
-        
     }
 
-    //@Ignore("not ready")
     @Test
-    public void test() {
-        System.out.println(a_atomicformula.toString());
-        //fail("Not yet implemented");
+    public void testLexer() {
+        System.out.println(my_mfotl.toString());
+        Field[] test_str = MFOTLFormula.class.getDeclaredFields();
+        for (int i = 0; i < test_str.length; i++)
+            System.out.println(test_str[0]);
     }
-
+    
     private static Signature initializeSignature(final String a_file) {
         final Signature a_signature = new Signature();
         

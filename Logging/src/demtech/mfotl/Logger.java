@@ -13,7 +13,6 @@ public class Logger {
     private final PrintStream my_warning;
     
     // Constructors
-    
     public Logger() {
         my_logger = getLogger();
         my_warning = getWarning();
@@ -82,21 +81,18 @@ public class Logger {
     /*
      * fatal information, exit after output it
      */
-    public /*@ pure @*/ void fatal(final String _fatal) {
-        if (my_print_info) {
-            my_warning.println("fatal: " + _fatal);
-            System.exit(0);
-        }
+    //@ pure
+    public void fatal(final String _fatal) {
+        my_warning.println("fatal: " + _fatal);
+        System.exit(0);
     }
     
     /*
      * error information, exit after output it
      */
     public /*@ pure @*/ void error(final String _error) {
-        if (my_print_info) {
-            my_warning.println("error: " + _error);
-            System.exit(1);
-        }
+        my_warning.println("error: " + _error);
+        System.exit(1);
     }
     
     public void warning(final String a_warning) {

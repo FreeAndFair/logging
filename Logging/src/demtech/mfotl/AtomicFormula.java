@@ -12,7 +12,7 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
     private final Predicate my_predicate;
     private final List<String> my_variables = new LinkedList();
     private final List<String> my_free_variable = new LinkedList();
-    private static final Logger my_logger = new Logger(false);
+    private static final Logger my_logger = new Logger(true);
     
     // Constructors
     //@ public normal_behavior
@@ -53,7 +53,7 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
             for (int i = 0; i < temp_var.length; i++) {
                 temp_var[i] = a_formula[(i+1)*2];
             }
-
+            
             my_variables.addAll(Arrays.asList(temp_var));
             my_predicate = new Predicate(a_formula[0], temp_var.length);
             

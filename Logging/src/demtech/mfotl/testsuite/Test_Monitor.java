@@ -1,13 +1,6 @@
 package demtech.mfotl.testsuite;
 
-import static org.junit.Assert.*;
-
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-
-import junit.framework.TestCase;
+import java.io.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,13 +13,12 @@ import demtech.mfotl.Signature;
 import demtech.mfotl.Structure;
 import demtech.mfotl.TemporalStructure;
 
-public class Test_Monitor extends TestCase {
+public class Test_Monitor {
     final private Monitor my_monitor_test;
     final private Signature test_signature = initializeSignature("./src/demtech/mfotl/e1.sig");
     final private TemporalStructure test_ts = initializeTemporalStructure("./src/demtech/mfotl/e1.log");
     
-    public Test_Monitor(final String a_name) {
-        super(a_name);
+    public Test_Monitor() {
         my_monitor_test = new Monitor("(in (2) U [0,5) out (2)) & True", test_signature);
         
         //my_monitor_test = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
@@ -45,15 +37,13 @@ public class Test_Monitor extends TestCase {
     
     @Before
     public void setUp() throws Exception {
-        super.setUp();
     }
 
     @After
     public void tearDown() throws Exception {
-        super.tearDown();
     }
 
-    @Test
+    @Test(timeout = 100)
     public void test() {
         for (int i = 0; i < test_ts.getSize(); i++) {
             my_monitor_test.addStructure(test_ts.getStructure(i), test_ts.getTime(i));
@@ -85,10 +75,6 @@ public class Test_Monitor extends TestCase {
         return a_signature;
     }
     
-    /**
-     * Create a sequence of structures for testing
-     * @param a_temporal_structure
-     */
     private static TemporalStructure initializeTemporalStructure(final String a_file) {
         final TemporalStructure a_temporal_structure = new TemporalStructure();
         final Logger my_logger = new Logger(false);

@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 public class MFOTLFormula {
     // Attributes
     private final TemporalFormula my_formula;
-    private final String my_formula_str;
 
     private String[] my_tokens;
     private final Pattern my_token_pattern = Pattern.compile("([a-zA-Z]\\w*)|(\\d*)");
@@ -22,19 +21,14 @@ public class MFOTLFormula {
     //@ assignable my_signature;
     //@ assignable my_formula_str;
     //@ ensures my_formula_str == a_formula;
-    public MFOTLFormula(final String the_formula, final Signature a_signature) {
+    public MFOTLFormula(final String my_formula_str, final Signature a_signature) {
         super();
         my_logger.debug("Initialize: MFOTLFormula(String)");
-        my_formula_str = the_formula;
 
-        runLexer();
+        runLexer(my_formula_str);
         
         my_formula = new TemporalFormula(my_tokens, a_signature);
         my_formula.init();
-    }
-    
-    public MFOTLFormula(final MFOTLFormula a_MFOTLFormula, final Signature a_signature) {
-        this(a_MFOTLFormula.my_formula_str, a_signature);
     }
     
     //@ pure
@@ -45,7 +39,7 @@ public class MFOTLFormula {
     }
     
     //@ assignable my_token;
-	private void runLexer() {
+	private void runLexer(final String my_formula_str) {
 	    String temp_formula_str = my_formula_str;
         String temp_formula_with_space = "";
         String temp_token = "";
@@ -86,7 +80,6 @@ public class MFOTLFormula {
         
         my_logger.info("Read formula: " + my_formula_str + ", with " + my_tokens.length + " tokens");
 	}
-	
 
     //@ pure
 	public TemporalFormula getFormula() {
@@ -94,7 +87,7 @@ public class MFOTLFormula {
 	}
 	
 	//@ pure
-    public String getFormulaString() {
-        return this.my_formula_str;
-    }
+	public String toString() {
+	    return this.my_formula.toString();
+	}
 }
