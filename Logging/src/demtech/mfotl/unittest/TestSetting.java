@@ -1,65 +1,31 @@
-package demtech.mfotl.testsuite;
+package demtech.mfotl.unittest;
 
-import java.io.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 import demtech.mfotl.Logger;
-import demtech.mfotl.Monitor;
 import demtech.mfotl.Predicate;
 import demtech.mfotl.Signature;
 import demtech.mfotl.Structure;
 import demtech.mfotl.TemporalStructure;
 
-public class Test_Monitor {
-    final private Monitor my_monitor_test;
-    final private Signature test_signature = initializeSignature("./src/demtech/mfotl/e1.sig");
-    final private TemporalStructure test_ts = initializeTemporalStructure("./src/demtech/mfotl/e1.log");
-    
-    public Test_Monitor() {
-        my_monitor_test = new Monitor("(in (2) U [0,5) out (2)) & True", test_signature);
+public class TestSetting {
+    public TestSetting() {
         
-        //my_monitor_test = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
-        //my_monitor_test = new Monitor("E x ( in (x) ) S [0,5) out (2)", test_signature);
-        //my_monitor_test = new Monitor("out (4) S [0,3) (in (2))", test_signature);
-        //my_monitor_test = new Monitor("N (N out (4))", test_signature);
-        //my_monitor_test = new Monitor("N out (4)", test_signature);
-        //my_monitor_test = new Monitor("E x (P[0,5) out (x))", test_signature);
-        //my_monitor_test = new Monitor("P (P (P out (3)))", test_signature);
-        //my_monitor_test = new Monitor("P out (3)", test_signature);
-        //my_monitor_test = new Monitor("E x ( out (x) & in(x) )", test_signature);
-        //my_monitor_test = new Monitor("E x y ( out (x) & in(y) )", test_signature);
-        //my_monitor_test = new Monitor("E x y ( out (x) & in(3) )", test_signature);
-        //my_monitor_test = new Monitor("E x y ( out (x) )", test_signature);
     }
     
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    @Test(timeout = 100)
-    public void test() {
-        for (int i = 0; i < test_ts.getSize(); i++) {
-            my_monitor_test.addStructure(test_ts.getStructure(i), test_ts.getTime(i));
-        }
-    }
-
-    private static Signature initializeSignature(final String a_file) {
+    public static Signature initializeSignature(final String a_file) {
         final Signature a_signature = new Signature();
         
         try {
-            FileInputStream fstream = new FileInputStream(a_file);
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            final FileInputStream fstream = new FileInputStream(a_file);
+            final DataInputStream in = new DataInputStream(fstream);
+            final BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String str_line;
             while ((str_line = br.readLine()) != null) {
-                System.out.println("Relation: " + str_line);
+                //System.out.println("Relation: " + str_line);
                 String[] str_tokens = str_line.split(" ");
                 int an_arity = str_tokens[1].split(",").length;
                 a_signature.addPredicate(new Predicate(str_tokens[0], an_arity));
@@ -75,7 +41,7 @@ public class Test_Monitor {
         return a_signature;
     }
     
-    private static TemporalStructure initializeTemporalStructure(final String a_file) {
+    public static TemporalStructure initializeTemporalStructure(final String a_file) {
         final TemporalStructure a_temporal_structure = new TemporalStructure();
         final Logger my_logger = new Logger(false);
         

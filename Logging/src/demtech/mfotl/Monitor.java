@@ -1,7 +1,6 @@
 package demtech.mfotl;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -109,8 +108,8 @@ public class Monitor {
 	}
 	
     private int extendStructure(final TemporalFormula a_formula, final int a_pos) {
-        if (a_formula == null) {
-            return my_ats2.getSize();
+        if (a_formula == null || a_formula.getMainOperator() == null) {
+            return my_ats2.getSize()-1;
         }
         
         if (a_formula.getMainOperator().my_name.equals("P") && a_pos > 0) {

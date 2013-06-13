@@ -121,7 +121,6 @@ class FirstorderOperator extends Operator {
     }
 }
 
-
 class Operator {
     // Attributes
     protected final String my_name;

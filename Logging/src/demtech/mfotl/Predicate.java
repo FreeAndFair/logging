@@ -15,7 +15,7 @@ public class Predicate {
     // Public Methods
     //@ pure
     public String toString() {
-        return (my_name + "[arity =" + my_arity + "]");
+        return (my_name + "[arity=" + my_arity + "]");
     }
     
     //@ ensures \result == my_name;
