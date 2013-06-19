@@ -27,8 +27,13 @@ public class TestSetting {
             while ((str_line = br.readLine()) != null) {
                 //System.out.println("Relation: " + str_line);
                 String[] str_tokens = str_line.split(" ");
-                int an_arity = str_tokens[1].split(",").length;
-                a_signature.addPredicate(new Predicate(str_tokens[0], an_arity));
+                
+                int tmp_arity = 0;
+                for (int i = 1; i < str_tokens.length; i++) {
+                    tmp_arity += str_tokens[i].split(",").length;
+                }
+                
+                a_signature.addPredicate(new Predicate(str_tokens[0], tmp_arity));
             }
             br.close();
             in.close();

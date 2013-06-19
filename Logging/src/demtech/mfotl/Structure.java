@@ -9,12 +9,14 @@ import java.util.Set;
 public class Structure {
     // Attributes
     private final Map my_relation_assignment;
+    private final Map my_relation_negation;
     private final Set my_nullary_relation;
     private static final Logger my_logger = new Logger();
     
     // Constructors
     public Structure() {
         my_relation_assignment = new Hashtable();
+        my_relation_negation = new Hashtable();
         my_nullary_relation = new HashSet();
         addNullaryRelation("True");
     }
@@ -22,11 +24,11 @@ public class Structure {
     public Structure(final Structure a_structure) {
         this.my_relation_assignment = new Hashtable(a_structure.my_relation_assignment);
         this.my_nullary_relation = new HashSet(a_structure.my_nullary_relation);
+        my_relation_negation = new Hashtable(a_structure.my_relation_negation);
         addNullaryRelation("True");
     }
     
     // Public Methods
-    
     public void initRelationAssign(final String a_relation_name) {
         if (!my_relation_assignment.containsKey(a_relation_name)) {
             my_relation_assignment.put(a_relation_name, new HashSet<int[]>());

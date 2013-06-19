@@ -147,14 +147,14 @@ class Interval {
         my_end = _end;
     }
     
-    public Interval (final int _start) {
-        my_start = _start;
-        my_end = -1;
+    public Interval (final int a_start) {
+        my_start = a_start;
+        my_end = Integer.MAX_VALUE;
     }
     
     public Interval () {
         my_start = 0;
-        my_end = -1;
+        my_end = Integer.MAX_VALUE;
     }
     
     public void setStart(final int a_start) {
@@ -174,15 +174,11 @@ class Interval {
     }
     
     public boolean inRange(final int a_value) {
-        return ((a_value >= my_start) && ((a_value < my_end) || (my_end == -1)));
-    }
-    
-    public boolean isBounded() {
-        return (my_end == -1);
+        return ((a_value >= my_start) && ((a_value < my_end)));
     }
     
     public String toString() {
-        return "[" + my_start + "," + ((my_end == -1)?"inf.":my_end) + ") ";
+        return "[" + my_start + "," + ((my_end == Integer.MAX_VALUE)?"inf.":my_end) + ") ";
     }
 }
 

@@ -40,7 +40,7 @@ public class Test_Monitor {
     @Parameters
     public static Collection<String[]> data() {
         //final String[][] data = new String[][] {{"in ( 3 )"}, {"E x ( out (x) & in(x) )"}, {"(in (2) U [0,5) out (2)) & True"}};
-        final String[][] data = new String[][] {{"E x ( out (x) & in(x) )"}};
+        final String[][] data = new String[][] {{"True S approve(r)"}, {"publish(r) & (! (True S approve(r)))"}, {"!( E r (publish(r) & (! (True S approve(r)))))"}};
         return Arrays.asList(data);
     }
     

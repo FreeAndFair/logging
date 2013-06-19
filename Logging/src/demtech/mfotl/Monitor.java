@@ -121,6 +121,7 @@ public class Monitor {
             extendN(a_formula, temp2);
             return temp2;
         } else if (a_formula.getMainOperator().my_name.equals("S")) {
+            my_logger.warning("ssssssssssssssssssssssssssssssssssssssdDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
             extendStructure(a_formula.getLeftTemporalSub(), a_pos);
             extendStructure(a_formula.getRightTemporalSub(), a_pos);
             extendS(a_formula, a_pos);
@@ -128,7 +129,7 @@ public class Monitor {
             extendStructure(a_formula.getLeftTemporalSub(), a_pos);
             extendStructure(a_formula.getRightTemporalSub(), a_pos);
             return extendU(a_formula, a_pos);
-        } else if (ReservedSymbol.isFirstOrder(a_formula.getMainOperator().my_name)) {
+        } else {
             int temp1 = extendStructure(a_formula.getLeftTemporalSub(), a_pos);
             int temp2 = extendStructure(a_formula.getRightTemporalSub(), a_pos);
             temp1 = (temp2 < temp1) ? temp2 : temp1;
@@ -193,11 +194,13 @@ public class Monitor {
         
         // gama ^ Di * {0}, get r()
         final Evaluation gama0 = a_formula.getRightSubformula().evaluate(my_auxiliary_structure);
-        if (gama0.isTrue()) {
+        final Set<int[]> set0 = gama0.getSet();
+        
+        if (gama0.isTrue() & set0.isEmpty()) {
             final int[] temp_gama = {0};
             my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_gama);
         } else {
-            for (int[] i : gama0.getSet()) {
+            for (int[] i : set0) {
                 int[] temp_gama = new int[i.length+1];
                 System.arraycopy(i, 0, temp_gama, 0, i.length);
                 temp_gama[i.length] = 0;
@@ -221,7 +224,7 @@ public class Monitor {
                     final int[] temp_j = new int[i.length-1];
                     System.arraycopy(i, 0, temp_j, 0, temp_j.length);
                     my_auxiliary_structure.initRelationAssign(temp_formula_name0);
-                    my_auxiliary_structure.addRelationAssign(temp_formula_name0, i);
+                    my_auxiliary_structure.addRelationAssign(temp_formula_name0, temp_j);
                 }
             }
         }

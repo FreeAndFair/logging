@@ -83,25 +83,25 @@ public class TemporalFormula extends Formula{
      */
     protected Evaluation evaluate(final Structure a_structure) {
         my_logger.debug("InMethod: TemporalFormula.evaluate");
-        Evaluation result_set = new Evaluation(this.my_free_variable);
+        Evaluation result_eval = new Evaluation(this.my_free_variable);
         
         if (my_auxiliary_predicate[0] != null) { // Temporal Formula transformed
-            result_set = my_auxiliary_predicate[0].evaluate(a_structure);
+            result_eval = my_auxiliary_predicate[0].evaluate(a_structure);
         } else if (my_main_operator == null) { // Atomic Formula
-            result_set = my_right_subformula.evaluate(a_structure);
+            result_eval = my_right_subformula.evaluate(a_structure);
         } else if ("&".equals(my_main_operator.my_name)) { // First Order Formula &
-            result_set = my_left_subformula.evaluate(a_structure);
-            result_set.conjunction(my_right_subformula.evaluate(a_structure));
+            result_eval = my_left_subformula.evaluate(a_structure);
+            result_eval.conjunction(my_right_subformula.evaluate(a_structure));
         } else if ("!".equals(my_main_operator.my_name)) { // First Order Formula !
-            result_set = my_right_subformula.evaluate(a_structure);
-            result_set.negation();
+            result_eval = my_right_subformula.evaluate(a_structure);
+            result_eval.negation();
         } else if ("E".equals(my_main_operator.my_name)) { // First Order Formula E
             my_logger.debug("Check Existential " + my_right_subformula.toString());
-            result_set = my_right_subformula.evaluate(a_structure);
-            result_set.removeBoundVar(((QuantifierOperator) my_main_operator).getBoundVariables());
+            result_eval = my_right_subformula.evaluate(a_structure);
+            result_eval.removeBoundVar(((QuantifierOperator) my_main_operator).getBoundVariables());
         }
         
-        return result_set;
+        return result_eval;
     }
     
     public boolean evaluateTruth(final Structure a_structure) { // if no free variable exists

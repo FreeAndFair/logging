@@ -15,7 +15,7 @@ public class MFOTLFormula {
 
     private String[] my_tokens;
     private final Pattern my_token_pattern = Pattern.compile("([a-zA-Z]\\w*)|(\\d*)");
-    private final Logger my_logger = new Logger(false);
+    private final Logger my_logger = new Logger(true);
     
     // Constructors
     //@ assignable my_signature;
@@ -75,10 +75,10 @@ public class MFOTLFormula {
         }
         
         temp_formula_str = temp_formula_with_space.replaceAll("[ ]+", " ");
-        my_logger.info("Formula with Space: " + temp_formula_str);
+        my_logger.info("In MFOTLFormula.runLexer: formula with Space: " + temp_formula_str);
         my_tokens = temp_formula_str.split(" ");
         
-        my_logger.info("Read formula: " + my_formula_str + ", with " + my_tokens.length + " tokens");
+        my_logger.info("In MFOTLFormula.runLexer: Read formula: " + my_formula_str + ", with " + my_tokens.length + " tokens");
 	}
 
     //@ pure

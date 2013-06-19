@@ -24,7 +24,7 @@ public class Test_AtomicFormula {
     
     @Parameters
     public static Collection<String[]> data() {
-        final String[][] data = new String[][] {{"out ( 5 )"}, {"in ( 3 )"}, {"True"}, {"False"}, {"True "}};
+        final String[][] data = new String[][] {{"approve ( y , 5 )"}, {"out ( x )"}, {"in ( 3 )"}, {"True"}, {"False"}, {"True "}};
         return Arrays.asList(data);
     }
     
