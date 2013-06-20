@@ -1,0 +1,2 @@
+publish (int)
+approve (int)

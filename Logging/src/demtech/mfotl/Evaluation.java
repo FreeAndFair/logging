@@ -10,9 +10,9 @@ public class Evaluation {
     private final List<String> my_variables;
     private final Set<VarAssigns> my_var_assign;
     private final Set<VarAssigns> my_neg_assign;
-    private int is_complete_collection;
+    private int my_is_universal; //
     private int my_state; // 0 false, 1 true, -1 satisfiable
-    private static final Logger my_logger = new Logger();
+    private static final Logger my_logger = new Logger(true);
 
     // Constructors
     public Evaluation(final List<String> the_free_var) {
@@ -24,7 +24,7 @@ public class Evaluation {
             my_variables = new LinkedList(the_free_var);
         }
         my_state = -1;
-        is_complete_collection = 0;
+        my_is_universal = 0;
     }
     
     public Evaluation(final Evaluation a_valuation) {
@@ -32,52 +32,48 @@ public class Evaluation {
         this.my_neg_assign = new HashSet(a_valuation.my_neg_assign);
         this.my_variables = new LinkedList(a_valuation.my_variables);
         this.my_state = a_valuation.my_state;
-        this.is_complete_collection = a_valuation.is_complete_collection;
+        this.my_is_universal = a_valuation.my_is_universal;
     }
     
     // Public Methods
     
-    // For Atomic Formulas
+    // For Atomic Formulas' assignment
     public void addVarAssign(final Set<VarAssigns> a_assign_set) {
         this.my_var_assign.addAll(a_assign_set);
     }
     
     // For conjunction
     public void conjunction(final Evaluation a_valuation) {
+        my_logger.warning("&-Eval:\n" + this.toString() + "\n" + a_valuation.toString());
         if (this.my_state == 0 || a_valuation.my_state == 0) {
-            my_logger.warning("&0000000000000000000000000000000000000000000");
-            this.setComplete(0);
-            return;
-        }
-        
-        if (this.my_state == 1 || a_valuation.my_state == 1) {
-            my_logger.warning("&11111111111111111111111111111111111111111111");
-            this.my_state *= a_valuation.my_state;
-
+            my_logger.warning("&-0");
             this.addVariables(a_valuation.my_variables);
-            this.my_var_assign.addAll(a_valuation.my_var_assign);
             this.my_neg_assign.addAll(a_valuation.my_neg_assign);
-
-            return;
-        }
-        
-        if (this.my_state == -1 && a_valuation.my_state == -1) {
-            my_logger.warning("&---------------------------------------------");
-            my_logger.warning(this.toString());
-            my_logger.warning(a_valuation.toString());
+            this.setComplete(0);
+        } else if (this.my_state == 1 || a_valuation.my_state == 1) {
+            my_logger.warning("&-1");
+            if (this.my_state*a_valuation.my_state != 1) {
+                this.setComplete(0);
+                this.my_var_assign.addAll(a_valuation.my_var_assign);
+            }
+            
             this.addVariables(a_valuation.my_variables);
-            retainAll(a_valuation);
+            this.my_neg_assign.addAll(a_valuation.my_neg_assign);
             
             this.setState();
-            my_logger.warning("\n-->\n" + this.toString());
+        } else if (this.my_state == -1 && a_valuation.my_state == -1) {
+            my_logger.warning("&--");
+            this.addVariables(a_valuation.my_variables);
+            this.retainAll(a_valuation);
+            
+            this.setState();
         }
+        my_logger.warning("\n-->\n" + this.toString());
     }
     
     // For negation
     public void negation() {
-        my_logger.warning("Before Negation\n" + this.toString());
-        
-        this.is_complete_collection = 1 - this.is_complete_collection;
+        my_logger.warning("!-Eval:\n" + this.toString());
         
         final Set temp = new HashSet(this.my_neg_assign);
         this.my_neg_assign.clear();
@@ -85,23 +81,21 @@ public class Evaluation {
         this.my_var_assign.clear();
         this.my_var_assign.addAll(temp);
         
-        setState();
-        my_logger.warning("After Negation\n" + this.toString());
+        this.setComplete(1 - this.my_is_universal);
+        my_logger.warning("\n-->\n" + this.toString());
     }
     
     // For existential
     public void removeBoundVar(final Set<String> the_bound_var) {
         my_logger.debug("In Method: Evaluation.removeBoundVar");
         my_logger.debug(the_bound_var);
-        my_logger.debug("Before removing free var: " + this.toString());
+        my_logger.warning("E-Eval:\n" + this.toString());
         
-        // positioning
         for (String str_i : the_bound_var) {
             my_logger.debug("Remove free var: " + str_i);
             if (my_variables.remove(str_i)) {
                 if (my_variables.isEmpty() && !this.my_var_assign.isEmpty()) {
-                    my_logger.warning("VALIDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd");
-                    this.is_complete_collection = 1;
+                    this.setComplete(1);
                 }
                 
                 final Set<VarAssigns> rem = new HashSet();
@@ -125,7 +119,7 @@ public class Evaluation {
         }
         
         this.setState();
-        my_logger.debug("After removing free var: " + this.toString());
+        my_logger.warning("\n-->\n" + this.toString());
     }
     
     //@ pure
@@ -156,7 +150,7 @@ public class Evaluation {
             result_temp_string = result_temp_string.concat(i.toString() + " \n");
         }
         
-        result_temp_string = result_temp_string.concat("COMPLETE: " + this.is_complete_collection + "\n");
+        result_temp_string = result_temp_string.concat("COMPLETE: " + this.my_is_universal + "\n");
         result_temp_string = result_temp_string.concat("STATE: " + this.my_state + "\n");
         
         result_temp_string = result_temp_string.concat("NEG: ");
@@ -171,7 +165,7 @@ public class Evaluation {
     // Protected Methods
     //@ pure
     protected int getComplete() {
-        return this.is_complete_collection;
+        return this.my_is_universal;
     }
     
     //@ pure
@@ -179,21 +173,25 @@ public class Evaluation {
         return this.my_state;
     }
     
-    //@ assignable is_complete_collection
-    protected void setComplete(final int a_state) {
-        if (a_state >= -1 && a_state <= 1) {
-            this.is_complete_collection = a_state;
+    //@ requires a_is_universal == 0 || a_is_universal == 1;
+    //@ assignable my_is_universal
+    protected void setComplete(final int a_is_universal) {
+        if (a_is_universal == 0 || a_is_universal == 1) {
+            this.my_is_universal = a_is_universal;
         }
         
-        if (a_state == 0 || a_state == 1) {
+        if (a_is_universal == 0 || a_is_universal == 1) {
             this.my_var_assign.clear();
         }
+        
+        this.setState();
     }
     
+    // Private Methods
     //@ assignable my_state
-    protected void setState() {
+    private void setState() {
         my_logger.warning("SIZE: " + this.my_var_assign.size() + " + " + this.my_neg_assign.size());
-        if (this.is_complete_collection == 0) {
+        if (this.my_is_universal == 0) {
             if (this.my_var_assign.isEmpty()) {
                 this.my_state = 0;
             } else {
@@ -208,7 +206,6 @@ public class Evaluation {
         }
     }
     
-    // Private Methods
     // Get the cross production intersection of two sets
     private void retainAll(final Evaluation a_valuation) {
         final Set rem = new HashSet();

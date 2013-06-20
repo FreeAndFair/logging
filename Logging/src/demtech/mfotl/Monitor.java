@@ -27,7 +27,8 @@ public class Monitor {
     }
     
     // Public Methods
-    public void addStructure(final Structure a_structure, final int a_time_stamp) {
+    public boolean addStructure(final Structure a_structure, final int a_time_stamp) {
+        boolean result = true;
         my_ats2.insertStructure(a_structure, a_time_stamp);
         final int temp_pos = my_ats2.getSize() - 1;
         final int temp_es = extendStructure(my_formula.getFormula(), temp_pos);
@@ -37,17 +38,19 @@ public class Monitor {
             my_logger.warning("Unable to evaluate Formula with ... No. " + temp_pos + " ... Structure");
         } else {
             final Structure my_auxiliary_structure = my_ats2.getStructure(temp_es);
-            my_logger.debug("Extended Structure: " + my_auxiliary_structure.toString());
+            my_logger.debug("Extended Structure: " + my_auxiliary_structure.toString() + " @Time: " + my_ats2.getTime(temp_es));
             
             my_logger.warning("Evaluating with Structure No. " + temp_es);
             if (my_formula.evaluateTruth(my_auxiliary_structure)){
                 my_logger.warning("Evaluated No. " + temp_es +  " to True " + "TTTTTTTTTTTTTTTTTTTTTTTTTT");
             } else {
+                result = false;
                 my_logger.warning("Evaluated No. " + temp_es +  " to False " + "FFFFFFFFFFFFFFFFFFFFFFFFFF");
             }
         }
-        
+
         my_logger.debug("End evaluate with ... No. " + temp_pos + "... Structure " + "\n");
+        return result;
     }
 
     // Private Methods
@@ -112,47 +115,61 @@ public class Monitor {
             return my_ats2.getSize()-1;
         }
         
+        if (ReservedSymbol.isTemporal(a_formula.getMainOperator().my_name)) {
+            return extendStructureforTemporal(a_formula, a_pos);
+        } else {
+            my_logger.debug("Extend Other");
+            int temp1 = extendStructure(a_formula.getLeftTemporalSub(), a_pos);
+            final int temp2 = extendStructure(a_formula.getRightTemporalSub(), a_pos);
+            temp1 = (temp2 < temp1) ? temp2 : temp1;
+            return temp1;
+        }
+    }
+    
+    private int extendStructureforTemporal(final TemporalFormula a_formula, final int a_pos) {
         if (a_formula.getMainOperator().my_name.equals("P") && a_pos > 0) {
+            my_logger.debug("Extend P");
             extendStructure(a_formula.getRightTemporalSub(), a_pos-1);
             extendP(a_formula, a_pos);
         } else if (a_formula.getMainOperator().my_name.equals("N")) {
+            my_logger.debug("Extend N");
             final int temp = extendStructure(a_formula.getRightTemporalSub(), a_pos);
             final int temp2 = (temp == my_ats2.getSize()) ? a_pos - 1 : temp -1;
             extendN(a_formula, temp2);
             return temp2;
         } else if (a_formula.getMainOperator().my_name.equals("S")) {
-            my_logger.warning("ssssssssssssssssssssssssssssssssssssssdDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+            my_logger.debug("Extend S");
             extendStructure(a_formula.getLeftTemporalSub(), a_pos);
             extendStructure(a_formula.getRightTemporalSub(), a_pos);
             extendS(a_formula, a_pos);
         } else if (a_formula.getMainOperator().my_name.equals("U")) {
+            my_logger.debug("Extend U");
             extendStructure(a_formula.getLeftTemporalSub(), a_pos);
             extendStructure(a_formula.getRightTemporalSub(), a_pos);
             return extendU(a_formula, a_pos);
-        } else {
-            int temp1 = extendStructure(a_formula.getLeftTemporalSub(), a_pos);
-            int temp2 = extendStructure(a_formula.getRightTemporalSub(), a_pos);
-            temp1 = (temp2 < temp1) ? temp2 : temp1;
-            return temp1;
-        }
+        } 
         
         return a_pos;
     }
     
 	private void extendP(final TemporalFormula a_formula, final int a_pos) {
+	    my_logger.warning("InMethod extendP: a_pos = " + a_pos);
+	    
 	    final int temp_time_interval = my_ats2.getTime(a_pos) - my_ats2.getTime(a_pos-1);
         
         if (((TemporalOperator) a_formula.getMainOperator()).inRange(temp_time_interval)) {
             final Evaluation temp_ra = a_formula.getRightSubformula().evaluate(my_ats2.getStructure(a_pos-1));
-            if (temp_ra.isTrue()) {
+            final Set<int[]> set0 = temp_ra.getSet();
+            
+            if (temp_ra.isTrue() && set0.isEmpty()) {
                 final Structure my_auxiliary_structure = my_ats2.getStructure(a_pos);
                 final String temp_formula_name = a_formula.getAuxiliaryFormula(0).getName(); 
                 my_auxiliary_structure.addNullaryRelation(temp_formula_name);
-            } else if (!temp_ra.getSet().isEmpty()){
+            } else if (!set0.isEmpty()){
                 final Structure my_auxiliary_structure = my_ats2.getStructure(a_pos);
                 final String temp_formula_name = a_formula.getAuxiliaryFormula(0).getName(); 
                 my_auxiliary_structure.initRelationAssign(temp_formula_name);
-                my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
+                my_auxiliary_structure.addRelationAssign(temp_formula_name, set0);
             }
         } else {
             my_logger.warning("Security Policy NOT followed! ------- Time Interval: " + temp_time_interval);
@@ -170,16 +187,17 @@ public class Monitor {
         
         if (((TemporalOperator)a_formula.getMainOperator()).inRange(temp_time_interval)) {
             final Evaluation temp_ra = a_formula.getRightSubformula().evaluate(my_ats2.getStructure(a_pos+1));
-            if (temp_ra.isTrue()) {
+            final Set<int[]> set0 = temp_ra.getSet();
+            
+            if (temp_ra.isTrue() && set0.isEmpty()) {
                 final Structure my_auxiliary_structure = my_ats2.getStructure(a_pos);
                 final String temp_formula_name = a_formula.getAuxiliaryFormula(0).getName();
                 my_auxiliary_structure.addNullaryRelation(temp_formula_name);
-                my_logger.warning("Security Policy Not followed! -------!!!!!!!!!!!!!!!!!!!!!!!!!!!!1" + my_auxiliary_structure.toString());
-            } else if (!temp_ra.getSet().isEmpty()) {
+            } else if (!set0.isEmpty()) {
                 final Structure my_auxiliary_structure = my_ats2.getStructure(a_pos);
                 final String temp_formula_name = a_formula.getAuxiliaryFormula(0).getName();
                 my_auxiliary_structure.initRelationAssign(temp_formula_name);
-                my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_ra.getSet());
+                my_auxiliary_structure.addRelationAssign(temp_formula_name, set0);
             }
         } else {
             my_logger.warning("Security Policy Not followed! ------- Time Interval: " + temp_time_interval);
@@ -196,7 +214,7 @@ public class Monitor {
         final Evaluation gama0 = a_formula.getRightSubformula().evaluate(my_auxiliary_structure);
         final Set<int[]> set0 = gama0.getSet();
         
-        if (gama0.isTrue() & set0.isEmpty()) {
+        if (gama0.isTrue() && set0.isEmpty()) {
             final int[] temp_gama = {0};
             my_auxiliary_structure.addRelationAssign(temp_formula_name, temp_gama);
         } else {

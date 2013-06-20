@@ -18,7 +18,7 @@ public class TemporalFormula extends Formula{
     
     final private Signature my_signature;
     private String[] my_tokens;
-    private static final Logger my_logger = new Logger(false);
+    private static final Logger my_logger = new Logger(true);
     
     // Constructor
     public TemporalFormula(final String[] a_tokens, final Signature a_signature) {

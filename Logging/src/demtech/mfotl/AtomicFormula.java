@@ -88,7 +88,6 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
             } else {
                 temp_valuation.setComplete(0);
             }
-            temp_valuation.setState();
             return temp_valuation;
         }
         
@@ -97,7 +96,6 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         
         if (set_real == null) {
             temp_valuation.setComplete(0);
-            temp_valuation.setState();
             return temp_valuation;
         }
         
@@ -105,7 +103,6 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
             final Set<VarAssigns> set_result = findValuationSet(set_real);
             if (set_result.isEmpty()) {
                 temp_valuation.setComplete(0);
-                temp_valuation.setState();
             } else {
                 temp_valuation.addVarAssign(set_result);    
             }
@@ -124,11 +121,9 @@ public final /*@ immutable pure @*/ class AtomicFormula extends Formula {
         }
         
         if (setContains(set_real, temp_constant)) { // no variables
-            temp_valuation.setComplete(0); // valid atomic formula
-            temp_valuation.setState();
+            temp_valuation.setComplete(1); // valid atomic formula
         } else {
             temp_valuation.setComplete(0); // unsatisfiable atomic formula
-            temp_valuation.setState();
         }
         
         return temp_valuation;

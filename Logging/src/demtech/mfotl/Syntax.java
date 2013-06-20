@@ -195,7 +195,6 @@ class ReservedSymbol {
         a_set.add("N");
         a_set.add("U");
         a_set.add("S");
-        a_set.add("A");
     }
     
     private static void fillFirstorderSet(final Set<String> a_set) {
