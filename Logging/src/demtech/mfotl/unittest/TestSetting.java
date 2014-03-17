@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 
 import demtech.mfotl.Logger;
 import demtech.mfotl.Predicate;
@@ -17,13 +18,19 @@ public class TestSetting {
     }
     
     public static Signature initializeSignature(final String a_file) {
-        final Signature a_signature = new Signature();
+        Signature a_signature = null;
         
         try {
             final FileInputStream fstream = new FileInputStream(a_file);
             final DataInputStream in = new DataInputStream(fstream);
             final BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String str_line;
+            String str_line = br.readLine();
+            String[] str_uni = str_line.substring(1, str_line.length()-1).split(", ");
+            HashSet<Integer> int_uni = new HashSet();
+            for (int i = 0; i < str_uni.length; i++)
+                int_uni.add(Integer.parseInt(str_uni[i]));
+            a_signature = new Signature(int_uni);
+            
             while ((str_line = br.readLine()) != null) {
                 //System.out.println("Relation: " + str_line);
                 String[] str_tokens = str_line.split(" ");
@@ -33,7 +40,7 @@ public class TestSetting {
                     tmp_arity += str_tokens[i].split(",").length;
                 }
                 
-                a_signature.addPredicate(new Predicate(str_tokens[0], tmp_arity));
+                a_signature.addPredicate(new Predicate(str_tokens[0], tmp_arity), null);
             }
             br.close();
             in.close();

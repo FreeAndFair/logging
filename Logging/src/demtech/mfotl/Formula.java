@@ -12,6 +12,7 @@ public class Formula {
         return null;
     }
     
+    /*@ pure */
     public boolean isFirstorder() {
         return this.my_is_firstorder;
     }

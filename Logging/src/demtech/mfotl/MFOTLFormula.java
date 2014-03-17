@@ -22,7 +22,6 @@ public class MFOTLFormula {
     //@ assignable my_formula_str;
     //@ ensures my_formula_str == a_formula;
     public MFOTLFormula(final String my_formula_str, final Signature a_signature) {
-        super();
         my_logger.debug("Initialize: MFOTLFormula(String)");
 
         runLexer(my_formula_str);

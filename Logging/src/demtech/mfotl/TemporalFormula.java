@@ -153,7 +153,7 @@ public class TemporalFormula extends Formula{
         }
     }
     
-    //@ assignable my_right_subformula
+    //@ assignable my_right_subformula;
     private void parseAtomicFormula() {
         my_right_subformula = new AtomicFormula(my_tokens, my_signature);
         my_variable.addAll(((AtomicFormula)my_right_subformula).getFreeVariable());

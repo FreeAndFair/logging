@@ -71,7 +71,7 @@ public class Monitor {
 	        final String[] temp_var = new String[temp_free_var.size()];
 	        temp_free_var.toArray(temp_var);
 	        String temp_formula_name = "p" + my_auxiliary_index;
-	        my_signature.addPredicate(new Predicate(temp_formula_name, temp_var.length));
+	        my_signature.addPredicate(new Predicate(temp_formula_name, temp_var.length), null);
             a_formula.setAuxiliaryFormula(0, new AtomicFormula(temp_var, temp_formula_name, my_signature));
 	        
             if (a_formula.getMainOperator().my_name.equals("S")) {
@@ -80,7 +80,7 @@ public class Monitor {
                 temp_var2[temp_var.length] = "r0";
             
                 temp_formula_name = "r" + my_auxiliary_index;
-                my_signature.addPredicate(new Predicate(temp_formula_name, temp_var2.length));
+                my_signature.addPredicate(new Predicate(temp_formula_name, temp_var2.length), null);
                 a_formula.setAuxiliaryFormula(1, new AtomicFormula(temp_var2, 
                         temp_formula_name, my_signature));
             }
@@ -91,7 +91,7 @@ public class Monitor {
                 temp_var2[temp_var.length] = "r0";
             
                 temp_formula_name = "r" + my_auxiliary_index;
-                my_signature.addPredicate(new Predicate(temp_formula_name, temp_var2.length));
+                my_signature.addPredicate(new Predicate(temp_formula_name, temp_var2.length), null);
                 a_formula.setAuxiliaryFormula(1, new AtomicFormula(temp_var2, 
                         temp_formula_name, my_signature));
                 
@@ -101,7 +101,7 @@ public class Monitor {
                 temp_var3[temp_var.length+1] = "s1";
                 
                 temp_formula_name = "s" + my_auxiliary_index;
-                my_signature.addPredicate(new Predicate(temp_formula_name, temp_var3.length));
+                my_signature.addPredicate(new Predicate(temp_formula_name, temp_var3.length), null);
                 a_formula.setAuxiliaryFormula(2, new AtomicFormula(temp_var3, 
                         temp_formula_name, my_signature));
             }

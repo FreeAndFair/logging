@@ -17,10 +17,10 @@ import demtech.mfotl.TemporalStructure;
 public class Test_Monitor {
     final private Monitor my_monitor_test;
     final private Monitor my_monitor_test0;
-    final private Signature test_signature = TestSetting.initializeSignature("./src/demtech/mfotl/rv11.sig");
-    final private Signature test_signature0 = TestSetting.initializeSignature("./src/demtech/mfotl/e1.sig");
-    final private TemporalStructure test_ts = TestSetting.initializeTemporalStructure("./src/demtech/mfotl/rv11-1.log");
-    final private TemporalStructure test_ts0 = TestSetting.initializeTemporalStructure("./src/demtech/mfotl/e1.log");
+    final private Signature test_signature = TestSetting.initializeSignature("./src/demtech/mfotl/unittest/rv11.sig");
+    final private Signature test_signature0 = TestSetting.initializeSignature("./src/demtech/mfotl/unittest/e1.sig");
+    final private TemporalStructure test_ts = TestSetting.initializeTemporalStructure("./src/demtech/mfotl/unittest/rv11-1.log");
+    final private TemporalStructure test_ts0 = TestSetting.initializeTemporalStructure("./src/demtech/mfotl/unittest/e1.log");
     
     public Test_Monitor(final String a_fs) {
         my_monitor_test0 = new Monitor(a_fs, test_signature0);
@@ -30,9 +30,10 @@ public class Test_Monitor {
     @Parameters
     public static Collection<String[]> data() {
         //final String[][] data = new String[][] {{"True S approve(r)"}, {"publish(r) & (! (True S approve(r)))"}, {"!( E r (publish(r) & (! (True S approve(r)))))"}};
-        final String[][] data = new String[][] {{"True"}, {"out (3)"}, {"P out (3)"}, 
+        /*final String[][] data = new String[][] {{"True"}, {"out (3)"}, {"P out (3)"}, 
                 {"P (P ( out (3) ) )"}, {"E x ( out (x) & in(x) )"}, {"N out (4)"}, {"out (2) S [0,3) (in (2))"},
-                {"E x ( in (x) ) S [0,5) out (2)"}};
+                {"(E x ( in (x) )) S [0,5) out (2)"}};*/
+        final String[][] data = new String[][] {{"P out (3)"}};
         return Arrays.asList(data);
     }
     

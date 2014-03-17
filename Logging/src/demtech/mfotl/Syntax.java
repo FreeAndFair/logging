@@ -15,7 +15,7 @@ class QuantifierOperator extends Operator {
     }
     
     // Public Methods
-    //@ assignable my_bound_variable;
+    // assignable my_bound_variable;
     public void addVariable(final /*@ non_null @*/ Set<String> a_set) {
         my_bound_variable = Collections.unmodifiableSet(a_set);
     }
@@ -44,7 +44,7 @@ class TemporalOperator extends Operator {
     private final Interval my_interval;
     
     // Constructors
-    //@ assignable my_interval
+    //@ assignable my_interval;
     public TemporalOperator(final String _symbol, final int _start, final int _end) {
         super(_symbol);
         my_interval = new Interval(_start, _end);
